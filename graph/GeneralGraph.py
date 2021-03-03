@@ -6,17 +6,17 @@ from graph.GraphUtils import GraphUtils
 from graph.GraphNode import GraphNode
 import numpy as np
 
-# Represents a directed acyclic graph--that is, a graph containing only
-# directed edges, with no cycles--using a matrix. Variables are permitted to be either measured
-# or latent, with at most one edge per node pair, and no edges to self.
-class Dag(Graph):
+# Represents a graph using a matrix. Variables are permitted to be either measured
+# or latent, with multiple edges allowed per node pair (to allow for two-cycles and
+# unmeasured confounders) and no edges to self. Allowable edge types:
+# ---
+# -->
+# <->
+# --o
+# o-o
+class GeneralGraph(Graph):
 
     def __init__(self, nodes):
-
-        # for node in nodes:
-        #     if not isinstance(node, type(GraphNode)):
-        #         raise TypeError("Graphs must be instantiated with a list of GraphNodes")
-
         self.nodes = nodes
         self.num_vars = len(nodes)
 
@@ -38,6 +38,8 @@ class Dag(Graph):
         self.dotted_underline_triples = []
 
         self.attributes = {}
+        self.pattern = False
+        self.pag = False
 
 ### Helper Functions ###
 
@@ -67,7 +69,6 @@ class Dag(Graph):
             j = self.node_map[node2]
             self.adjust_dpath(i, j)
 
-
     def collect_ancestors(self, node, ancestors):
         if node in ancestors:
             return
@@ -94,17 +95,88 @@ class Dag(Graph):
     # graph.
     def add_edge(self, edge):
 
-        if edge.get_endpoint1().name == "TAIL" and edge.get_endpoint2().name == "ARROW":
-            node1 = edge.get_node1()
-            node2 = edge.get_node2()
-            i = self.node_map[node1]
-            j = self.node_map[node2]
-            self.graph[j, i] = 1
-            self.graph[i, j] = -1
-            self.adjust_dpath(i, j)
-            return True
-        else:
+        node1 = edge.get_node1()
+        node2 = edge.get_node2()
+        endpoint1 = str(edge.get_endpoint1())
+        endpoint2 = str(edge.get_endpoint2())
+
+        i = self.node_map[node1]
+        j = self.node_map[node2]
+
+        e1 = self.graph[i, j]
+        e2 = self.graph[j, i]
+
+        if (e2 > 4 or e1 > 4) and (e1 != 6 and e2 !=6):
             return False
+
+        bidirected = e2 == 6 and e1 == 6
+        existing_edge = not bidirected and (e2 != 0 or e1 != 0)
+
+        if endpoint1 == "TAIL":
+            if existing_edge:
+                return False
+            if endpoint2 == "TAIL":
+                if bidirected:
+                    self.graph[j, i] = 5
+                    self.graph[i, j] = 5
+                else:
+                    self.graph[j, i] = -1
+                    self.graph[i, j] = -1
+            else:
+                if endpoint2 == "ARROW":
+                    if bidirected:
+                        self.graph[j, i] = 7
+                        self.graph[i, j] = 5
+                    else:
+                        self.graph[j, i] = 1
+                        self.graph[i, j] = -1
+                    self.adjust_dpath(i, j)
+                else:
+                    if endpoint2 == "CIRCLE":
+                        if bidirected:
+                            return False
+                        else:
+                            self.graph[j, i] = 2
+                            self.graph[i, j] = -1
+                    else:
+                        return False
+        else:
+            if endpoint1 == "ARROW":
+                if endpoint2 == "ARROW":
+                    if existing_edge:
+
+                        if e1 == 2 or e2 == 2:
+                            return False
+                        self.graph[j, i] = e2 + 6
+                        self.graph[i, j] = e1 + 6
+                    else:
+                        self.graph[j, i] = 6
+                        self.graph[i, j] = 6
+                else:
+                    return False
+            else:
+                if endpoint1 == "CIRCLE":
+                    if existing_edge:
+                        return False
+                    if endpoint2 == "ARROW":
+                        if bidirected:
+                            return False
+                        else:
+                            self.graph[j, i] = 1
+                            self.graph[i, j] = 2
+                    else:
+                        if endpoint2 == "CIRCLE":
+                            if bidirected:
+                                return False
+                            else:
+                                self.graph[j, i] = 2
+                                self.graph[i, j] = 2
+                        else:
+                            return False
+                else:
+                    return False
+
+            return True
 
     # Adds a node to the graph. Precondition: The proposed name of the node
     # cannot already be used by any other node in the same graph.
@@ -146,17 +218,65 @@ class Dag(Graph):
     #
     # Returns true iff the graph contain 'edge'.
     def contains_edge(self, edge):
-        if str(edge.get_endpoint1()) != "TAIL" or str(edge.get_endpoint2()) != "ARROW":
-            return False
-        else:
-            node1 = edge.get_node1()
-            node2 = edge.get_node2()
-            i = self.node_map[node1]
-            j = self.node_map[node2]
-            if self.graph[j, i] == 1:
-                return True
+
+        endpoint1 = str(edge.get_endpoint1())
+        endpoint2 = str(edge.get_endpoint2())
+
+        node1 = edge.get_node1()
+        node2 = edge.get_node2()
+
+        i = self.node_map[node1]
+        j = self.node_map[node2]
+
+        e1 = self.graph[i, j]
+        e2 = self.graph[j, i]
+
+        if endpoint1 == "TAIL":
+            if endpoint2 == "TAIL":
+                if (e2 == -1 and e1 == -1) or (e2 == 5 and e1 == 5):
+                    return True
+                else:
+                    return False
             else:
-                return False
+                if endpoint2 == "ARROW":
+                    if (e1 == -1 and e2 == 1) or (e1 == 5 and e2 == 7):
+                        return True
+                    else:
+                        return False
+                else:
+                    if endpoint2 == "CIRCLE":
+                        if e1 == -1 and e2 == 2:
+                            return True
+                        else:
+                            return False
+                    else:
+                        return False
+        else:
+            if endpoint1 == "ARROW":
+                if endpoint2 == "ARROW":
+                    if (e1 == 6 and e2 == 6) or (e1 == 5 and e2 == 5) or (e1 == 7 or e2 == 7):
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+            else:
+                if endpoint1 == "CIRCLE":
+                    if endpoint2 == "ARROW":
+                        if e1 == 2 and e2 == 1:
+                            return True
+                        else:
+                            return False
+                    else:
+                        if endpoint2 == "CIRCLE":
+                            if e1 == 2 and e2 == 2:
+                                return True
+                            else:
+                                return False
+                        else:
+                            return False
+                else:
+                    return False
 
     # Determines whether this graph contains the given node.
     #
@@ -167,6 +287,11 @@ class Dag(Graph):
 
     # Returns true iff there is a directed cycle in the graph.
     def exists_directed_cycle(self):
+        utils = GraphUtils()
+        for node in self.nodes:
+            if utils.exists_directed_path_from_to_breadth_first(node, node, self):
+                return True
+
         return False
 
     # Returns true iff a trek exists between two nodes in the graph.  A trek
@@ -190,7 +315,7 @@ class Dag(Graph):
     # directed edges and one undirected edge between nodes A and B.
     def __eq__(self, other):
 
-        if isinstance(other, Dag):
+        if isinstance(other, GeneralGraph):
             sorted_list = self.nodes.sort()
             if sorted_list == other.nodes.sort() and np.array_equal(self.graph, other.graph):
                 return True
@@ -206,7 +331,7 @@ class Dag(Graph):
         adj_list = []
 
         for i in range(self.num_vars):
-            if self.graph[j, i] == 1 or self.graph[i, j] == 1:
+            if (not self.graph[j, i] == 0) and (not self.graph[i, j] == 0):
                 node2 = self.nodes[i]
                 adj_list.append(node2)
 
@@ -215,12 +340,13 @@ class Dag(Graph):
     # Return the list of parents of a node.
     def get_parents(self, node):
 
-        i = self.node_map[node]
+        j = self.node_map[node]
         parents = []
 
-        for j in range(self.num_vars):
-            if self.graph[i, j] == 1:
-                node2 = self.nodes[j]
+        for i in range(self.num_vars):
+
+            if (self.graph[i, j] == -1 and self.graph[j, i] == 1) or (self.graph[i, j] == 5 and self.graph[j, i] == 7):
+                node2 = self.nodes[i]
                 parents.append(node2)
 
         return parents
@@ -247,7 +373,7 @@ class Dag(Graph):
         children = []
 
         for j in range(self.num_vars):
-            if self.graph[j, i] == 1:
+            if (self.graph[j, i] == 1 and self.graph[i, j] == -1) or (self.graph[j, i] == 7 and self.graph[i, j] == 5):
                 node2 = self.nodes[j]
                 children.append(node2)
 
@@ -261,8 +387,11 @@ class Dag(Graph):
         indegree = 0
 
         for j in range(self.num_vars):
-            if self.graph[i, j] == 1:
+            if self.graph[i, j] == 1 or self.graph[i, j] == 6:
                 indegree = indegree+1
+            else:
+                if self.graph[i, j] == 7:
+                    indegree = indegree+2
 
         return indegree
 
@@ -274,14 +403,27 @@ class Dag(Graph):
         outdegree = 0
 
         for j in range(self.num_vars):
-            if self.graph[j, i] == 1:
+            if self.graph[i, j] == -1 or self.graph[i, j] == 5:
                 outdegree = outdegree + 1
 
         return outdegree
 
     # Returns the total number of edges into and out of the node.
     def get_degree(self, node):
-        return self.get_indegree(node) + self.get_outdegree(node)
+
+        i = self.node_map[node]
+
+        degree = 0
+
+        for j in range(self.num_vars):
+
+            if self.graph[i, j] == 1 or self.graph[i, j] == -1 or self.graph[i, j] == 2 or self.graph[i, j] == 6:
+                degree = degree + 1
+            else:
+                if self.graph[i, j] != 0:
+                    degree = degree + 2
+
+        return degree
 
     # Returns the node with the given string name.  In case of accidental
     # duplicates, the first node encountered with the given name is returned.
@@ -315,11 +457,13 @@ class Dag(Graph):
 
         for i in range(self.num_vars):
             for j in range(i+1, self.num_vars):
-                if self.graph[j, i] != 0:
+                if self.graph[i, j] == 1 or self.graph[i, j] == -1 or self.graph[i, j] == 2 or self.graph[i, j] == 6:
                     edges = edges + 1
+                else:
+                    if self.graph[i, j] != 0:
+                        edges = edges + 2
 
         return edges
-
 
     # Returns the number of edges in the graph which are connected to a particular node.
     def get_num_connected_edges(self, node):
@@ -330,8 +474,11 @@ class Dag(Graph):
 
         for j in range(self.num_vars):
 
-            if self.graph[j, i] == 1 or self.graph[i, j] == 1:
+            if self.graph[j, i] == 1 or self.graph[j, i] == -1 or self.graph[j, i] == 2 or self.graph[j, i] == 6:
                 edges = edges + 1
+            else:
+                if self.graph[j, i] != 0:
+                    edges = edges + 2
 
         return edges
 
@@ -361,7 +508,7 @@ class Dag(Graph):
         i = self.node_map[node1]
         j = self.node_map[node2]
 
-        return self.graph[i, j] == 1
+        return self.graph[i, j] == 1 or self.graph[i, j] == 7
 
     # Returns true iff node1 is a parent of node2.
     def is_parent_of(self, node1, node2):
@@ -369,7 +516,7 @@ class Dag(Graph):
         i = self.node_map[node1]
         j = self.node_map[node2]
 
-        return self.graph[j, i] == 1
+        return self.graph[j, i] == 1 or self.graph[j, i] == 7
 
     # Returns true iff node1 is a proper ancestor of node2.
     def is_proper_ancestor_of(self, node1, node2):
@@ -396,16 +543,26 @@ class Dag(Graph):
         end_1 = self.graph[i, j]
         end_2 = self.graph[j, i]
 
-        if end_1 == 0 and end_2 == 0:
+        if (end_1 > 2 and end_1 != 6) or end_1 == 0:
             return None
 
         edge = Edge(node1, node2, end_1, end_2)
         return edge
 
-
     # Returns the directed edge from node1 to node2, if there is one.
     def get_directed_edge(self, node1, node2):
-        return self.get_edge(node1, node2)
+
+        i = self.node_map[node1]
+        j = self.node_map[node2]
+
+        end_1 = self.graph[i, j]
+        end_2 = self.graph[j, i]
+
+        if end_1 > 1 or end_1 == 0 or (end_1 == -1 and end_2 == -1):
+            return None
+
+        edge = Edge(node1, node2, end_1, end_2)
+        return edge
 
     # Returns the list of edges connected to a particular node. No particular ordering of the edges in the list is guaranteed.
     def get_node_edges(self, node):
@@ -414,9 +571,23 @@ class Dag(Graph):
         edges = []
 
         for j in range(self.num_vars):
-            if self.graph[j, i] != 0:
-                node2 = self.nodes[j]
+
+            node2 = self.nodes[j]
+            if self.graph[j, i] == 1 or self.graph[j, i] == -1 or self.graph[j, i] == 2 or self.graph[j, i] == 6:
                 edges.append(self.get_edge(node, node2))
+
+            else:
+                if self.graph[j, i] == 5 and self.graph[i, j] == 7:
+                    edges.append(Edge(node, node2, 1, -1))
+                    edges.append(Edge(node, node2, 6, 6))
+                else:
+                    if self.graph[j, i] == 7 and self.graph[i, j] == 5:
+                        edges.append(Edge(node, node2, -1, 1))
+                        edges.append(Edge(node, node2, 6, 6))
+                    else:
+                        if self.graph[j, i] == 5 and self.graph[i, j] == 5:
+                            edges.append(Edge(node, node2, -1, -1))
+                            edges.append(Edge(node, node2, 6, 6))
 
         return edges
 
@@ -427,25 +598,47 @@ class Dag(Graph):
         for i in range(self.num_vars):
             node = self.nodes[i]
             for j in range(i+1, self.num_vars):
-                if self.graph[j, i] != 0:
-                    node2 = self.nodes[j]
+                node2 = self.nodes[j]
+                if self.graph[j, i] == 1 or self.graph[j, i] == -1 or self.graph[j, i] == 2 or self.graph[j, i] == 6:
                     edges.append(self.get_edge(node, node2))
 
-        return edges
+                else:
+                    if self.graph[j, i] == 5 and self.graph[i, j] == 7:
+                        edges.append(Edge(node, node2, 1, -1))
+                        edges.append(Edge(node, node2, 6, 6))
+                    else:
+                        if self.graph[j, i] == 7 and self.graph[i, j] == 5:
+                            edges.append(Edge(node, node2, -1, 1))
+                            edges.append(Edge(node, node2, 6, 6))
+                        else:
+                            if self.graph[j, i] == 5 and self.graph[i, j] == 5:
+                                edges.append(Edge(node, node2, -1, -1))
+                                edges.append(Edge(node, node2, 6, 6))
 
+        return edges
 
     # Returns true if node2 is a definite noncollider between node1 and node3.
     def is_def_noncollider(self, node1, node2, node3):
 
         edges = self.get_node_edges(node2)
+        circle12 = False
+        circle23 = False
 
         for edge in edges:
-            is_node1 = edge.get_distal_node(node2) == node1
-            is_node3 = edge.get_distal_node(node2) == node3
 
-            if is_node1 and edge.points_toward(node1):
+            _node1 = edge.get_distal_node(node2) == node1
+            _node3 = edge.get_distal_node(node2) == node3
+
+            if _node1 and edge.points_toward(node1):
                 return True
-            if is_node3 and edge.points_toward(node3):
+            if _node3 and edge.points_toward(node3):
+                return True
+
+            if _node1 and edge.get_proximal_endpoint(node2) == Endpoint.CIRCLE:
+                circle12 = True
+            if _node3 and edge.get_proximal_endpoint(node2) == Endpoint.CIRCLE:
+                circle23 = True
+            if circle12 and circle23 and not self.is_adjacent_to(node1, node2):
                 return True
 
         return False
@@ -472,11 +665,17 @@ class Dag(Graph):
 
     # Returns true if the graph is a pattern.
     def is_pattern(self):
-        return False
+        return self.pattern
+
+    def set_pattern(self, pat):
+        self.pattern = pat
 
     # Returns true if the graph is a PAG.
     def is_pag(self):
-        return False
+        return self.pag
+
+    def set_pag(self, pag):
+        self.pag = pag
 
     # Returns true iff there is a single directed edge from node1 to node2.
     def is_directed_from_to(self, node1, node2):
@@ -484,11 +683,16 @@ class Dag(Graph):
         i = self.node_map[node1]
         j = self.node_map[node2]
 
-        return self.graph[j, i] == 1
+        return self.graph[j, i] == 1 and self.graph[i, j] == -1
+
 
     # REturns true iff there is a single undirected edge between node1 and node2.
     def is_undirected_from_to(self, node1, node2):
-        return False
+
+        i = self.node_map[node1]
+        j = self.node_map[node2]
+
+        return self.graph[j, i] == -1 and self.graph[i, j] == -1
 
     # Returns true iff the given node is exogenous.
     def is_exogenous(self, node):
@@ -496,43 +700,53 @@ class Dag(Graph):
 
     # Returns the nodes adjacent to the given node with the given proximal endpoint.
     def get_nodes_into(self, node, endpoint):
-        if not (str(endpoint) == "ARROW" or str(endpoint) == "TAIL"):
-            return []
 
         i = self.node_map[node]
         nodes = []
 
         if str(endpoint) == "ARROW":
             for j in range(self.num_vars):
-                if self.graph[i, j] == 1:
+                if self.graph[i, j] == 1 or self.graph[i, j] == 6 or self.graph[i, j] == 7:
                     node2 = self.nodes[j]
                     nodes.append(node2)
         else:
-            for j in range(self.num_vars):
-                if self.graph[j, i] == 1:
-                    node2 = self.nodes[j]
-                    nodes.append(node2)
+            if str(endpoint) == "TAIL":
+                for j in range(self.num_vars):
+                    if self.graph[i, j] == -1 or self.graph[i, j] == 5:
+                        node2 = self.nodes[j]
+                        nodes.append(node2)
+            else:
+                if str(endpoint) == "CIRCLE":
+                    for j in range(self.num_vars):
+                        if self.graph[i, j] == 2:
+                            node2 = self.nodes[j]
+                            nodes.append(node2)
 
         return nodes
 
     # Returns the nodes adjacent to the given node with the given distal endpoint.
     def get_nodes_out_of(self, node, endpoint):
-        if not (str(endpoint) == "ARROW" or str(endpoint) == "TAIL"):
-            return []
 
         i = self.node_map[node]
         nodes = []
 
         if str(endpoint) == "ARROW":
             for j in range(self.num_vars):
-                if self.graph[j, i] == 1:
+                if self.graph[j, i] == 1 or self.graph[j, i] == 6 or self.graph[j, i] == 7:
                     node2 = self.nodes[j]
                     nodes.append(node2)
         else:
-            for j in range(self.num_vars):
-                if self.graph[i, j] == 1:
-                    node2 = self.nodes[j]
-                    nodes.append(node2)
+            if str(endpoint) == "TAIL":
+                for j in range(self.num_vars):
+                    if self.graph[j, i] == -1 or self.graph[j, i] == 5:
+                        node2 = self.nodes[j]
+                        nodes.append(node2)
+            else:
+                if str(endpoint) == "CIRCLE":
+                    for j in range(self.num_vars):
+                        if self.graph[j, i] == 2:
+                            node2 = self.nodes[j]
+                            nodes.append(node2)
 
         return nodes
 
@@ -545,8 +759,42 @@ class Dag(Graph):
         i = self.node_map[node1]
         j = self.node_map[node2]
 
-        self.graph[j, i] = 0
-        self.graph[i, j] = 0
+        out_of = self.graph[j, i]
+        in_to = self.graph[i, j]
+
+        end1 = edge.get_numerical_endpoint1()
+        end2 = edge.get_numerical_endpoint2()
+
+        if out_of == 5 and in_to == 5:
+            if end1 == 6:
+                self.graph[j, i] = -1
+                self.graph[i, j] = -1
+            else:
+                if end1 == -1:
+                    self.graph[i, j] = 6
+                    self.graph[j, i] = 6
+        else:
+            if out_of == 7 and in_to == 5:
+                if end1 == 6:
+                    self.graph[j, i] = 1
+                    self.graph[i, j] = -1
+                else:
+                    if end1 == -1:
+                        self.graph[j, i] = 6
+                        self.graph[i, j] = 6
+            else:
+                if out_of == 5 and in_to == 7:
+                    if end1 == 6:
+                        self.graph[j, i] = -1
+                        self.graph[i, j] = 1
+                    else:
+                        if end1 == 1:
+                            self.graph[j, i] = 6
+                            self.graph[i, j] = 6
+                else:
+                    if end1 == in_to and end2 == out_of:
+                        self.graph[j, i] = 0
+                        self.graph[i, j] = 0
 
     # Removes the edge connecting the given two nodes, provided there is exactly one such edge.
     def remove_connecting_edge(self, node1, node2):
@@ -554,8 +802,14 @@ class Dag(Graph):
         i = self.node_map[node1]
         j = self.node_map[node2]
 
-        self.graph[j, i] = 0
-        self.graph[i, j] = 0
+        out_of = self.graph[j, i]
+        in_to = self.graph[i, j]
+
+        if out_of > 4 and in_to > 4 and out_of != 6 and in_to != 6:
+            pass
+        else:
+            self.graph[j, i] = 0
+            self.graph[i, j] = 0
 
     # Removes all edges connecting node A to node B.  In most cases, this will
     # remove at most one edge, but since multiple edges are permitted in some
@@ -563,7 +817,11 @@ class Dag(Graph):
     # one.
     def remove_connecting_edges(self, node1, node2):
 
-        self.remove_connecting_edge(node1, node2)
+        i = self.node_map[node1]
+        j = self.node_map[node2]
+
+        self.graph[j, i] = 0
+        self.graph[i, j] = 0
 
     # Iterates through the list and removes any permissible edges found.  The
     # order in which edges are removed is the order in which they are presented
@@ -605,7 +863,7 @@ class Dag(Graph):
     # nodes of this graph together with the edges between them.
     def subgraph(self, nodes):
 
-        subgraph = Dag(nodes)
+        subgraph = GeneralGraph(nodes)
 
         graph = self.graph
 
@@ -641,7 +899,7 @@ class Dag(Graph):
     def transfer_attributes(self, graph):
         graph.attributes = self.attributes
 
-    # Returns the list of ambiguous triples associated with this graph. Triples <x, y, z> that no longer
+# Returns the list of ambiguous triples associated with this graph. Triples <x, y, z> that no longer
     # lie along a path in the getModel graph are removed.
     def get_ambiguous_triples(self):
         return self.ambiguous_triples

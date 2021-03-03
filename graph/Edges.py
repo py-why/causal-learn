@@ -59,3 +59,14 @@ class Edges:
     # return true iff some edge is an undirected edge --
     def is_undirected_edge(self, edge):
         pass
+
+    def traverse_directed(self, node, edge):
+        if node == edge.get_node1():
+            if str(edge.get_endpoint1()) == "TAIL" and str(edge.get_endpoint2()) == "ARROW":
+                return edge.get_node2()
+        else:
+            if node == edge.get_node2():
+                if str(edge.get_endpoint2()) == "TAIL" and str(edge.get_endpoint1()) == "ARROW":
+                    return edge.get_node1()
+
+        return None

@@ -5,6 +5,7 @@ from graph.Edge import Edge
 import numpy as np
 from collections import deque
 from graph.NodeType import NodeType
+from graph.Edges import Edges
 
 class GraphUtils:
 
@@ -310,3 +311,30 @@ class GraphUtils:
             not_found = [e for e in not_found if e not in sub_not_found]
 
         return found
+
+    def exists_directed_path_from_to_breadth_first(self, node_from, node_to, G):
+
+        Q = deque()
+        V = [node_from]
+        Q.append(node_from)
+
+        while len(Q) > 0:
+            t = Q.pop()
+
+            for u in G.get_adjacent_nodes(t):
+                if G.is_parent_of(t, u) and G.is_parent_of(u, t):
+                    return True
+
+                edge = G.get_edge(t, u)
+                edges = Edges()
+                c = edges.traverse_directed(t, edge)
+
+                if c == None:
+                    continue
+                if c in V:
+                    continue
+                if c == node_to:
+                    return True
+
+                V.append(c)
+                Q.append(c)

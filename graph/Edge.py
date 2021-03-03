@@ -21,15 +21,15 @@ class Edge:
     def __init__(self, node1, node2, endpoint1, endpoint2):
 
         if node1 is None or node2 is None:
-            raise TypeError('Nodes must not be of NoneType. node1 = ' + node1 + ' node2 = ' + node2)
+            raise TypeError('Nodes must not be of NoneType. node1 = ' + str(node1) + ' node2 = ' + str(node2))
 
         if endpoint1 is None or endpoint2 is None:
-            raise TypeError('Endpoints must not be of NoneType. endpoint1 = ' + node1 + ' endpoint2 = ' + endpoint2)
+            raise TypeError('Endpoints must not be of NoneType. endpoint1 = ' + str(node1) + ' endpoint2 = ' + str(endpoint2))
 
         if endpoint1 == -1:
             end1 = Endpoint.TAIL
         else:
-            if endpoint1 == 1:
+            if endpoint1 == 1 or endpoint1 == 6:
                 end1 = Endpoint.ARROW
             else:
                 end1 = Endpoint.CIRCLE
@@ -37,7 +37,7 @@ class Edge:
         if endpoint2 == -1:
             end2 = Endpoint.TAIL
         else:
-            if endpoint2 == 1:
+            if endpoint2 == 1 or endpoint2 == 6:
                 end2 = Endpoint.ARROW
             else:
                 end2 = Endpoint.CIRCLE
@@ -48,11 +48,15 @@ class Edge:
             self.node2 = node1
             self.endpoint1 = end2
             self.endpoint2 = end1
+            self.numerical_endpoint_1 = endpoint2
+            self.numerical_endpoint_2 = endpoint1
         else:
             self.node1 = node1
             self.node2 = node2
             self.endpoint1 = end1
             self.endpoint2 = end2
+            self.numerical_endpoint_1 = endpoint1
+            self.numerical_endpoint_2 = endpoint2
 
     # return the A node
     def get_node1(self):
@@ -77,6 +81,95 @@ class Edge:
     # set the endpoint of the edge at the B node
     def set_endpoint2(self, endpoint):
         self.endpoint2 = endpoint
+
+    def get_numerical_endpoint1(self):
+        return self.numerical_endpoint_1
+
+    def get_numerical_endpoint2(self):
+        return self.numerical_endpoint_2
+
+    # set the endpoint of the edge at the A node
+    def set_endpoint1(self, endpoint):
+        self.endpoint1 = endpoint
+
+        if self.numerical_endpoint_1 == 6 and self.numerical_endpoint_2 == 6:
+            if endpoint is Endpoint.ARROW:
+                pass
+            else:
+                if endpoint is Endpoint.TAIL:
+                    self.numerical_endpoint_1 = -1
+                    self.numerical_endpoint_2 = 1
+                else:
+                    if endpoint is Endpoint.CIRCLE:
+                        self.numerical_endpoint_1 = 2
+                        self.numerical_endpoint_2 = 1
+        else:
+            if endpoint is Endpoint.ARROW and self.numerical_endpoint_2 == 1:
+                self.numerical_endpoint_1 = 6
+                self.numerical_endpoint_2 = 6
+            else:
+                if endpoint is Endpoint.ARROW:
+                    self.numerical_endpoint_1 = 1
+                else:
+                    if endpoint is Endpoint.TAIL:
+                        self.numerical_endpoint_1 = -1
+                    else:
+                        if endpoint is Endpoint.CIRCLE:
+                            self.numerical_endpoint_1 = 2
+
+        if self.pointing_left(self.endpoint1, self.endpoint2):
+            tempnode = self.node1
+            self.node1 = self.node2
+            self.node2 = tempnode
+
+            tempend = self.endpoint1
+            self.endpoint1 = self.endpoint2
+            self.endpoint2 = tempend
+
+            tempnum = self.numerical_endpoint_1
+            self.numerical_endpoint_1 = self.numerical_endpoint_2
+            self.numerical_endpoint_2 = tempnum
+
+    def set_endpoint2(self, endpoint):
+        self.endpoint2 = endpoint
+
+        if self.numerical_endpoint_1 == 6 and self.numerical_endpoint_2 == 6:
+            if endpoint is Endpoint.ARROW:
+                pass
+            else:
+                if endpoint is Endpoint.TAIL:
+                    self.numerical_endpoint_1 = 1
+                    self.numerical_endpoint_2 = -1
+                else:
+                    if endpoint is Endpoint.CIRCLE:
+                        self.numerical_endpoint_1 = 1
+                        self.numerical_endpoint_2 = 2
+        else:
+            if endpoint is Endpoint.ARROW and self.numerical_endpoint_2 == 1:
+                self.numerical_endpoint_1 = 6
+                self.numerical_endpoint_2 = 6
+            else:
+                if endpoint is Endpoint.ARROW:
+                    self.numerical_endpoint_2 = 1
+                else:
+                    if endpoint is Endpoint.TAIL:
+                        self.numerical_endpoint_2 = -1
+                    else:
+                        if endpoint is Endpoint.CIRCLE:
+                            self.numerical_endpoint_2 = 2
+
+        if self.pointing_left(self.endpoint1, self.endpoint2):
+            tempnode = self.node1
+            self.node1 = self.node2
+            self.node2 = tempnode
+
+            tempend = self.endpoint1
+            self.endpoint1 = self.endpoint2
+            self.endpoint2 = tempend
+
+            tempnum = self.numerical_endpoint_1
+            self.numerical_endpoint_1 = self.numerical_endpoint_2
+            self.numerical_endpoint_2 = tempnum
 
     # return the endpoint nearest to the given node; returns NoneType if the
     # given node is not along the edge
@@ -112,7 +205,10 @@ class Edge:
                 return None
 
     def points_toward(self, node):
-        return node == self.node2
+
+        proximal = self.get_proximal_endpoint(node)
+        distal = self.get_distal_endpoint(node)
+        return proximal == Endpoint.ARROW and (distal == Endpoint.TAIL or distal == Endpoint.CIRCLE)
 
     def __eq__(self, other):
         if not isinstance(other, Edge):
