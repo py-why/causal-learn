@@ -79,7 +79,13 @@ class Dag(Graph):
             for parent in parents:
                 self.collect_ancestors(parent, ancestors)
 
-### Public Functions ###
+    ### Public Functions ###
+
+    def get_adjacency_matrix(self):
+        return self.graph
+
+    def get_node_map(self):
+        return self.node_map
 
     # Adds a directed edge --> to the graph.
     def add_directed_edge(self, node1, node2):
@@ -110,9 +116,7 @@ class Dag(Graph):
     # cannot already be used by any other node in the same graph.
     def add_node(self, node):
 
-        if node in self.nodes:
-            return False
-
+        # ADD A CHECK FOR WHETHER THE NODE NAME ALREADY EXISTS
         nodes = self.nodes
         nodes.append(node)
         self.nodes = nodes
@@ -132,21 +136,15 @@ class Dag(Graph):
         self.graph = graph
         self.dpath = dpath
 
-        return True
-
     # Removes all nodes (and therefore all edges) from the graph.
     def clear(self):
-        self.nodes = []
-        self.num_vars = 0
-        self.node_map = {}
-        self.graph = np.zeros((self.num_vars, self.num_vars), np.dtype(int))
-        self.dpath = np.zeros((self.num_vars, self.num_vars), np.dtype(int))
+        raise NotImplementedError
 
     # Determines whether this graph contains the given edge.
     #
     # Returns true iff the graph contain 'edge'.
     def contains_edge(self, edge):
-        if str(edge.get_endpoint1()) != "TAIL" or str(edge.get_endpoint2()) != "ARROW":
+        if edge.get_endpoint1() != Endpoint.TAIL or edge.get_endpoint2() != Endpoint.ARROW:
             return False
         else:
             node1 = edge.get_node1()
@@ -169,10 +167,11 @@ class Dag(Graph):
     def exists_directed_cycle(self):
         return False
 
-    # Returns true iff a trek exists between two nodes in the graph.  A trek
-    # exists if there is a directed path between the two nodes or else, for
-    # some third node in the graph, there is a path to each of the two nodes in
-    # question.
+        # Returns true iff a trek exists between two nodes in the graph.  A trek
+        # exists if there is a directed path between the two nodes or else, for
+        # some third node in the graph, there is a path to each of the two nodes in
+        # question.
+
     def exists_trek(self, node1, node2):
 
         for node in self.nodes:
@@ -632,16 +631,17 @@ class Dag(Graph):
     # old graph, and this method is called to transfer the nodes and edges of
     # the old graph to the new graph.
     def transfer_nodes_and_edges(self, graph):
-        graph.nodes = self.nodes
-        graph.node_map = self.node_map
-        graph.num_vars = self.num_vars
-        graph.graph = self.graph
-        graph.dpath = self.dpath
+
+        for node in graph.nodes:
+            self.add_node(node)
+
+        for edge in graph.get_graph_edges():
+            self.add_edge(edge)
 
     def transfer_attributes(self, graph):
         graph.attributes = self.attributes
 
-    # Returns the list of ambiguous triples associated with this graph. Triples <x, y, z> that no longer
+# Returns the list of ambiguous triples associated with this graph. Triples <x, y, z> that no longer
     # lie along a path in the getModel graph are removed.
     def get_ambiguous_triples(self):
         return self.ambiguous_triples
@@ -717,8 +717,7 @@ class Dag(Graph):
 
     # Returns the nodes in the sepset of node1 and node2.
     def get_sepset(self, node1, node2):
-        utils = GraphUtils()
-        return utils.get_sepset(node1, node2, self)
+        return GraphUtils.get_sepset(node1, node2, self)
 
     # Sets the list of nodes for this graph.
     def set_nodes(self, nodes):

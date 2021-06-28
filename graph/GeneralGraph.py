@@ -425,6 +425,17 @@ class GeneralGraph(Graph):
 
         return degree
 
+    def get_max_degree(self):
+        nodes = self.nodes
+        max = -1
+
+        for node in nodes:
+            deg = self.get_degree(node)
+            if deg > max:
+                max = deg
+
+        return max
+
     # Returns the node with the given string name.  In case of accidental
     # duplicates, the first node encountered with the given name is returned.
     # In case no node exists with the given name, None is returned.
@@ -654,6 +665,10 @@ class GeneralGraph(Graph):
 
         return str(edge1.get_proximal_endpoint(node2)) == "ARROW" and str(edge2.get_proximal_endpoint(node2)) == "ARROW"
 
+    def is_def_unshielded_collider(self, node1, node2, node3):
+
+        return self.is_def_collider(self, node1, node2, node3) and not self.is_directly_connected_to(node1, node3)
+
     # Returns true if node1 and node2 are d-connected on the set of nodes z.
     def is_dconnected_to(self, node1, node2, z):
         utils = GraphUtils()
@@ -693,6 +708,13 @@ class GeneralGraph(Graph):
         j = self.node_map[node2]
 
         return self.graph[j, i] == -1 and self.graph[i, j] == -1
+
+    def is_directly_connected_to(self, node1, node2):
+
+        i = self.node_map[node1]
+        j = self.node_map[node2]
+
+        return not(self.graph[j, i] == 0 and self.graph[i, j] == 0)
 
     # Returns true iff the given node is exogenous.
     def is_exogenous(self, node):
@@ -890,11 +912,12 @@ class GeneralGraph(Graph):
     # old graph, and this method is called to transfer the nodes and edges of
     # the old graph to the new graph.
     def transfer_nodes_and_edges(self, graph):
-        graph.nodes = self.nodes
-        graph.node_map = self.node_map
-        graph.num_vars = self.num_vars
-        graph.graph = self.graph
-        graph.dpath = self.dpath
+
+        for node in graph.nodes:
+            self.add_node(node)
+
+        for edge in graph.get_graph_edges():
+            self.add_edge(edge)
 
     def transfer_attributes(self, graph):
         graph.attributes = self.attributes

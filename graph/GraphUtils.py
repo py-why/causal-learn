@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from graph.Graph import Graph
+from graph.Graph import GeneralGraph
 from graph.Endpoint import Endpoint
 from graph.Edge import Edge
 import numpy as np
 from collections import deque
 from graph.NodeType import NodeType
-from graph.Edges import Edges
+from itertools import permutations
 
 class GraphUtils:
 
@@ -312,29 +313,98 @@ class GraphUtils:
 
         return found
 
-    def exists_directed_path_from_to_breadth_first(self, node_from, node_to, G):
+    def findUnshieldedTriples(self, graph):
+        """Return the list of unshielded triples i o-o j o-o k in adjmat as (i, j, k)"""
 
-        Q = deque()
-        V = [node_from]
-        Q.append(node_from)
+        triples = []
 
-        while len(Q) > 0:
-            t = Q.pop()
+        for pair in permutations(graph.get_graph_edges(), 2):
+            node1 = pair[0].get_node1()
+            node2 = pair[0].get_node2()
+            node3 = pair[1].get_node1()
+            node4 = pair[1].get_node1()
 
-            for u in G.get_adjacent_nodes(t):
-                if G.is_parent_of(t, u) and G.is_parent_of(u, t):
-                    return True
+            node_map = graph.get_node_map()
 
-                edge = G.get_edge(t, u)
-                edges = Edges()
-                c = edges.traverse_directed(t, edge)
-
-                if c == None:
+            if node1 == node3:
+                if node2 != node4 and graph.get_adjacency_matrix()[node_map[node2], node_map[node4]] == 0:
+                    triples.append((node2, node1, node4))
                     continue
-                if c in V:
+            if node1 == node4:
+                if node2 != node3 and graph.get_adjacency_matrix()[node_map[node2], node_map[node3]] == 0:
+                    triples.append((node2, node1, node3))
                     continue
-                if c == node_to:
-                    return True
+            if node2 == node3:
+                if node1 != node4 and graph.get_adjacency_matrix()[node_map[node1], node_map[node4]] == 0:
+                    triples.append((node1, node2, node4))
+                    continue
+            if node2 == node4:
+                if node2 != node3 and graph.get_adjacency_matrix()[node_map[node2], node_map[node3]] == 0:
+                    triples.append((node1, node2, node3))
 
-                V.append(c)
-                Q.append(c)
+        return triples
+
+    #    return [(pair[0].get_node1(), pair[0].get_node2(), pair[1].get_node2) for pair in permutations(graph.get_graph_edges(), 2)
+    #            if pair[0].get_node2() == pair[1].get_node1() and pair[0].get_node1() != pair[1].get_node2() and graph.get_adjacency_matrix()[graph.get_node_map()[pair[0].get_node1()], graph.get_node_map()[pair[1].get_node2()]] == -1]
+
+    def findTriangles(self, graph):
+        """Return the list of triangles i o-o j o-o k o-o i in adjmat as (i, j, k) [with symmetry]"""
+        Adj = graph.get_graph_edges()
+        triangles = []
+
+        for pair in permutations(Adj, 2):
+            node1 = pair[0].get_node1()
+            node2 = pair[0].get_node2()
+            node3 = pair[1].get_node1()
+            node4 = pair[1].get_node2()
+
+            if node1 == node3:
+                if graph.is_adjacent_to(node2, node4):
+                    triangles.append((node2, node1, node4))
+                    continue
+            if node1 == node4:
+                if graph.is_adjacent_to(node2, node3):
+                    triangles.append((node2, node1, node3))
+                    continue
+            if node2 == node3:
+                if graph.is_adjacent_to(node1, node4):
+                    triangles.append((node1, node2, node4))
+                    continue
+            if node2 == node4:
+                if graph.is_adjacent_to(node1, node3):
+                    triangles.append((node1, node2, node3))
+
+        return triangles
+
+    #    return [(pair[0].get_node1(), pair[0].get_node2(), pair[1].get_node2) for pair in permutations(Adj, 3)
+    #            if pair[0].get_node2 == pair[1].get_node1() and pair[0].get_node1() != pair[1].get_node2() and (pair[0][0], pair[1][1]) in Adj]
+
+    def find_kites(self, graph):
+
+        kites = []
+
+        for pair in permutations(self.findTriangles(graph), 2):
+            if (pair[0][0] == pair[1][0]) and (pair[0][2] == pair[1][2]) and (graph.node_map[pair[0][1]] < graph.node_map[pair[1][1]]) and (graph.graph[graph.node_map[pair[0][1]], graph.node_map[pair[1][1]]] == 0):
+                kites.append((pair[0][0], pair[0][1], pair[1][1], pair[0][2]))
+
+        return kites
+
+
+        #return [(pair[0][0], pair[0][1], pair[1][1], pair[0][2]) for pair in permutations(self.findTriangles(), 2)
+        #        if pair[0][0] == pair[1][0] and pair[0][2] == pair[1][2]
+        #        and pair[0][1] < pair[1][1] and self.adjmat[pair[0][1], pair[1][1]] == -1]
+
+    # Returns a fully connected undirected graph with the given nodes
+    def fully_connected_graph(self, nodes):
+
+        graph = GeneralGraph()
+        for node in nodes:
+            graph.add_node(node)
+
+        for i in range(graph.get_num_nodes()):
+            for j in range(graph.get_num_nodes):
+                if i != j:
+                    graph.add_edge(i, j, -1, -1)
+
+        return graph
+
