@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 from graph.Graph import Graph
-from graph.Graph import GeneralGraph
+from graph.GeneralGraph import GeneralGraph
 from graph.Endpoint import Endpoint
 from graph.Edge import Edge
-import numpy as np
 from collections import deque
 from graph.NodeType import NodeType
+from graph.AdjacencyConfusion import AdjacencyConfusion
 from itertools import permutations
+
 
 class GraphUtils:
 
@@ -27,7 +28,6 @@ class GraphUtils:
                 return True
 
             edgenode_deque.append((edge, node1))
-
 
         while len(edgenode_deque) > 0:
             edge, node_a = edgenode_deque.pop()
@@ -86,7 +86,7 @@ class GraphUtils:
 
         graph_string = "Graph Nodes:\n"
 
-        for i in range(len(nodes)-1):
+        for i in range(len(nodes) - 1):
             node = nodes[i]
             graph_string = graph_string + node.get_name() + ";"
 
@@ -108,9 +108,10 @@ class GraphUtils:
 
         node_b = edge1.get_distal_node(node_a)
 
-        collider = str(edge1.get_proximal_endpoint(node_b)) == "ARROW" and str(edge2.get_proximal_endpoint(node_b)) == "ARROW"
+        collider = str(edge1.get_proximal_endpoint(node_b)) == "ARROW" and str(
+            edge2.get_proximal_endpoint(node_b)) == "ARROW"
 
-        if  (not collider) and not (node_b in z) :
+        if (not collider) and not (node_b in z):
             return True
 
         ancestor = self.is_ancestor(node_b, z, graph)
@@ -261,7 +262,7 @@ class GraphUtils:
             Q.append(node)
             V.append(node)
 
-        while(len(Q) > 0):
+        while (len(Q) > 0):
             t = Q.pop()
 
             if t == b:
@@ -293,7 +294,7 @@ class GraphUtils:
 
         all_nodes = not_found.copy()
 
-        while(len(not_found) > 0):
+        while (len(not_found) > 0):
             sub_not_found = []
             for node in not_found:
                 print(node)
@@ -305,7 +306,7 @@ class GraphUtils:
 
                 parents = [e for e in parents if e not in sub_parents]
 
-                if(all(node1 in found for node1 in parents)):
+                if (all(node1 in found for node1 in parents)):
                     found.append(node)
                     sub_not_found.append(node)
 
@@ -384,13 +385,14 @@ class GraphUtils:
         kites = []
 
         for pair in permutations(self.findTriangles(graph), 2):
-            if (pair[0][0] == pair[1][0]) and (pair[0][2] == pair[1][2]) and (graph.node_map[pair[0][1]] < graph.node_map[pair[1][1]]) and (graph.graph[graph.node_map[pair[0][1]], graph.node_map[pair[1][1]]] == 0):
+            if (pair[0][0] == pair[1][0]) and (pair[0][2] == pair[1][2]) and (
+                    graph.node_map[pair[0][1]] < graph.node_map[pair[1][1]]) and (
+                    graph.graph[graph.node_map[pair[0][1]], graph.node_map[pair[1][1]]] == 0):
                 kites.append((pair[0][0], pair[0][1], pair[1][1], pair[0][2]))
 
         return kites
 
-
-        #return [(pair[0][0], pair[0][1], pair[1][1], pair[0][2]) for pair in permutations(self.findTriangles(), 2)
+        # return [(pair[0][0], pair[0][1], pair[1][1], pair[0][2]) for pair in permutations(self.findTriangles(), 2)
         #        if pair[0][0] == pair[1][0] and pair[0][2] == pair[1][2]
         #        and pair[0][1] < pair[1][1] and self.adjmat[pair[0][1], pair[1][1]] == -1]
 
@@ -407,4 +409,59 @@ class GraphUtils:
                     graph.add_edge(i, j, -1, -1)
 
         return graph
+
+    def sdh(self, graph1: Graph, graph2: Graph):
+        nodes = graph1.get_nodes()
+        error = 0
+
+        for i1 in list(range(1, graph1.get_num_nodes())):
+            for i2 in list(range(i1 + 1, graph1.get_num_nodes())):
+                e1 = graph1.get_edge(nodes[i1], nodes[i2])
+                e2 = graph2.get_edge(nodes[i1], nodes[i2])
+                error = error + self.shdOneEdge(e1, e2)
+
+        return error
+
+    def shdOneEdge(self, e1: Edge, e2: Edge):
+        if self.noEdge(e1) and self.undirected(e2):
+            return 1
+        elif self.noEdge(e2) and self.undirected(e1):
+            return 1
+        elif self.noEdge(e1) and self.directed(e2):
+            return 2
+        elif self.noEdge(e2) and self.directed(e1):
+            return 2
+        elif self.undirected(e1) and self.directed(e2):
+            return 1
+        elif self.undirected(e2) and self.directed(e1):
+            return 1
+        elif self.directed(e1) and self.directed(e2):
+            if e1.get_endpoint1() == e2.get_endpoint2():
+                return 1
+        elif self.bidirected(e1) or self.bidirected(e2):
+            return 2
+
+        return 0
+
+    def noEdge(self, e: Edge):
+        return e == None
+
+    def undirected(self, e: Edge):
+        return e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.TAIL
+
+    def directed(self, e: Edge):
+        return (e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.ARROW) \
+            or (e.get_endpoint1() == Endpoint.HEAD and e.get_endpoint2() == Endpoint.TAIL)
+
+    def bidirected(self, e: Edge):
+        return e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.ARROW
+
+    def adjPrecision(self, truth:Graph, est:Graph):
+        confusion = AdjacencyConfusion(truth, est)
+        return confusion.getAdjTp() / (confusion.getAdjTp() + confusion.getAdjFp())
+
+    def adjRecall(self, truth:Graph, est:Graph):
+        confusion = AdjacencyConfusion(truth, est)
+        return confusion.getAdjTp() / (confusion.getAdjTp() + confusion.getAdjFn())
+
 

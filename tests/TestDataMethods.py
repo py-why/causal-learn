@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import unittest
 
-from data.DataSet import DataSet
 from data.DataUtils import DataUtils
 
 class TestDataMethods(unittest.TestCase):
