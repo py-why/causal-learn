@@ -4,12 +4,15 @@ from graph.Endpoint import Endpoint
 import numpy as np
 
 class ArrowConfusion:
-    __arrowsTp = 0
-    __arrowsTpCE = 0
     __arrowsFp = 0
-    __arrowsFpCE = 0
     __arrowsFn = 0
+    __arrowsTp = 0
     __arrowsTn = 0
+
+    __arrowsFpCE = 0
+    __arrowsFnCE = 0
+    __arrowsTpCE = 0
+    __arrowsTnCE = 0
 
     def __init__(self, truth:Graph, est:Graph):
         nodes = truth.get_nodes()
@@ -35,25 +38,36 @@ class ArrowConfusion:
 
         self.__arrowsFp = (estPositives - truePositives).sum()
         self.__arrowsFn = (truePositives - estPositives).sum()
-        self.__arrowsFpCE = (estPositivesCE - truePositivesCE).sum()
-        self.__arrowsFnCE = (truePositivesCE - estPositivesCE).sum()
         self.__arrowsTp = truePositives.sum()
         self.__arrowsTn = (np.ones(len(nodes), len(nodes)) - truePositives).sum()
+
+        self.__arrowsFpCE = (estPositivesCE - truePositivesCE).sum()
+        self.__arrowsFnCE = (truePositivesCE - estPositivesCE).sum()
+        self.__arrowsTpCE = truePositivesCE.sum()
+        self.__arrowsTnCE = (np.ones(len(nodes), len(nodes)) - truePositivesCE).sum()
 
     def getArrowsFp(self):
         return self.__arrowsFp
 
-    def getArrowsFpCE(self):
-        return self.__arrowsFpCE
-
     def getArrowsFn(self):
         return self.__arrowsFn
-
-    def getArrowsFnCE(self):
-        return self.__arrowsFnCE
 
     def getArrowsTp(self):
         return self.__arrowsTp
 
     def getArrowsTn(self):
         return self.__arrowsTn
+
+    def getArrowsFpCE(self):
+        return self.__arrowsFpCE
+
+    def getArrowsFnCE(self):
+        return self.__arrowsFnCE
+
+    def getArrowsTpCE(self):
+        return self.__arrowsTpCE
+
+    def getArrowsTnCE(self):
+        return self.__arrowsTnCE
+
+

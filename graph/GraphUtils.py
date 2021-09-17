@@ -473,4 +473,12 @@ class GraphUtils:
         confusion = ArrowConfusion(truth, est)
         return confusion.getArrowsTp() / (confusion.getArrowsTp() + confusion.getArrowsFn())
 
+    def arrowPrecisionCommonEdges(self, truth:Graph, est:Graph):
+        confusion = ArrowConfusion(truth, est)
+        return confusion.getArrowsTp() / (confusion.getArrowsTp() + confusion.getArrowsFpCE())
+
+    def arrowRecallCommonEdges(self, truth:Graph, est:Graph):
+        confusion = ArrowConfusion(truth, est)
+        return confusion.getArrowsTp() / (confusion.getArrowsTp() + confusion.getArrowsFnCE())
+
 
