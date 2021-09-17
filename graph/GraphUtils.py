@@ -6,6 +6,7 @@ from graph.Edge import Edge
 from collections import deque
 from graph.NodeType import NodeType
 from graph.AdjacencyConfusion import AdjacencyConfusion
+from graph.ArrowConfusion import ArrowConfusion
 from itertools import permutations
 
 
@@ -463,5 +464,13 @@ class GraphUtils:
     def adjRecall(self, truth:Graph, est:Graph):
         confusion = AdjacencyConfusion(truth, est)
         return confusion.getAdjTp() / (confusion.getAdjTp() + confusion.getAdjFn())
+
+    def arrowPrecision(self, truth:Graph, est:Graph):
+        confusion = ArrowConfusion(truth, est)
+        return confusion.getArrowsTp() / (confusion.getArrowsTp() + confusion.getArrowsFp())
+
+    def arrowRecall(self, truth:Graph, est:Graph):
+        confusion = ArrowConfusion(truth, est)
+        return confusion.getArrowsTp() / (confusion.getArrowsTp() + confusion.getArrowsFn())
 
 
