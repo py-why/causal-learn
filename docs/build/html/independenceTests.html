@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>(Conditional) independence tests &mdash; Pytrad 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Score functions" href="score_functions.html" />
+    <link rel="prev" title="Search methods" href="search_methods.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Pytrad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="search_methods.html">Search methods</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">(Conditional) independence tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#fisher-z">Fisher-z</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters-test">Parameters test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#missing-value-fisher-z-test">Missing-value Fisher-z test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#chi-square-test">Chi-Square test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#kernel-based-conditional-independence-kci-test-and-independence-test">Kernel-based conditional independence (KCI) test and independence test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#g-square-test">G-Square test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="score_functions.html">Score functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Pytrad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>(Conditional) independence tests</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/independenceTests.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="conditional-independence-tests">
+<h1>(Conditional) independence tests<a class="headerlink" href="#conditional-independence-tests" title="Permalink to this headline"></a></h1>
+<section id="fisher-z">
+<h2>Fisher-z<a class="headerlink" href="#fisher-z" title="Permalink to this headline"></a></h2>
+<p>Perform an independence test using Fisher-z’s test [<a class="reference internal" href="#fisherz">fisherz</a>]. This test is optimal for linear-Gaussian data.</p>
+<section id="parameters-test">
+<h3>Parameters test<a class="headerlink" href="#parameters-test" title="Permalink to this headline"></a></h3>
+<p><strong>data</strong>: data matrices.</p>
+<p><strong>X, Y and condition_set</strong>: data matrices of size number_of_samples * dimensionality.</p>
+<p><strong>correlation_matrix</strong>: correlation matrix; None means without the parameter of correlation matrix.</p>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline"></a></h3>
+<p><strong>p</strong>: the p-value of the test.</p>
+<dl class="citation">
+<dt class="label" id="fisherz"><span class="brackets">fisherz</span></dt>
+<dd><p>Fisher, Ronald A. “On the’probable error’of a coefficient of correlation deduced from a small sample.” Metron 1 (1921): 1-32.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="missing-value-fisher-z-test">
+<h2>Missing-value Fisher-z test<a class="headerlink" href="#missing-value-fisher-z-test" title="Permalink to this headline"></a></h2>
+<p>Perform a testwise-deletion Fisher-z independence test to data sets with missing values.
+With testwise-deletion, the test makes use of all data points that do not have missing values for the variables involved in the test.</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h3>
+<p><strong>mvdata</strong>: data with missing values.</p>
+<p><strong>X, Y and condition_set</strong>: data matrices of size number_of_samples * dimensionality.</p>
+</section>
+<section id="id1">
+<h3>Returns<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<p><strong>p</strong>: the p-value of the test.</p>
+</section>
+</section>
+<section id="chi-square-test">
+<h2>Chi-Square test<a class="headerlink" href="#chi-square-test" title="Permalink to this headline"></a></h2>
+<p>Perform an independence test on discrete variables using Chi-Square test.</p>
+<section id="id2">
+<h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<p><strong>data</strong>: data matrices.</p>
+<p><strong>X, Y and condition_set</strong>: data matrices of size number_of_samples * dimensionality.</p>
+<dl class="simple">
+<dt><strong>G_sq</strong>: True means using G-Square test;</dt><dd><p>False means using Chi-Square test.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h3>Returns<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<p><strong>p</strong>: the p-value of the test.</p>
+</section>
+</section>
+<section id="kernel-based-conditional-independence-kci-test-and-independence-test">
+<h2>Kernel-based conditional independence (KCI) test and independence test<a class="headerlink" href="#kernel-based-conditional-independence-kci-test-and-independence-test" title="Permalink to this headline"></a></h2>
+<p>Kernel-based conditional independence (<a class="reference internal" href="#kci">KCI</a>) test and independence test.
+To test if x and y are conditionally or unconditionally independent on Z. For unconditional independence tests,
+Z is set to the empty set.</p>
+<section id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<p><strong>X, Y and Z</strong>: data matrices of size number_of_samples * dimensionality. Z could be None.</p>
+<p><strong>KernelX/Y/Z</strong>: [‘GaussianKernel’, ‘LinearKernel’, ‘PolynomialKernel’].
+(For ‘PolynomialKernel’, the default degree is 2. Currently, users can change it by setting the ‘degree’ of ‘class PolynomialKernel()’.</p>
+</section>
+<section id="id5">
+<h3>Returns<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h3>
+<p><strong>p_val</strong>: the p value.</p>
+<dl class="citation">
+<dt class="label" id="kci"><span class="brackets">KCI</span></dt>
+<dd><p>Zhang, Kun, et al. “Kernel-based conditional independence test and application in causal discovery.” UAI. 2011.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="g-square-test">
+<h2>G-Square test<a class="headerlink" href="#g-square-test" title="Permalink to this headline"></a></h2>
+<p>Perform an independence test using G-Square test <a class="reference internal" href="#gsquare" id="id6"><span>[gSquare]</span></a>. This test is based on the log likelihood ratio test.</p>
+<section id="id7">
+<h3>Parameters<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h3>
+<p><strong>data</strong>: data matrices.</p>
+<p><strong>X, Y and condition_set</strong>: data matrices of size number_of_samples * dimensionality.</p>
+<p><strong>G_sq</strong>: True means using G-Square test; False means using Chi-Square test.</p>
+</section>
+<section id="id8">
+<h3>Returns<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h3>
+<p>p: the p-value of the test</p>
+<dl class="citation">
+<dt class="label" id="gsquare"><span class="brackets"><a class="fn-backref" href="#id6">gSquare</a></span></dt>
+<dd><p>Tsamardinos, Ioannis, Laura E. Brown, and Constantin F. Aliferis. “The max-min hill-climbing Bayesian network structure learning algorithm.” Machine learning 65.1 (2006): 31-78.</p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="search_methods.html" class="btn btn-neutral float-left" title="Search methods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="score_functions.html" class="btn btn-neutral float-right" title="Score functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, CLeaR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

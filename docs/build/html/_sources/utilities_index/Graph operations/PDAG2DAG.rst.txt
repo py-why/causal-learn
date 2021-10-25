@@ -1,0 +1,19 @@
+PDAG2DAG
+============
+
+Covert a PDAG to its corresponding DAG.
+
+Usage
+--------
+.. code-block:: python
+
+    from pytrad.utils.PDAG2DAG import pdag2dag
+    Gd = pdag2dag(G)
+
+Parameters
+---------------
+**G**: Partially Direct Acyclic Graph.
+
+Returns
+------------------
+**Gd**: Direct Acyclic Graph.

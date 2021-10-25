@@ -1,0 +1,25 @@
+Graph Nodes:
+X1;X3;X4;X6;X7;X8;X10;X11;X12;X13
+
+Graph Edges:
+1. X1 o-> X10
+2. X1 --> X13
+3. X1 o-> X6
+4. X11 o-o X3
+5. X12 o-> X10
+6. X12 o-> X13
+7. X13 o-> X10
+8. X3 o-o X1
+9. X3 o-> X10
+10. X3 o-> X6
+11. X4 o-> X10
+12. X4 o-> X6
+13. X6 o-> X10
+14. X6 --> X13
+15. X7 o-> X10
+16. X7 o-> X13
+17. X7 o-o X3
+18. X8 o-> X10
+19. X8 o-> X13
+20. X8 o-o X7
+

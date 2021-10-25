@@ -1,0 +1,415 @@
+==============
+Search methods
+==============
+
+Constraint-based causal discovery methods
+------------
+
+PC
+^^
+
+Algorithm Introduction
+""""""""""""""""""""""""""""""""""""
+
+Perform Peter-Clark (PC_) algorithm. for causal discovery. For data sets with missing values,
+missing-value testwise-deletion PC is included (by choosing ‘MV-Fisher_Z” for the test method).
+
+
+Usage
+""""""""""""""""""""""""""""""""""""
+.. code-block:: python
+
+    from pytrad.search.ConstraintBased.PC import pc
+    G = pc(data, alpha, indep_test, stable, uc_rule, uc_priority)
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**data**: data set (numpy ndarray).
+
+**alpha**: desired significance level (float) in (0, 1).
+
+**test_name**: name of the independence test being used (see ‘Independence tests’).
+       - "Fisher_Z": Fisher-z conditional independence test.
+       - "Chi_sq": Chi-square conditional independence test.
+       - "G_sq": G-square conditional independence test.
+       - "KCI_": kernel-based conditional independence test. (As a kernel method, its complexity is cubic in the sample size, so it might be slow if the same size is not small.)
+       - "MV_Fisher_Z": Missing-value Fisher-z conditional independence test.
+
+**stable**: run stabilized skeleton discovery if True (default = True).
+
+**uc_rule**: how unshielded colliders are oriented.
+       - 0: run uc_sepset.
+       - 1: run maxP.
+       - 2: run definiteMaxP.
+
+**uc_priority**: rule of resolving conflicts between unshielded colliders.
+       - -1: whatever is default in uc_rule.
+       - 0: overwrite.
+       - 1: orient bi-directed.
+       - 2: prioritize existing colliders.
+       - 3: prioritize stronger colliders.
+       - 4: prioritize stronger* colliders.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**cg** : a CausalGraph object.
+
+.. [PC] Spirtes, Peter, et al. Causation, prediction, and search. MIT press, 2000.
+.. [KCI] Zhang, Kun, et al. "Kernel-based conditional independence test and application in causal discovery." UAI. 2011.
+
+FCI
+^^^
+
+Algorithm Introduction
+""""""""""""""""""""""""""""""""""""
+Causal Discovery with Fast Causal Inference (FCI_).
+
+Usage
+""""""""""""""""""""""""""""""""""""
+
+.. code-block:: python
+
+    from pytrad.search.ConstraintBased.FCI import fci
+    G = fci(data, indep_test, alpha, verbose=True)
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**data**: Input data matrix
+
+**alpha**: Significance level of individual partial correlation tests.
+
+**indep_test**: Independence test method function.
+       - "Fisher_Z": Fisher's Z conditional independence test.
+       - "Chi_sq": Chi-squared conditional independence test.
+       - "G_sq": G-squared conditional independence test.
+       - "KCI_": kernel-based conditional independence test. (As a kernel method, its complexity is cubic in the sample size, so it might be slow if the same size is not small.)
+       - "MV_Fisher_Z": Missing-value Fisher's Z conditional independence test.
+
+**verbose**: 0 - no output, 1 - detailed output.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**cg**: A CausalGraph object.
+
+.. [FCI] Spirtes, Peter, Christopher Meek, and Thomas Richardson. "Causal inference in the presence of latent variables and selection bias." UAI. 1995.
+
+Score-based causal discovery methods
+------------
+
+GES with the BIC score or generalized score
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Algorithm Introduction
+""""""""""""""""""""""""""""""""""""
+
+Greedy Equivalence Search (GES_) algorithm.
+
+Usage
+""""""""""""""""""""""""""""""""""""
+.. code-block:: python
+
+    from pytrad.search.ScoreBased.GES import ges
+    Record = ges(X, score_func, maxP, parameters)
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**X**: Data with T*D dimensions.
+
+**score_func**: The score function you would like to use, including (see :ref:`score_functions`.).
+              - "local_score_BIC": BIC_ score.
+              - "local_score_BDeu": BDeu_ score.
+              - "local_score_CV_general": Generalized score with cross validation for data with single-dimensional variates [GeneralizedScore]_.
+              - "local_score_marginal_general": Generalized score with marginal likelihood for data with single-dimensional variates [GeneralizedScore]_.
+              - "local_score_CV_multi": Generalized score with cross validation for data with multi-dimensional variables [GeneralizedScore]_.
+              - "local_score_marginal_multi": Generalized score with marginal likelihood for data with multi-dimensional variates [GeneralizedScore]_.
+
+**maxP**: Allowed maximum number of parents when searching the graph.
+
+**parameters**: when using CV likelihood,
+              - parameters['kfold']: k-fold cross validation.
+              - parameters['lambda']: regularization parameter.
+              - parameters['dlabel']: for variables with multi-dimensions, indicate which dimensions belong to the i-th variable.
+
+.. [BIC] Schwarz, Gideon. "Estimating the dimension of a model." The annals of statistics (1978): 461-464.
+.. [BDeu] Buntine, Wray. "Theory refinement on Bayesian networks." Uncertainty proceedings 1991. Morgan Kaufmann, 1991. 52-60.
+.. [GeneralizedScore] Huang, Biwei, et al. "Generalized score functions for causal discovery." KDD. 2018.
+
+
+Returns
+""""""""""""""""""""""""""""""""""""
+- **Record['G']**: learned causal graph.
+- **Record['update1']**: each update (Insert operator) in the forward step.
+- **Record['update2']**: each update (Delete operator) in the backward step.
+- **Record['G_step1']**: learned graph at each step in the forward step.
+- **Record['G_step2']**: learned graph at each step in the backward step.
+- **Record['score']**: the score of the learned graph.
+
+.. [GES] Chickering, David Maxwell. "Optimal structure identification with greedy search." JMLR (2002): 507-554.
+
+Exact Search
+^^^^^^^^^^^^^^
+
+Algorithm Introduction
+""""""""""""""""""""""""""""""""""""
+Search for the optimal graph using Dynamic Programming (DP_) or A* search [Astar]_.
+
+Usage
+""""""""""""""""""""""""""""""""""""
+.. code-block:: python
+
+    from pytrad.search.ScoreBased.ExactSearch import bic_exact_search
+    dag_est, search_stats = bic_exact_search(X, super_graph, search_method,
+                     use_path_extension, use_k_cycle_heuristic,
+                     k, verbose, include_graph, max_parents)
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**X**: numpy.ndarray, shape=(n, d).
+The data to fit the structure too, where each row is a sample and
+each column corresponds to the associated variable.
+
+**super_graph**: numpy.ndarray, shape=(d, d).
+Super-structure to restrict search space (binary matrix).
+If None, no super-structure is used. Default is None.
+
+**search_method**: str.
+Method of of exact search (['astar', 'dp']).
+Default is astar.
+
+**use_path_extension**: bool.
+Whether to use optimal path extension for order graph. Note that
+this trick will not affect the correctness of search procedure.
+Default is True.
+
+**use_k_cycle_heuristic**: bool.
+Whether to use k-cycle conflict heuristic for astar.
+Default is False.
+
+**k**: int.
+Parameter used by k-cycle conflict heuristic for astar.
+Default is 3.
+
+**verbose**: bool.
+Whether to log messages related to search procedure.
+
+**max_parents**: int.
+The maximum number of parents a node can have. If used, this means
+using the k-learn procedure. Can drastically speed up algorithms.
+If None, no max on parents. Default is None.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**dag_est**:  numpy.ndarray, shape=(d, d). Estimated DAG.
+**search_stats**:  dict. Some statistics related to the seach procedure.
+
+.. [DP] Silander, Tomi, and Petri Myllymäki. "A simple approach for finding the globally optimal Bayesian network structure." UAI. 2006.
+.. [Astar] Yuan, Changhe, and Brandon Malone. "Learning optimal Bayesian networks: A shortest path perspective." Journal of Artificial Intelligence Research 48 (2013): 23-65.
+
+Causal discovery methods based on constrained functional causal models
+-----------------------------------------------------------
+
+LiNGAM-based Methods
+^^^^^^^^^^^^^^
+
+Estimation of Linear, Non-Gaussian Acyclic Model (LiNGAM_) from observed data. It assumes non-Gaussianity of the noise terms in the causal model.
+
+Pytrad has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM_, DirectLiNGAM_, RCD_, and CAM-UV [CAMUV]_).
+And we are actively updating the list.
+
+.. [LiNGAM] Shimizu, Shohei, et al. "A linear non-Gaussian acyclic model for causal discovery." JMLR 7.10 (2006).
+.. [DirectLiNGAM] Shimizu, Shohei, et al. "DirectLiNGAM: A direct method for learning a linear non-Gaussian structural equation model." JMLR (2011).
+.. [RCD] Maeda, Takashi Nicholas, and Shohei Shimizu. "RCD: Repetitive causal discovery of linear non-Gaussian acyclic models with latent confounders." AISTAT. 2020.
+.. [CAMUV] Maeda, Takashi Nicholas, and Shohei Shimizu. "Causal Additive Models with Unobserved Variables." UAI. 2021.
+
+ICA-based LiNGAM
+""""""""""""""""""""""""""""""""""""
+
+.. code-block:: python
+
+    from pytrad.search.FCMBased import lingam
+    model = lingam.ICALiNGAM(random_state, max_iter)
+    model.fit(X)
+
+    print(model.causal_order_)
+    print(model.adjacency_matrix_)
+
+
+- **Parameters**
+
+**random_state**: int, optional (default=None). The seed used by the random number generator.
+
+**max_iter**: int, optional (default=1000). The maximum number of iterations of FastICA.
+
+- **Returns**
+
+**model.adjacency_matrix_**: array-like, shape (n_features, n_features).
+The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.
+
+
+
+DirectLiNGAM
+""""""""""""""""""""""""""""""""""""
+
+.. code-block:: python
+
+    from pytrad.search.FCMBased import lingam
+    model = lingam.DirectLiNGAM(random_state, prior_knowledge, apply_prior_knowledge_softly, measure)
+    model.fit(X)
+
+    print(model.causal_order_)
+    print(model.adjacency_matrix_)
+
+- **Parameters**
+
+**random_state**: int, optional (default=None). The seed used by the random number generator.
+
+**prior_knowledge**: array-like, shape (n_features, n_features), optional (default=None).
+Prior knowledge used for causal discovery, where ``n_features`` is the number of features.
+The elements of prior knowledge matrix are defined as follows:
+    - 0: :math:`x_i` does not have a directed path to :math:`x_j`
+    - 1: :math:`x_i` has a directed path to :math:`x_j`
+    - -1: No prior knowledge is available to know if either of the two cases above (0 or 1) is true.
+
+**apply_prior_knowledge_softly**: boolean, optional (default=False). If True, apply prior knowledge softly.
+
+**measure**: {'pwling', 'kernel'}, optional (default='pwling'). Measure to evaluate independence: 'pwling' or 'kernel'.
+
+- **Returns**
+
+**model.adjacency_matrix_**: array-like, shape (n_features, n_features).
+The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.
+
+
+RCD
+""""""""""""""""""""""""""""""""""""
+
+.. code-block:: python
+
+    from pytrad.search.FCMBased import lingam
+    model = lingam.RCD(max_explanatory_num, cor_alpha, ind_alpha, shapiro_alpha, MLHSICR, bw_method)
+    model.fit(X)
+
+    print(model.adjacency_matrix_)
+
+- **Parameters**
+
+**max_explanatory_num**: int, optional (default=2). Maximum number of explanatory variables.
+
+**cor_alpha**: float, optional (default=0.01). Alpha level for pearson correlation.
+
+**ind_alpha**: float, optional (default=0.01). Alpha level for HSIC.
+
+**shapiro_alpha**: float, optional (default=0.01). Alpha level for Shapiro-Wilk test.
+
+**MLHSICR**: bool, optional (default=False). If True, use MLHSICR for multiple regression, if False, use OLS for multiple regression.
+
+**bw_method**: str, optional (default='mdbs'). The method used to calculate the bandwidth of the HSIC.
+    - 'mdbs': Median distance between samples.
+    - 'scott': Scott's Rule of Thumb.
+    - 'silverman': Silverman's Rule of Thumb.
+
+- **Returns**
+
+**model.adjacency_matrix_**: array-like, shape (n_features, n_features).
+The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.
+
+**model.ancestors_list_**: array-like, shape (n_features).
+The list of causal ancestors sets, where n_features is the number of features.
+
+
+CAM-UV
+""""""""""""""""""""""""""""""""""""
+
+.. code-block:: python
+
+    from pytrad.search.FCMBased.lingam import CAMUV
+    P, U = CAMUV.execute(data, alpha, num_explanatory_vals)
+
+    for i, result in enumerate(P):
+        if not len(result) == 0:
+            print("child: " + str(i) + ",  parents: " + str(result))
+
+    for result in U:
+        print(result)
+
+- **Parameters**
+
+**X**: matrixs.
+
+**alpha**: the alpha level for independence testing.
+
+**num_explanatory_vals**: the maximum number of variables to infer causal relationships. This is equivalent to d in the paper.
+
+- **Returns**
+
+**P**: P[i] contains the indices of the parents of Xi.
+
+**U**: The indices of variable pairs having UCPs or UBPs.
+
+
+Post-Nonlinear Causal Models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Algorithm Introduction
+""""""""""""""""""""""""""""""""""""
+
+Causal discovery based on the post-nonlinear (PNL_) causal models.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+TBA
+
+Returns
+""""""""""""""""""""""""""""""""""""
+TBA
+
+.. [PNL] Zhang, K., and A. Hyvärinen. "On the Identifiability of the Post-Nonlinear Causal Model." UAI. 2009.
+
+Additive Noise Models
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Algorithm Introduction
+""""""""""""""""""""""""""""""""""""
+
+Causal discovery based on the additive noise models (ANM_).
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+TBA
+
+Returns
+""""""""""""""""""""""""""""""""""""
+TBA
+
+.. [ANM] Hoyer, Patrik O., et al. "Nonlinear causal discovery with additive noise models." NIPS. 2008.
+
+
+Hidden causal representation learning
+-----------------------------------------------------------
+
+Generalized Independence Noise (GIN) condition-based method
+^^^^^^^^^^^^^^
+
+Algorithm Introduction
+""""""""""""""""""""""""""""""""""""
+
+Learning the structure of Linear, Non-Gaussian LAtent variable Model (LiNLAM) based the GIN_ condition.
+
+Usage
+""""""""""""""""""""""""""""""""""""
+.. code-block:: python
+
+    from pytrad.search.FCMBased.GIN.GIN import GIN
+    G, K = GIN(data)
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**data**: numpy ndarray. Data set.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**G**: GeneralGraph. Causal graph.
+
+**K**: list. Causal Order.
+
+.. [GIN] Xie, Feng, et al. "Generalized Independent Noise Condition for Estimating Latent Variable Causal Graphs." NeurIPS. 2020.

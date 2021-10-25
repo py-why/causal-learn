@@ -1,0 +1,51 @@
+PC
+==
+
+Algorithm Introduction
+--------------------------------------
+
+Perform Peter-Clark (PC [1]_) algorithm for causal discovery. We also allowed data sets with missing values,
+for which missing-value testwise-deletion PC is included (choosing ‘MV-Fisher_Z” for the test name).
+
+
+Usage
+----------------------------
+.. code-block:: python
+
+    from pytrad.search.ConstraintBased.PC import pc
+    G = pc(data, alpha, indep_test, stable, uc_rule, uc_priority)
+
+Parameters
+-------------------
+**data**: data set (numpy ndarray).
+
+**alpha**: desired significance level (float) in (0, 1).
+
+**indep_test**: Independence test method function.
+       - ":ref:`fisherz <Fisher-z test>`": Fisher's Z conditional independence test.
+       - ":ref:`chisq <Chi-Square test>`": Chi-squared conditional independence test.
+       - ":ref:`gsq <G-Square test>`": G-squared conditional independence test.
+       - ":ref:`kci <Kernel-based conditional independence (KCI) test and independence test>`": kernel-based conditional independence test. (As a kernel method, its complexity is cubic in the sample size, so it might be slow if the same size is not small.)
+       - ":ref:`mv_fisherz <Missing-value Fisher-z test>`": Missing-value Fisher's Z conditional independence test.
+
+**stable**: run stabilized skeleton discovery if True (default = True).
+
+**uc_rule**: how unshielded colliders are oriented.
+       - 0: run uc_sepset.
+       - 1: run maxP.
+       - 2: run definiteMaxP.
+
+**uc_priority**: rule of resolving conflicts between unshielded colliders.
+       - -1: whatever is default in uc_rule.
+       - 0: overwrite.
+       - 1: orient bi-directed.
+       - 2: prioritize existing colliders.
+       - 3: prioritize stronger colliders.
+       - 4: prioritize stronger* colliders.
+
+Returns
+-------------------
+**cg** : a CausalGraph object.
+
+.. [1] Spirtes, P., Glymour, C. N., Scheines, R., & Heckerman, D. (2000). Causation, prediction, and search. MIT press.
+.. [2] Zhang, K., Peters, J., Janzing, D., & Schölkopf, B. (2011, July). Kernel-based Conditional Independence Test and Application in Causal Discovery. In 27th Conference on Uncertainty in Artificial Intelligence (UAI 2011) (pp. 804-813). AUAI Press.

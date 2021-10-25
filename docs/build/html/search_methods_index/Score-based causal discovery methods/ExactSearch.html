@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exact Search &mdash; Pytrad 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Causal discovery methods based on constrained functional causal models" href="../Causal%20discovery%20methods%20based%20on%20constrained%20functional%20causal%20models/index.html" />
+    <link rel="prev" title="GES with the BIC score or generalized score" href="GES%20with%20the%20BIC%20score%20or%20generalized%20score.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Pytrad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Search methods</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Constrained-based%20causal%20discovery%20methods/index.html">Constrained-based causal discovery methods</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Score-based causal discovery methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="GES%20with%20the%20BIC%20score%20or%20generalized%20score.html">GES with the BIC score or generalized score</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Exact Search</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-introduction">Algorithm Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Causal%20discovery%20methods%20based%20on%20constrained%20functional%20causal%20models/index.html">Causal discovery methods based on constrained functional causal models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Hidden%20causal%20representation%20learning/index.html">Hidden causal representation learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Granger%20causality/index.html">Granger causality</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../independence_tests_index/index.html">(Conditional) independence tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../score_functions_index/index.html">Score functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities_index/index.html">Utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pytrad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Search methods</a> &raquo;</li>
+          <li><a href="index.html">Score-based causal discovery methods</a> &raquo;</li>
+      <li>Exact Search</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/search_methods_index/Score-based causal discovery methods/ExactSearch.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="exact-search">
+<h1>Exact Search<a class="headerlink" href="#exact-search" title="Permalink to this headline"></a></h1>
+<section id="algorithm-introduction">
+<h2>Algorithm Introduction<a class="headerlink" href="#algorithm-introduction" title="Permalink to this headline"></a></h2>
+<p>Search for the optimal graph using Dynamic Programming (DP <a class="footnote-reference brackets" href="#id3" id="id1">1</a>) or A* search <a class="footnote-reference brackets" href="#id4" id="id2">2</a>.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.ScoreBased.ExactSearch</span> <span class="kn">import</span> <span class="n">bic_exact_search</span>
+<span class="n">dag_est</span><span class="p">,</span> <span class="n">search_stats</span> <span class="o">=</span> <span class="n">bic_exact_search</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">super_graph</span><span class="p">,</span> <span class="n">search_method</span><span class="p">,</span>
+                 <span class="n">use_path_extension</span><span class="p">,</span> <span class="n">use_k_cycle_heuristic</span><span class="p">,</span>
+                 <span class="n">k</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">include_graph</span><span class="p">,</span> <span class="n">max_parents</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<p><strong>X</strong>: numpy.ndarray, shape=(n, d).
+The data to fit the structure too, where each row is a sample and
+each column corresponds to the associated variable.</p>
+<p><strong>super_graph</strong>: numpy.ndarray, shape=(d, d).
+Super-structure to restrict search space (binary matrix).
+If None, no super-structure is used. Default is None.</p>
+<p><strong>search_method</strong>: str.
+Method of of exact search ([‘astar’, ‘dp’]).
+Default is astar.</p>
+<p><strong>use_path_extension</strong>: bool.
+Whether to use optimal path extension for order graph. Note that
+this trick will not affect the correctness of search procedure.
+Default is True.</p>
+<p><strong>use_k_cycle_heuristic</strong>: bool.
+Whether to use k-cycle conflict heuristic for astar.
+Default is False.</p>
+<p><strong>k</strong>: int.
+Parameter used by k-cycle conflict heuristic for astar.
+Default is 3.</p>
+<p><strong>verbose</strong>: bool.
+Whether to log messages related to search procedure.</p>
+<p><strong>max_parents</strong>: int.
+The maximum number of parents a node can have. If used, this means
+using the k-learn procedure. Can drastically speed up algorithms.
+If None, no max on parents. Default is None.</p>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this headline"></a></h2>
+<p><strong>dag_est</strong>:  numpy.ndarray, shape=(d, d). Estimated DAG.
+<strong>search_stats</strong>:  dict. Some statistics related to the seach procedure.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Silander, T., &amp; Myllymäki, P. (2006, July). A simple approach for finding the globally optimal Bayesian network structure. In Proceedings of the Twenty-Second Conference on Uncertainty in Artificial Intelligence (pp. 445-452).</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Yuan, C., &amp; Malone, B. (2013). Learning optimal Bayesian networks: A shortest path perspective. Journal of Artificial Intelligence Research, 48, 23-65.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="GES%20with%20the%20BIC%20score%20or%20generalized%20score.html" class="btn btn-neutral float-left" title="GES with the BIC score or generalized score" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Causal%20discovery%20methods%20based%20on%20constrained%20functional%20causal%20models/index.html" class="btn btn-neutral float-right" title="Causal discovery methods based on constrained functional causal models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, CLeaR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

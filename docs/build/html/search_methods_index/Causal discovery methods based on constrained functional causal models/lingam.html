@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LiNGAM-based Methods &mdash; Pytrad 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Post-nonlinear causal models" href="Post-nonlinear%20causal%20models.html" />
+    <link rel="prev" title="Causal discovery methods based on constrained functional causal models" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Pytrad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Search methods</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Constrained-based%20causal%20discovery%20methods/index.html">Constrained-based causal discovery methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Score-based%20causal%20discovery%20methods/index.html">Score-based causal discovery methods</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Causal discovery methods based on constrained functional causal models</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">LiNGAM-based Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ica-based-lingam">ICA-based LiNGAM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#directlingam">DirectLiNGAM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rcd">RCD</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cam-uv">CAM-UV</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Post-nonlinear%20causal%20models.html">Post-nonlinear causal models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Additive%20noise%20models.html">Additive noise models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Hidden%20causal%20representation%20learning/index.html">Hidden causal representation learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Granger%20causality/index.html">Granger causality</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../independence_tests_index/index.html">(Conditional) independence tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../score_functions_index/index.html">Score functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities_index/index.html">Utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pytrad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Search methods</a> &raquo;</li>
+          <li><a href="index.html">Causal discovery methods based on constrained functional causal models</a> &raquo;</li>
+      <li>LiNGAM-based Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/search_methods_index/Causal discovery methods based on constrained functional causal models/lingam.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="lingam-based-methods">
+<h1>LiNGAM-based Methods<a class="headerlink" href="#lingam-based-methods" title="Permalink to this headline"></a></h1>
+<p>Estimation of Linear, Non-Gaussian Acyclic Model from observed data. It assumes non-Gaussianity of the noise terms in the causal model.</p>
+<p>Pytrad has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM <a class="footnote-reference brackets" href="#id5" id="id1">1</a>, DirectLiNGAM <a class="footnote-reference brackets" href="#id6" id="id2">2</a>, RCD <a class="footnote-reference brackets" href="#id7" id="id3">3</a>, and CAM-UV <a class="footnote-reference brackets" href="#id8" id="id4">4</a>).
+And we are actively updating the list.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Shimizu, S., Hoyer, P. O., Hyvärinen, A., Kerminen, A., &amp; Jordan, M. (2006). A linear non-Gaussian acyclic model for causal discovery. Journal of Machine Learning Research, 7(10).</p>
+</dd>
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Shimizu, S., Inazumi, T., Sogawa, Y., Hyvärinen, A., Kawahara, Y., Washio, T., … &amp; Bollen, K. (2011). DirectLiNGAM: A direct method for learning a linear non-Gaussian structural equation model. The Journal of Machine Learning Research, 12, 1225-1248.</p>
+</dd>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>Maeda, T. N., &amp; Shimizu, S. (2020, June). RCD: Repetitive causal discovery of linear non-Gaussian acyclic models with latent confounders. In International Conference on Artificial Intelligence and Statistics (pp. 735-745). PMLR.</p>
+</dd>
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p>Maeda, T. N., &amp; Shimizu, S. (2021). Causal Additive Models with Unobserved Variables. UAI.</p>
+</dd>
+</dl>
+<section id="ica-based-lingam">
+<h2>ICA-based LiNGAM<a class="headerlink" href="#ica-based-lingam" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">ICALiNGAM</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">causal_order_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">adjacency_matrix_</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h3>
+<p><strong>random_state</strong>: int, optional (default=None). The seed used by the random number generator.</p>
+<p><strong>max_iter</strong>: int, optional (default=1000). The maximum number of iterations of FastICA.</p>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this headline"></a></h3>
+<p><strong>model.adjacency_matrix_</strong>: array-like, shape (n_features, n_features).
+The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.</p>
+</section>
+</section>
+<section id="directlingam">
+<h2>DirectLiNGAM<a class="headerlink" href="#directlingam" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">DirectLiNGAM</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="n">prior_knowledge</span><span class="p">,</span> <span class="n">apply_prior_knowledge_softly</span><span class="p">,</span> <span class="n">measure</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">causal_order_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">adjacency_matrix_</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id9">
+<h3>Parameters<a class="headerlink" href="#id9" title="Permalink to this headline"></a></h3>
+<p><strong>random_state</strong>: int, optional (default=None). The seed used by the random number generator.</p>
+<p><strong>prior_knowledge</strong>: array-like, shape (n_features, n_features), optional (default=None).
+Prior knowledge used for causal discovery, where <code class="docutils literal notranslate"><span class="pre">n_features</span></code> is the number of features.
+The elements of prior knowledge matrix are defined as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>0: <span class="math notranslate nohighlight">\(x_i\)</span> does not have a directed path to <span class="math notranslate nohighlight">\(x_j\)</span></p></li>
+<li><p>1: <span class="math notranslate nohighlight">\(x_i\)</span> has a directed path to <span class="math notranslate nohighlight">\(x_j\)</span></p></li>
+<li><p>-1: No prior knowledge is available to know if either of the two cases above (0 or 1) is true.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>apply_prior_knowledge_softly</strong>: boolean, optional (default=False). If True, apply prior knowledge softly.</p>
+<p><strong>measure</strong>: {‘pwling’, ‘kernel’}, optional (default=’pwling’). Measure to evaluate independence: ‘pwling’ or ‘kernel’.</p>
+</section>
+<section id="id10">
+<h3>Returns<a class="headerlink" href="#id10" title="Permalink to this headline"></a></h3>
+<p><strong>model.adjacency_matrix_</strong>: array-like, shape (n_features, n_features).
+The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.</p>
+</section>
+</section>
+<section id="rcd">
+<h2>RCD<a class="headerlink" href="#rcd" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">RCD</span><span class="p">(</span><span class="n">max_explanatory_num</span><span class="p">,</span> <span class="n">cor_alpha</span><span class="p">,</span> <span class="n">ind_alpha</span><span class="p">,</span> <span class="n">shapiro_alpha</span><span class="p">,</span> <span class="n">MLHSICR</span><span class="p">,</span> <span class="n">bw_method</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">adjacency_matrix_</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id11">
+<h3>Parameters<a class="headerlink" href="#id11" title="Permalink to this headline"></a></h3>
+<p><strong>max_explanatory_num</strong>: int, optional (default=2). Maximum number of explanatory variables.</p>
+<p><strong>cor_alpha</strong>: float, optional (default=0.01). Alpha level for pearson correlation.</p>
+<p><strong>ind_alpha</strong>: float, optional (default=0.01). Alpha level for HSIC.</p>
+<p><strong>shapiro_alpha</strong>: float, optional (default=0.01). Alpha level for Shapiro-Wilk test.</p>
+<p><strong>MLHSICR</strong>: bool, optional (default=False). If True, use MLHSICR for multiple regression, if False, use OLS for multiple regression.</p>
+<dl class="simple">
+<dt><strong>bw_method</strong>: str, optional (default=’mdbs’). The method used to calculate the bandwidth of the HSIC.</dt><dd><ul class="simple">
+<li><p>‘mdbs’: Median distance between samples.</p></li>
+<li><p>‘scott’: Scott’s Rule of Thumb.</p></li>
+<li><p>‘silverman’: Silverman’s Rule of Thumb.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h3>Returns<a class="headerlink" href="#id12" title="Permalink to this headline"></a></h3>
+<p><strong>model.adjacency_matrix_</strong>: array-like, shape (n_features, n_features).
+The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.</p>
+<p><strong>model.ancestors_list_</strong>: array-like, shape (n_features).
+The list of causal ancestors sets, where n_features is the number of features.</p>
+</section>
+</section>
+<section id="cam-uv">
+<h2>CAM-UV<a class="headerlink" href="#cam-uv" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased.lingam</span> <span class="kn">import</span> <span class="n">CAMUV</span>
+<span class="n">P</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">CAMUV</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">num_explanatory_vals</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">P</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;child: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,  parents: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">U</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id13">
+<h3>Parameters<a class="headerlink" href="#id13" title="Permalink to this headline"></a></h3>
+<p><strong>X</strong>: matrixs.</p>
+<p><strong>alpha</strong>: the alpha level for independence testing.</p>
+<p><strong>num_explanatory_vals</strong>: the maximum number of variables to infer causal relationships. This is equivalent to d in the paper.</p>
+</section>
+<section id="id14">
+<h3>Returns<a class="headerlink" href="#id14" title="Permalink to this headline"></a></h3>
+<p><strong>P</strong>: P[i] contains the indices of the parents of Xi.</p>
+<p><strong>U</strong>: The indices of variable pairs having UCPs or UBPs.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Causal discovery methods based on constrained functional causal models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Post-nonlinear%20causal%20models.html" class="btn btn-neutral float-right" title="Post-nonlinear causal models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, CLeaR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

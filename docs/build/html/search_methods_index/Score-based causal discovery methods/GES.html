@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GES with the BIC score or generalized score &mdash; Pytrad 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Exact Search" href="ExactSearch.html" />
+    <link rel="prev" title="Score-based causal discovery methods" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Pytrad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Search methods</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Constrained-based%20causal%20discovery%20methods/index.html">Constrained-based causal discovery methods</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Score-based causal discovery methods</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">GES with the BIC score or generalized score</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-introduction">Algorithm Introduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ExactSearch.html">Exact Search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Causal%20discovery%20methods%20based%20on%20constrained%20functional%20causal%20models/index.html">Causal discovery methods based on constrained functional causal models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Hidden%20causal%20representation%20learning/index.html">Hidden causal representation learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Granger%20causality/index.html">Granger causality</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../independence_tests_index/index.html">(Conditional) independence tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../score_functions_index/index.html">Score functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities_index/index.html">Utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pytrad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Search methods</a> &raquo;</li>
+          <li><a href="index.html">Score-based causal discovery methods</a> &raquo;</li>
+      <li>GES with the BIC score or generalized score</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/search_methods_index/Score-based causal discovery methods/GES.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ges-with-the-bic-score-or-generalized-score">
+<h1>GES with the BIC score or generalized score<a class="headerlink" href="#ges-with-the-bic-score-or-generalized-score" title="Permalink to this headline"></a></h1>
+<section id="algorithm-introduction">
+<h2>Algorithm Introduction<a class="headerlink" href="#algorithm-introduction" title="Permalink to this headline"></a></h2>
+<p>Greedy Equivalence Search (GES) algorithm with BIC score <a class="footnote-reference brackets" href="#id9" id="id1">1</a> and generalized score <a class="footnote-reference brackets" href="#id10" id="id2">2</a>.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.ScoreBased.GES</span> <span class="kn">import</span> <span class="n">ges</span>
+<span class="n">Record</span> <span class="o">=</span> <span class="n">ges</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">score_func</span><span class="p">,</span> <span class="n">maxP</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
+<p><strong>X</strong>: Data with T*D dimensions.</p>
+<dl class="simple">
+<dt><strong>score_func</strong>: The score function you would like to use, including (see <a class="reference internal" href="../../score_functions.html#score-functions"><span class="std std-ref">Score functions</span></a>.).</dt><dd><ul class="simple">
+<li><p>“<a class="reference internal" href="../../score_functions_index/BIC%20score.html#bic-score"><span class="std std-ref">local_score_BIC</span></a>”: BIC score <a class="footnote-reference brackets" href="#id11" id="id3">3</a>.</p></li>
+<li><p>“<a class="reference internal" href="../../score_functions_index/BDeu%20score.html#bdeu-score"><span class="std std-ref">local_score_BDeu</span></a>”: BDeu score <a class="footnote-reference brackets" href="#id12" id="id4">4</a>.</p></li>
+<li><p>“<a class="reference internal" href="../../score_functions_index/Generalized%20score%20with%20cross%20validation.html#generalized-score-with-cross-validation"><span class="std std-ref">local_score_CV_general</span></a>”: Generalized score with cross validation for data with single-dimensional variates <a class="footnote-reference brackets" href="#id10" id="id5">2</a>.</p></li>
+<li><p>“<a class="reference internal" href="../../score_functions_index/Generalized%20score%20with%20marginal%20likelihood.html#generalized-score-with-marginal-likelihood"><span class="std std-ref">local_score_marginal_general</span></a>”: Generalized score with marginal likelihood for data with single-dimensional variates <a class="footnote-reference brackets" href="#id10" id="id6">2</a>.</p></li>
+<li><p>“<a class="reference internal" href="../../score_functions_index/Generalized%20score%20with%20cross%20validation.html#generalized-score-with-cross-validation"><span class="std std-ref">local_score_CV_multi</span></a>”: Generalized score with cross validation for data with multi-dimensional variables <a class="footnote-reference brackets" href="#id10" id="id7">2</a>.</p></li>
+<li><p>“<a class="reference internal" href="../../score_functions_index/Generalized%20score%20with%20marginal%20likelihood.html#generalized-score-with-marginal-likelihood"><span class="std std-ref">local_score_marginal_multi</span></a>”: Generalized score with marginal likelihood for data with multi-dimensional variates <a class="footnote-reference brackets" href="#id10" id="id8">2</a>.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>maxP</strong>: Allowed maximum number of parents when searching the graph.</p>
+<dl class="simple">
+<dt><strong>parameters</strong>: when using CV likelihood,</dt><dd><ul class="simple">
+<li><p>parameters[‘kfold’]: k-fold cross validation.</p></li>
+<li><p>parameters[‘lambda’]: regularization parameter.</p></li>
+<li><p>parameters[‘dlabel’]: for variables with multi-dimensions, indicate which dimensions belong to the i-th variable.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p><strong>Record[‘G’]</strong>: learned causal graph.</p></li>
+<li><p><strong>Record[‘update1’]</strong>: each update (Insert operator) in the forward step.</p></li>
+<li><p><strong>Record[‘update2’]</strong>: each update (Delete operator) in the backward step.</p></li>
+<li><p><strong>Record[‘G_step1’]</strong>: learned graph at each step in the forward step.</p></li>
+<li><p><strong>Record[‘G_step2’]</strong>: learned graph at each step in the backward step.</p></li>
+<li><p><strong>Record[‘score’]</strong>: the score of the learned graph.</p></li>
+</ul>
+<dl class="footnote brackets">
+<dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Chickering, D. M. (2002). Optimal structure identification with greedy search. Journal of machine learning research, 3(Nov), 507-554.</p>
+</dd>
+<dt class="label" id="id10"><span class="brackets">2</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id5">2</a>,<a href="#id6">3</a>,<a href="#id7">4</a>,<a href="#id8">5</a>)</span></dt>
+<dd><p>Huang, B., Zhang, K., Lin, Y., Schölkopf, B., &amp; Glymour, C. (2018, July). Generalized score functions for causal discovery. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery &amp; Data Mining (pp. 1551-1560).</p>
+</dd>
+<dt class="label" id="id11"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>Schwarz, G. (1978). Estimating the dimension of a model. The annals of statistics, 461-464.</p>
+</dd>
+<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p>Buntine, W. (1991). Theory refinement on Bayesian networks. In Uncertainty proceedings 1991 (pp. 52-60). Morgan Kaufmann.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Score-based causal discovery methods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ExactSearch.html" class="btn btn-neutral float-right" title="Exact Search" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, CLeaR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

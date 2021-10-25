@@ -1,0 +1,53 @@
+=============
+Getting started
+=============
+
+
+Installation
+^^^^^^^^^^^^
+
+Requirements
+------------
+
+* python 3
+* numpy
+* networkx
+* pandas
+* scipy
+* scikit-learn
+* statsmodels
+* pydot
+
+(For visualization)
+
+* matplotlib
+* graphviz
+* pygraphviz (might not support the most recent Mac)
+
+
+Install via PyPI
+------------
+
+To use Pytrad, we could install it using `pip <https://pypi.org/project/sqlparse/>`_:
+
+.. code-block:: console
+
+   (.venv) $ pip install pytrad
+
+
+Install from source
+------------
+
+For development version, please kindly refer to our `GitHub Repository <https://github.com/cmu-phil/pytrad>`_.
+
+
+Running examples
+^^^^^^^^^^^^
+
+For search methods in causal discovery, there are various running examples in the 'tests' directory in our `GitHub Repository <https://github.com/cmu-phil/pytrad>`_,
+such as TestPC.py and TestGES.py.
+
+For the implemented modules, such as (conditional) independent test methods, we provide unit tests for the convenience of developing your own methods.
+
+
+

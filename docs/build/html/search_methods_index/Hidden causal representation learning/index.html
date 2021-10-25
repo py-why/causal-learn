@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hidden causal representation learning &mdash; Pytrad 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Generalized Independence Noise (GIN) condition-based method" href="gin.html" />
+    <link rel="prev" title="Additive noise models" href="../Causal%20discovery%20methods%20based%20on%20constrained%20functional%20causal%20models/anm.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Pytrad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Search methods</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Constrained-based%20causal%20discovery%20methods/index.html">Constrained-based causal discovery methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Score-based%20causal%20discovery%20methods/index.html">Score-based causal discovery methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Causal%20discovery%20methods%20based%20on%20constrained%20functional%20causal%20models/index.html">Causal discovery methods based on constrained functional causal models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Hidden causal representation learning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gin.html">Generalized Independence Noise (GIN) condition-based method</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Granger%20causality/index.html">Granger causality</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../independence_tests_index/index.html">(Conditional) independence tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../score_functions_index/index.html">Score functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities_index/index.html">Utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pytrad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Search methods</a> &raquo;</li>
+      <li>Hidden causal representation learning</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/search_methods_index/Hidden causal representation learning/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hidden-causal-representation-learning">
+<h1>Hidden causal representation learning<a class="headerlink" href="#hidden-causal-representation-learning" title="Permalink to this headline"></a></h1>
+<p>In this section, we would like to introduce methods in hidden causal representation learning, such as
+generalized independent noise (GIN <a class="footnote-reference brackets" href="#id2" id="id1">1</a>) condition-based method.</p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gin.html">Generalized Independence Noise (GIN) condition-based method</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gin.html#algorithm-introduction">Algorithm Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gin.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gin.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gin.html#returns">Returns</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Xie, F., Cai, R., Huang, B., Glymour, C., Hao, Z., &amp; Zhang, K. (2020, January). Generalized Independent Noise Condition for Estimating Latent Variable Causal Graphs. In NeurIPS.</p>
+</dd>
+</dl>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../Causal%20discovery%20methods%20based%20on%20constrained%20functional%20causal%20models/anm.html" class="btn btn-neutral float-left" title="Additive noise models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gin.html" class="btn btn-neutral float-right" title="Generalized Independence Noise (GIN) condition-based method" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, CLeaR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

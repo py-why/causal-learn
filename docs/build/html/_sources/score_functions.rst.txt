@@ -1,0 +1,136 @@
+.. _score_functions:
+
+=============
+Score functions
+=============
+
+BIC score
+^^^^^^^^^^^^
+Calculate the local score with BIC_ for the linear Gaussian case.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**Data**: (sample, features).
+
+**i**: current index.
+
+**PAi**: parent indexes.
+
+**parameters**: None.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**score**: Local BIC score.
+
+.. [BIC] Schwarz, Gideon. "Estimating the dimension of a model." The annals of statistics (1978): 461-464.
+
+BDeu score
+^^^^^^^^^^^^
+Calculate the local score with BDeu_ for the discrete case.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**Data**: (sample, features).
+
+**i**: current index.
+
+**PAi**: parent indexes.
+
+**parameters**:
+               - sample_prior: sample prior.
+               - structure_prior: structure prior.
+               - r_i_map: number of states of the finite random variable 'X_{i}'.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**score**: Local BDeu score.
+
+.. [BDeu] Buntine, Wray. "Theory refinement on Bayesian networks." Uncertainty proceedings 1991. Morgan Kaufmann, 1991. 52-60.
+
+Generalized score with cross validation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Calculate the local score using negative k-fold cross-validated log likelihood as the score, based on a regression model in RKHS [GeneralizedScore]_.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**Data**: (sample, features).
+
+**i**: current index.
+
+**PAi**: parent indexes.
+
+**parameters**:
+               - kfold: the fold number in cross validation.
+               - lambda: regularization parameter.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**score**: Local score.
+
+
+Generalized score with marginal likelihood
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Calculate the local score by negative marginal likelihood, based on a regression model in RKHS [GeneralizedScore]_.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**Data**: (sample, features).
+
+**i**: current index.
+
+**PAi**: parent indexes.
+
+**parameters**: None.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**score**: Local score.
+
+
+Generalized score with cross validation for multi-dimensional variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Calculate the local score using negative k-fold cross-validated log likelihood as the score,
+based on a regression model in RKHS for data with multi-dimensional variables [GeneralizedScore]_.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**Data**: (sample, features).
+
+**i**: current index.
+
+**PAi**: parent indexes.
+
+**parameters**:
+               - kfold: the fold number in cross validation.
+               - lambda: regularization parameter.
+               - dlabel: indicate the data dimensions that belong to each variable. It is only used when the variables have multivariate dimensions.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**score**: Local score.
+
+
+
+
+
+Generalized score with marginal likelihood for multi-dimensional variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Calculate the local score by negative marginal likelihood, based on a regression model in RKHS
+for data with multi-dimensional variables [GeneralizedScore]_.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**Data**: (sample, features).
+
+**i**: current index.
+
+**PAi**: parent indexes.
+
+**parameters**:
+               - dlabel: indicate the data dimensions that belong to each variable. It is only used when the variables have multivariate dimensions.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**score**: Local score.
+
+.. [GeneralizedScore] Huang, Biwei, et al. "Generalized score functions for causal discovery." KDD. 2018.

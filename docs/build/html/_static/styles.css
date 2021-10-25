@@ -1,0 +1,6 @@
+// this selects the contents section, the first table of contents and the list item
+// underneath it. Then it removes the spacing to make it look whole. If you have more
+// items, you can consider using :not(:last-of-type) selector.
+#contents .toctree-wrapper:first-of-type ul {
+    margin-bottom: 0;
+}

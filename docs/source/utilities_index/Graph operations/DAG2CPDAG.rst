@@ -1,0 +1,19 @@
+DAG2CPDAG
+==============
+
+Covert a DAG to its corresponding CPDAG.
+
+Usage
+--------
+.. code-block:: python
+
+    from pytrad.utils.DAG2CPDAG import dag2cpdag
+    CPDAG = dag2cpdag(G)
+
+Parameters
+---------------------
+**G**: Direct Acyclic Graph.
+
+Returns
+--------------
+**CPDAG**: Completed Partially Direct Acyclic Graph.

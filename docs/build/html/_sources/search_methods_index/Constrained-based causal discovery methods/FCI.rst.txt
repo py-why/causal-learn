@@ -1,0 +1,37 @@
+FCI
+=====
+
+Algorithm Introduction
+--------------------------------------
+
+Causal Discovery with Fast Causal Inference (FCI [2]_).
+
+
+Usage
+----------------------------
+.. code-block:: python
+
+    from pytrad.search.ConstraintBased.FCI import fci
+    G = fci(data, indep_test, alpha, verbose=True)
+
+Parameters
+-------------------
+**data**: Input data matrix
+
+**alpha**: Significance level of individual partial correlation tests.
+
+**indep_test**: Independence test method function.
+       - ":ref:`fisherz <Fisher-z test>`": Fisher's Z conditional independence test.
+       - ":ref:`chisq <Chi-Square test>`": Chi-squared conditional independence test.
+       - ":ref:`gsq <G-Square test>`": G-squared conditional independence test.
+       - ":ref:`kci <Kernel-based conditional independence (KCI) test and independence test>`": kernel-based conditional independence test. (As a kernel method, its complexity is cubic in the sample size, so it might be slow if the same size is not small.)
+       - ":ref:`mv_fisherz <Missing-value Fisher-z test>`": Missing-value Fisher's Z conditional independence test.
+
+**verbose**: 0 - no output, 1 - detailed output.
+
+
+Returns
+-------------------
+**cg** : a CausalGraph object.
+
+.. [2] Spirtes, P., Meek, C., & Richardson, T. (1995, August). Causal inference in the presence of latent variables and selection bias. In Proceedings of the Eleventh conference on Uncertainty in artificial intelligence (pp. 499-506).

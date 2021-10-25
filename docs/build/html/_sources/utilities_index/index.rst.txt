@@ -1,0 +1,12 @@
+Utilities
+===================
+In this section, we would like to introduce utilities in Pytrad, such as graph operations and evaluations.
+
+
+Contents:
+
+.. toctree::
+    :maxdepth: 3
+
+    Graph operations/index
+    Evaluations/index

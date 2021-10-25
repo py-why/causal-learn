@@ -1,0 +1,103 @@
+====================================
+(Conditional) independence tests
+===================================
+
+Fisher-z
+^^^^^^^^^^^^
+
+Perform an independence test using Fisher-z's test [fisherz_]. This test is optimal for linear-Gaussian data.
+
+Parameters test
+""""""""""""""""""""""""""""""""""""
+**data**: data matrices.
+
+**X, Y and condition_set**: data matrices of size number_of_samples * dimensionality.
+
+**correlation_matrix**: correlation matrix; None means without the parameter of correlation matrix.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**p**: the p-value of the test.
+
+.. [fisherz] Fisher, Ronald A. "On the'probable error'of a coefficient of correlation deduced from a small sample." Metron 1 (1921): 1-32.
+
+
+Missing-value Fisher-z test
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Perform a testwise-deletion Fisher-z independence test to data sets with missing values.
+With testwise-deletion, the test makes use of all data points that do not have missing values for the variables involved in the test.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**mvdata**: data with missing values.
+
+**X, Y and condition_set**: data matrices of size number_of_samples * dimensionality.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**p**: the p-value of the test.
+
+
+Chi-Square test
+^^^^^^^^^^^^^^^^
+
+Perform an independence test on discrete variables using Chi-Square test.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**data**: data matrices.
+
+**X, Y and condition_set**: data matrices of size number_of_samples * dimensionality.
+
+**G_sq**: True means using G-Square test;
+       False means using Chi-Square test.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**p**: the p-value of the test.
+
+
+
+Kernel-based conditional independence (KCI) test and independence test
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Kernel-based conditional independence (KCI_) test and independence test.
+To test if x and y are conditionally or unconditionally independent on Z. For unconditional independence tests,
+Z is set to the empty set.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**X, Y and Z**: data matrices of size number_of_samples * dimensionality. Z could be None.
+
+**KernelX/Y/Z**: ['GaussianKernel', 'LinearKernel', 'PolynomialKernel'].
+(For 'PolynomialKernel', the default degree is 2. Currently, users can change it by setting the 'degree' of 'class PolynomialKernel()'.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+**p_val**: the p value.
+
+
+.. [KCI] Zhang, Kun, et al. "Kernel-based conditional independence test and application in causal discovery." UAI. 2011.
+
+
+G-Square test
+^^^^^^^^^^^^^^^
+
+
+Perform an independence test using G-Square test [gSquare]_. This test is based on the log likelihood ratio test.
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+**data**: data matrices.
+
+**X, Y and condition_set**: data matrices of size number_of_samples * dimensionality.
+
+**G_sq**: True means using G-Square test; False means using Chi-Square test.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+p: the p-value of the test
+
+.. [gSquare] Tsamardinos, Ioannis, Laura E. Brown, and Constantin F. Aliferis. "The max-min hill-climbing Bayesian network structure learning algorithm." Machine learning 65.1 (2006): 31-78.
+

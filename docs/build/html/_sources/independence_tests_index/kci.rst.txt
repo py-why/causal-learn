@@ -1,0 +1,29 @@
+.. _Kernel-based conditional independence (KCI) test and independence test:
+
+Kernel-based conditional independence (KCI) test and independence test
+=========================================================================
+
+Kernel-based conditional independence (KCI) test and independence test [1]_.
+To test if x and y are conditionally or unconditionally independent on Z. For unconditional independence tests,
+Z is set to the empty set.
+
+Usage
+--------
+.. code-block:: python
+
+    from pytrad.utils.cit import kci
+    p = kci(data, X, Y, condition_set, kernelX, kernelY, kernelZ)
+
+Parameters
+-------------
+**X, Y, and condition_set**: data matrices of size number_of_samples * dimensionality. Z could be None.
+
+**KernelX/Y/Z (condition_set)**: ['GaussianKernel', 'LinearKernel', 'PolynomialKernel'].
+(For 'PolynomialKernel', the default degree is 2. Currently, users can change it by setting the 'degree' of 'class PolynomialKernel()'.
+
+Returns
+-----------
+**p**: the p value.
+
+
+.. [1] Zhang, K., Peters, J., Janzing, D., & Schölkopf, B. (2011, July). Kernel-based Conditional Independence Test and Application in Causal Discovery. In 27th Conference on Uncertainty in Artificial Intelligence (UAI 2011) (pp. 804-813). AUAI Press.

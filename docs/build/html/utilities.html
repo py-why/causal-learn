@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utilities &mdash; Pytrad 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Score functions" href="score_functions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Pytrad
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="search_methods.html">Search methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="independence_tests.html">Fisher-z</a></li>
+<li class="toctree-l1"><a class="reference internal" href="independence_tests.html#missing-value-fisher-z-test">Missing-value Fisher-z test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="independence_tests.html#chi-square-test">Chi-Square test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="independence_tests.html#kernel-based-conditional-independence-kci-test-and-independence-test">Kernel-based conditional independence (KCI) test and independence test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="independence_tests.html#g-square-test">G-Square test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score_functions.html">Score functions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#graph-operations">Graph operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dag2cpdag">DAG2CPDAG</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#dag2pag">DAG2PAG</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pdag2dag">PDAG2DAG</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#txt2genralgraph">TXT2GenralGraph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Pytrad</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Utilities</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/utilities.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline"></a></h1>
+<section id="graph-operations">
+<h2>Graph operations<a class="headerlink" href="#graph-operations" title="Permalink to this headline"></a></h2>
+<section id="dag2cpdag">
+<h3>DAG2CPDAG<a class="headerlink" href="#dag2cpdag" title="Permalink to this headline"></a></h3>
+<p>Covert a DAG to its corresponding PDAG.</p>
+<section id="parameters">
+<h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h4>
+<p><strong>G</strong>: Direct Acyclic Graph.</p>
+</section>
+<section id="returns">
+<h4>Returns<a class="headerlink" href="#returns" title="Permalink to this headline"></a></h4>
+<p><strong>CPDAG</strong>: Completed Partially Direct Acyclic Graph.</p>
+</section>
+</section>
+<section id="dag2pag">
+<h3>DAG2PAG<a class="headerlink" href="#dag2pag" title="Permalink to this headline"></a></h3>
+<p>Covert a DAG to its corresponding PAG.</p>
+<section id="id1">
+<h4>Parameters<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h4>
+<p><strong>dag</strong>: Direct Acyclic Graph.</p>
+<p><strong>islatent</strong>: the indexes of latent variables. [] means there is no latent variable.</p>
+</section>
+<section id="id2">
+<h4>Returns<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h4>
+<p><strong>PAG</strong>: Partial Ancestral Graph.</p>
+</section>
+</section>
+<section id="pdag2dag">
+<h3>PDAG2DAG<a class="headerlink" href="#pdag2dag" title="Permalink to this headline"></a></h3>
+<p>Covert a PDAG to its corresponding DAG.</p>
+<section id="id3">
+<h4>Parameters<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h4>
+<p><strong>G</strong>: Partially Direct Acyclic Graph.</p>
+</section>
+<section id="id4">
+<h4>Returns<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h4>
+<p><strong>Gd</strong>: Direct Acyclic Graph.</p>
+</section>
+</section>
+<section id="txt2genralgraph">
+<h3>TXT2GenralGraph<a class="headerlink" href="#txt2genralgraph" title="Permalink to this headline"></a></h3>
+<p>Convert text file of Tetrad results into GeneralGraph class for Pytrad.</p>
+<section id="id5">
+<h4>Parameters<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h4>
+<p><strong>filename</strong>: Text file of Tetrad results.</p>
+</section>
+<section id="id6">
+<h4>Returns<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h4>
+<p><strong>G</strong>: GeneralGraph Class for Pytrad.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="score_functions.html" class="btn btn-neutral float-left" title="Score functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, CLeaR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+Post-nonlinear causal models
+=============================
+
+Algorithm Introduction
+--------------------------------------
+
+Causal discovery based on the post-nonlinear (PNL [1]_) causal models.
+
+Parameters
+--------------------------------------
+TBA
+
+Returns
+--------------------------------------
+TBA
+
+.. [1] Zhang, K., & Hyvärinen, A. (2009, June). On the Identifiability of the Post-Nonlinear Causal Model. In 25th Conference on Uncertainty in Artificial Intelligence (UAI 2009) (pp. 647-655). AUAI Press.

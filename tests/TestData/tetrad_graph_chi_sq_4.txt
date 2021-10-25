@@ -1,0 +1,33 @@
+Graph Nodes:
+X1;X2;X3;X4;X5;X6;X7;X8;X9;X10;X11;X12;X13;X14;X15;X16;X17;X18;X19;X20
+
+Graph Edges:
+1. X1 --> X13
+2. X1 --> X16
+3. X10 --> X19
+4. X12 --> X17
+5. X14 --- X15
+6. X15 --> X19
+7. X17 --> X18
+8. X19 --> X20
+9. X2 --> X17
+10. X2 --> X7
+11. X3 --- X15
+12. X4 --> X12
+13. X4 --> X16
+14. X4 --- X18
+15. X4 --> X7
+16. X5 --- X10
+17. X5 --- X11
+18. X5 --> X7
+19. X6 --> X13
+20. X6 --- X14
+21. X8 --> X12
+22. X8 --> X17
+
+
+
+Ambiguous triples (i.e. list of triples for which there is ambiguous data about whether they are colliders or not):
+<X14, X15, X3>
+<X11, X5, X10>
+<X4, X18, X17>

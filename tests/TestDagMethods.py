@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import unittest
-from graph.Dag import Dag
-from graph.GraphNode import GraphNode
-from graph.Edge import Edge
-from graph.Endpoint import Endpoint
+from pytrad.graph.Dag import Dag
+from pytrad.graph.GraphNode import GraphNode
+from pytrad.graph.Edge import Edge
+from pytrad.graph.Endpoint import Endpoint
 import numpy as np
 
 class TestDagMethods(unittest.TestCase):
@@ -912,9 +912,9 @@ class TestDagMethods(unittest.TestCase):
         node3 = dag.get_node("x3")
         node4 = dag.get_node("x4")
 
-        edge = Edge(node2, node1, -1, 1)
-        edge2 = Edge(node2, node3, -1, 1)
-        edge3 = Edge(node3, node4, -1, 1)
+        edge = Edge(node2, node1, Endpoint(-1), Endpoint(1))
+        edge2 = Edge(node2, node3, Endpoint(-1), Endpoint(1))
+        edge3 = Edge(node3, node4, Endpoint(-1), Endpoint(1))
 
         dag.add_edge(edge)
         dag.add_edge(edge2)
