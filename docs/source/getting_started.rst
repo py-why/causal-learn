@@ -87,7 +87,7 @@ To help users get a quick sense of running time, we conducted benchmarking for s
 
 
 .. list-table:: Running time (s) for FCI (Fisher-z test)
-   :widths: 20, 20, 20, 20, 20
+   :widths: 20, 20, 20
    :header-rows: 1
 
    * -
@@ -111,7 +111,7 @@ To help users get a quick sense of running time, we conducted benchmarking for s
      - S
 
 .. list-table:: Running time (s) for GES (BIC score)
-   :widths: 20, 20, 20, 20, 20
+   :widths: 20, 20, 20, 20
    :header-rows: 1
 
    * -
