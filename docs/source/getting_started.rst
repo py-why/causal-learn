@@ -53,8 +53,7 @@ For the implemented modules, such as (conditional) independent test methods, we 
 Quick benchmarking
 ^^^^^^^^^^^^
 
-To help users get a quick sense of running time, we conducted benchmarking for several methods. We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}. The sample size is 1000. Results are as follows (more results will be updated soon).
-
+To help users get a quick sense of running time, we conducted benchmarking for several methods. We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}. The sample size is 1000. We denote running time as 'S' if it is more than one day. All results are average over 10 runs with different random seeds.
 
 .. list-table:: Running time (s) for PC (Fisher-z test)
    :widths: 20, 20, 20, 20, 20
@@ -85,6 +84,60 @@ To help users get a quick sense of running time, we conducted benchmarking for s
      - 18.4
      - 94.5
      - 217.8
+
+
+.. list-table:: Running time (s) for FCI (Fisher-z test)
+   :widths: 20, 20, 20, 20, 20
+   :header-rows: 1
+
+   * -
+     - 10
+     - 25
+
+   * - 2
+     - 1.9
+     - 18968.5
+
+   * - 3
+     - 4.55
+     - S
+
+   * - 4
+     - 7.65
+     - S
+
+   * - 5
+     - 7.24
+     - S
+
+.. list-table:: Running time (s) for GES (BIC score)
+   :widths: 20, 20, 20, 20, 20
+   :header-rows: 1
+
+   * -
+     - 10
+     - 25
+     - 50
+
+   * - 2
+     - 5.3
+     - 170.4
+     - 2384.8
+
+   * - 3
+     - 7.1
+     - 296.1
+     - 5534.5
+
+   * - 4
+     - 9.1
+     - 2392.6
+     - 9060.9
+
+   * - 5
+     - 13.5
+     - 1368.7
+     - 16323.5
 
 
 Contributors
