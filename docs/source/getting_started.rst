@@ -53,7 +53,7 @@ For the implemented modules, such as (conditional) independent test methods, we 
 Quick benchmarking
 ^^^^^^^^^^^^
 
-To help users get a quick sense of running time, we conducted benchmarking for some methods. We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}. The sample size is 1000. Results are as follows (more results will be updated soon).
+To help users get a quick sense of running time, we conducted benchmarking for several methods. We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}. The sample size is 1000. Results are as follows (more results will be updated soon).
 
 
 .. list-table:: Running time (s) for PC (Fisher-z test)
