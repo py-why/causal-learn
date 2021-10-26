@@ -106,13 +106,13 @@ Parameters
 
 **criterion**: {‘aic’, ‘fpe’, ‘hqic’, ‘bic’, None}, optional (default='bic'). Criterion to decide the best lags within 'lags'. Searching the best lags is disabled if 'criterion' is None.
 
-prune : boolean, optional (default=False). Whether to prune the adjacency matrix or not.
+**prune**: boolean, optional (default=False). Whether to prune the adjacency matrix or not.
 
-ar_coefs : array-like, optional (default=None). Coefficients of AR model. Estimating AR model is skipped if specified 'ar_coefs'. Shape must be ('lags', n_features, n_features).
+**ar_coefs**: array-like, optional (default=None). Coefficients of AR model. Estimating AR model is skipped if specified 'ar_coefs'. Shape must be ('lags', n_features, n_features).
 
-lingam_model : lingam object inherits 'lingam._BaseLiNGAM', optional (default=None). LiNGAM model for causal discovery. If None, DirectLiNGAM algorithm is selected.
+**lingam_model**: lingam object inherits 'lingam._BaseLiNGAM', optional (default=None). LiNGAM model for causal discovery. If None, DirectLiNGAM algorithm is selected.
 
-random_state : int, optional (default=None). 'random_state' is the seed used by the random number generator.
+**random_state**: int, optional (default=None). 'random_state' is the seed used by the random number generator.
 
 Returns
 """"""""""""""""""""""""""""""""""""
