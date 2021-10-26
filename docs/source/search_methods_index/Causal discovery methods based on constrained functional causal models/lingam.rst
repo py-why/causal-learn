@@ -37,8 +37,11 @@ Parameters
 Returns
 """"""""""""""""""""""""""""""""""""
 
+**model.causal_order_**: array-like, shape (n_features).
+The causal order of fitted model, where n_features is the number of features.
+
 **model.adjacency_matrix_**: array-like, shape (n_features, n_features).
-The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.
+The adjacency matrix B of fitted model, where n_features is the number of features.
 
 
 
@@ -73,8 +76,54 @@ The elements of prior knowledge matrix are defined as follows:
 Returns
 """"""""""""""""""""""""""""""""""""
 
+**model.causal_order_**: array-like, shape (n_features).
+The causal order of fitted model, where n_features is the number of features.
+
 **model.adjacency_matrix_**: array-like, shape (n_features, n_features).
-The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.
+The adjacency matrix B of fitted model, where n_features is the number of features.
+
+
+
+VAR-LiNGAM
+--------------------------------------
+
+.. code-block:: python
+
+    from pytrad.search.FCMBased import lingam
+    model = lingam.VARLiNGAM(lags, criterion, prune, ar_coefs, lingam_model, random_state)
+    model.fit(X)
+
+    print(model.causal_order_)
+    print(model.adjacency_matrices_[0])
+    print(model.adjacency_matrices_[1])
+    print(model.residuals_)
+
+Parameters
+""""""""""""""""""""""""""""""""""""
+
+**lags**: int, optional (default=1). Number of lags.
+
+**criterion**: {‘aic’, ‘fpe’, ‘hqic’, ‘bic’, None}, optional (default='bic'). Criterion to decide the best lags within 'lags'. Searching the best lags is disabled if 'criterion' is None.
+
+prune : boolean, optional (default=False). Whether to prune the adjacency matrix or not.
+
+ar_coefs : array-like, optional (default=None). Coefficients of AR model. Estimating AR model is skipped if specified 'ar_coefs'. Shape must be ('lags', n_features, n_features).
+
+lingam_model : lingam object inherits 'lingam._BaseLiNGAM', optional (default=None). LiNGAM model for causal discovery. If None, DirectLiNGAM algorithm is selected.
+
+random_state : int, optional (default=None). 'random_state' is the seed used by the random number generator.
+
+Returns
+""""""""""""""""""""""""""""""""""""
+
+**model.causal_order_**: array-like, shape (n_features).
+The causal order of fitted model, where n_features is the number of features.
+
+**model.adjacency_matrices_**: array-like, shape (lags, n_features, n_features).
+The adjacency matrix of fitted model, where n_features is the number of features.
+
+**model.residuals_**: array-like, shape (n_samples).
+Residuals of regression, where n_samples is the number of samples.
 
 
 RCD
@@ -87,6 +136,7 @@ RCD
     model.fit(X)
 
     print(model.adjacency_matrix_)
+    print(model.ancestors_list_)
 
 Parameters
 """"""""""""""""""""""""""""""""""""
@@ -110,7 +160,7 @@ Returns
 """"""""""""""""""""""""""""""""""""
 
 **model.adjacency_matrix_**: array-like, shape (n_features, n_features).
-The adjacency matrix B of fitted model, where n_features is the number of features. Set np.nan if order is unknown.
+The adjacency matrix B of fitted model, where n_features is the number of features.
 
 **model.ancestors_list_**: array-like, shape (n_features).
 The list of causal ancestors sets, where n_features is the number of features.
@@ -146,3 +196,5 @@ Returns
 **P**: P[i] contains the indices of the parents of Xi.
 
 **U**: The indices of variable pairs having UCPs or UBPs.
+
+
