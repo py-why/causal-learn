@@ -54,6 +54,7 @@ If None, no max on parents. Default is None.
 Returns
 --------------------------------------
 **dag_est**:  numpy.ndarray, shape=(d, d). Estimated DAG.
+
 **search_stats**:  dict. Some statistics related to the seach procedure.
 
 .. [1] Silander, T., & Myllymäki, P. (2006, July). A simple approach for finding the globally optimal Bayesian network structure. In Proceedings of the Twenty-Second Conference on Uncertainty in Artificial Intelligence (pp. 445-452).
