@@ -27,7 +27,7 @@ Super-structure to restrict search space (binary matrix).
 If None, no super-structure is used. Default is None.
 
 **search_method**: str.
-Method of of exact search (['astar', 'dp']).
+Method of exact search (['astar', 'dp']).
 Default is astar.
 
 **use_path_extension**: bool.
