@@ -64,6 +64,7 @@ We denote running time as '>D' if it is more than one day.
 All results are average over 10 runs with different random seeds.
 
 .. image:: table_modified.png
+  :width: 400
 
 Contributors
 ^^^^^^^^^^^^
