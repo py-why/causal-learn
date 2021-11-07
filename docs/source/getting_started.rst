@@ -75,23 +75,15 @@ Contributors
 
 **Developers**:
 
-Wei Chen, Ruichu Cai, Biwei Huang, Yuequn Liu, Zhiyi Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operaitions <graphoperation>`.
-
-Mingming Gong, Erdun Gao: :ref:`PNL <pnl>`, :ref:`ANM <anm>`, :ref:`Granger causality <granger>`, and :ref:`KCI <Kernel-based conditional independence (KCI) test and independence test>`.
-
-Shohei Shimizu, Takashi Nicholas Maeda, Takashi Ikeuchi: :ref:`LiNGAM-based methods <lingam>`.
-
-Madelyn Glymour: several helpers.
-
-Ruibo Tu: :ref:`Missing-value/test-wise deletion PC <pc>`.
-
-Wai-Yin Lam: :ref:`PC <pc>`.
-
-Biwei Huang: :ref:`CD-NOD <cdnod>`.
-
-Ignavier Ng, Yujia Zheng: :ref:`Exact search <exactsearch>`.
-
-Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
+- Wei Chen, Ruichu Cai, Biwei Huang, Yuequn Liu, Zhiyi Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operaitions <graphoperation>`.
+- Mingming Gong, Erdun Gao: :ref:`PNL <pnl>`, :ref:`ANM <anm>`, :ref:`Granger causality <granger>`, and :ref:`KCI <Kernel-based conditional independence (KCI) test and independence test>`.
+- Shohei Shimizu, Takashi Nicholas Maeda, Takashi Ikeuchi: :ref:`LiNGAM-based methods <lingam>`.
+- Madelyn Glymour: several helpers.
+- Ruibo Tu: :ref:`Missing-value/test-wise deletion PC <pc>`.
+- Wai-Yin Lam: :ref:`PC <pc>`.
+- Biwei Huang: :ref:`CD-NOD <cdnod>`.
+- Ignavier Ng, Yujia Zheng: :ref:`Exact search <exactsearch>`.
+- Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
 
 
 
