@@ -53,9 +53,16 @@ For the implemented modules, such as (conditional) independent test methods, we 
 Quick benchmarking
 ^^^^^^^^^^^^
 
-To help users get a quick sense of running time, we conducted benchmarking for several methods. We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}. The sample size is 1000. We denote running time as 'S' if it is more than one day. All results are average over 10 runs with different random seeds.
+To help users get a quick sense of the running time of the algorithms of interest, we conducted benchmarking for several methods.
+We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}.
+The average degree is the average number of edges connected to a node.
+We simply calculate it by dividing the sum of degrees by the total number of nodes in the graph.
+The sample size is 1000.
+All algorithms were run on a single cluster node with 8 CPUs (Intel Xeon E5-2470) and 16 GB Memory.
+We denote running time as '>D' if it is more than one day.
+All results are average over 10 runs with different random seeds.
 
-.. list-table:: Running time (s) for PC (Fisher-z test)
+.. list-table:: Running time (in seconds) for PC (with Fisher-z test)
    :widths: 20, 20, 20, 20, 20
    :header-rows: 1
 
@@ -86,7 +93,7 @@ To help users get a quick sense of running time, we conducted benchmarking for s
      - 217.8
 
 
-.. list-table:: Running time (s) for FCI (Fisher-z test)
+.. list-table:: Running time (in seconds) for FCI (with Fisher-z test)
    :widths: 20, 20, 20
    :header-rows: 1
 
@@ -100,17 +107,17 @@ To help users get a quick sense of running time, we conducted benchmarking for s
 
    * - 3
      - 4.55
-     - S
+     - >D
 
    * - 4
      - 7.65
-     - S
+     - >D
 
    * - 5
      - 7.24
-     - S
+     - >D
 
-.. list-table:: Running time (s) for GES (BIC score)
+.. list-table:: Running time (in seconds) for GES (with BIC score)
    :widths: 20, 20, 20, 20
    :header-rows: 1
 
@@ -147,7 +154,7 @@ Contributors
 
 **Coordinators**: Yujia Zheng, Mingming Gong, Biwei Huang, Wei Chen
 
-**Contributors**:
+**Developers**:
 
 Wei Chen, Ruichu Cai, Biwei Huang, Yuequn Liu, Zhiyi Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operaitions <graphoperation>`.
 
