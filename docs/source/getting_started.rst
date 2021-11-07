@@ -64,7 +64,7 @@ We denote running time as '>D' if it is more than one day.
 All results are average over 10 runs with different random seeds.
 
 .. image:: table_modified.png
-  :width: 400
+  :width: 500
 
 Contributors
 ^^^^^^^^^^^^
@@ -74,7 +74,6 @@ Contributors
 **Coordinators**: Yujia Zheng, Mingming Gong, Biwei Huang, Wei Chen
 
 **Developers**:
-
 - Wei Chen, Ruichu Cai, Biwei Huang, Yuequn Liu, Zhiyi Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operaitions <graphoperation>`.
 - Mingming Gong, Erdun Gao: :ref:`PNL <pnl>`, :ref:`ANM <anm>`, :ref:`Granger causality <granger>`, and :ref:`KCI <Kernel-based conditional independence (KCI) test and independence test>`.
 - Shohei Shimizu, Takashi Nicholas Maeda, Takashi Ikeuchi: :ref:`LiNGAM-based methods <lingam>`.
