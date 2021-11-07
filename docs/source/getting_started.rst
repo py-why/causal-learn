@@ -55,6 +55,7 @@ Quick benchmarking
 
 To help users get a quick sense of the running time of the algorithms of interest, we conducted benchmarking for several methods.
 We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}.
+The random graphs are Erdős-Rényi graphs.
 The average degree is the average number of edges connected to a node.
 We simply calculate it by dividing the sum of degrees by the total number of nodes in the graph.
 The sample size is 1000.
