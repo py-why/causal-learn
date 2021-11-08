@@ -16,10 +16,7 @@ class TestCDNOD(unittest.TestCase):
         c_indx = np.reshape(np.asarray(list(range(data.shape[0]))), (data.shape[0],1)) # used to capture the unobserved time-varying factors
         cg = cdnod(data, c_indx, 0.05, kci, True, 0,
                 -1)  # Run CDNOD and obtain the estimated augmented graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+
         print('finish')
 
 
@@ -36,8 +33,5 @@ class TestCDNOD(unittest.TestCase):
         c_indx = np.concatenate((np.ones((data1.shape[0], 1)), 2*np.ones((data1.shape[0], 1)), 3*np.ones((data1.shape[0], 1))))
         cg = cdnod(data, c_indx, 0.05, kci, True, 0,
                 -1)  # Run CDNOD and obtain the estimated augmented graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+
         print('finish')

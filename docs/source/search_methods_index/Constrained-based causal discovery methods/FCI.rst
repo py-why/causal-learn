@@ -15,6 +15,8 @@ Usage
 
     from pytrad.search.ConstraintBased.FCI import fci
     G = fci(data, indep_test, alpha, verbose=True)
+    G.to_nx_graph()
+    G.draw_nx_graph(skel=False)
 
 Parameters
 -------------------

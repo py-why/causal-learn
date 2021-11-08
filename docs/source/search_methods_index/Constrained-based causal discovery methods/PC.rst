@@ -18,6 +18,8 @@ Usage
 
     from pytrad.search.ConstraintBased.PC import pc
     G = pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc, correction_name, background_knowledge)
+    G.to_nx_graph()
+    G.draw_nx_graph(skel=False)
 
 Parameters
 -------------------
