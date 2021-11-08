@@ -15,10 +15,9 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 0,
                 -1)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
+
         print('finish')
 
     # example2
@@ -27,10 +26,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, gsq, True, 0,
                 -1)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example3
@@ -39,10 +36,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, chisq, True, 0,
                 -1)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example4
@@ -51,10 +46,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 1,
                 -1)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example5
@@ -63,10 +56,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 2,
                 -1)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
 
         print('finish')
 
@@ -76,10 +67,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 0,
                 0)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example7
@@ -88,10 +77,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 0,
                 1)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example8
@@ -100,10 +87,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 0,
                 2)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example9
@@ -112,10 +97,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 0,
                 3)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example10
@@ -124,10 +107,8 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
         cg = pc(data, 0.05, fisherz, True, 0,
                 4)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example11
@@ -137,10 +118,8 @@ class TestPC(unittest.TestCase):
 
         cg = pc(data, 0.05, mv_fisherz, True, 0,
                 4)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
 
     # example12
@@ -149,8 +128,6 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)[:50, :]  # Import the file at data_path as data
         cg = pc(data, 0.05, kci, True, 0,
                 -1)  # Run PC and obtain the estimated graph (CausalGraph object)
-        # cg.toNxGraph()
-        # cg.toNxSkeleton()
-        # cg.drawNxGraph(skel=False)  # Draw the estimated graph (or its skeleton)
-        # cg.drawNxGraph(skel=True)  # Draw the estimated graph (or its skeleton)
+        cg.to_nx_graph()
+        cg.draw_nx_graph(skel=False)
         print('finish')
