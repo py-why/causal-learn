@@ -9,8 +9,8 @@ Usage
 ----------------------------
 .. code-block:: python
 
-    from pytrad.graph.ArrowConfusion import ArrowConfusion
-    from pytrad.graph.AdjacencyConfusion import AdjacencyConfusion
+    from causallearn.graph.ArrowConfusion import ArrowConfusion
+    from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
 
     # For arrows
     arrow = ArrowConfusion(truth_cpdag, est)

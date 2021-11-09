@@ -12,7 +12,7 @@ Usage
 -----------------------------------------------------------
 .. code-block:: python
 
-    from pytrad.search.FCMBased.GIN.GIN import GIN
+    from causallearn.search.FCMBased.GIN.GIN import GIN
     G, K = GIN(data)
 
 Parameters

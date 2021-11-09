@@ -1,6 +1,6 @@
-from pytrad.graph.Endpoint import Endpoint
-from pytrad.graph.Edge import Edge
-from pytrad.graph.GraphNode import GraphNode
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.Edge import Edge
+from causallearn.graph.GraphNode import GraphNode
 
 
 # n1 = GraphNode('x1')

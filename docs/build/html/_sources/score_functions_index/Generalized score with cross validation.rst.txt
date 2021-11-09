@@ -12,7 +12,7 @@ Usage
 ^^^^^^^
 .. code-block:: python
 
-    from pytrad.score.LocalScoreFunction import local_score_cv_general
+    from causallearn.score.LocalScoreFunction import local_score_cv_general
     score = local_score_cv_general(Data, Xi, PAi, parameters)
 
 Parameters
@@ -41,7 +41,7 @@ Usage
 ^^^^^^^
 .. code-block:: python
 
-    from pytrad.score.LocalScoreFunction import local_score_cv_multi
+    from causallearn.score.LocalScoreFunction import local_score_cv_multi
     score = local_score_cv_multi(Data, Xi, PAi, parameters)
 
 

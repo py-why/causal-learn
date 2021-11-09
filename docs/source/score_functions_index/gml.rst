@@ -11,7 +11,7 @@ Usage
 ^^^^^^^
 .. code-block:: python
 
-    from pytrad.score.LocalScoreFunction import local_score_marginal_general
+    from causallearn.score.LocalScoreFunction import local_score_marginal_general
     score = local_score_marginal_general(Data, Xi, PAi, parameters)
 
 Parameters
@@ -38,7 +38,7 @@ Usage
 ^^^^^^^
 .. code-block:: python
 
-    from pytrad.score.LocalScoreFunction import local_score_marginal_multi
+    from causallearn.score.LocalScoreFunction import local_score_marginal_multi
     score = local_score_marginal_multi(Data, Xi, PAi, parameters)
 
 Parameters

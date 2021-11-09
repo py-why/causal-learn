@@ -1,6 +1,6 @@
 Search methods
 ===================
-In this section, we would like to introduce search methods for causal discovery in Pytrad.
+In this section, we would like to introduce search methods for causal discovery in causal-learn.
 
 
 Contents:

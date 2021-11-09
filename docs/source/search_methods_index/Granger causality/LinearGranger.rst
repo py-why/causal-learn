@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: python
 
-    from pytrad.search.Granger.Granger import Granger
+    from causallearn.search.Granger.Granger import Granger
     G = Granger()
     p_value_matrix = G.granger_test_2d(data)
     coeff = G.granger_lasso(data)

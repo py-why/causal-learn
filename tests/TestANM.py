@@ -1,7 +1,7 @@
 import sys, os
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
-from pytrad.search.FCMBased.ANM.ANM import ANM
+from causallearn.search.FCMBased.ANM.ANM import ANM
 import sys
 import pandas as pd
 import unittest

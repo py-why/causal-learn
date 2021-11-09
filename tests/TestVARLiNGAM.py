@@ -4,7 +4,7 @@ import unittest
 from pickle import load
 import numpy as np
 import pandas as pd
-from pytrad.search.FCMBased import lingam
+from causallearn.search.FCMBased import lingam
 
 class TestVARLiNGAM(unittest.TestCase):
 

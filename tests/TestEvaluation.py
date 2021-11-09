@@ -4,13 +4,13 @@ sys.path.append("")
 import unittest
 import numpy as np
 
-from pytrad.graph.AdjacencyConfusion import AdjacencyConfusion
-from pytrad.graph.ArrowConfusion import ArrowConfusion
-from pytrad.graph.SHD import SHD
-from pytrad.utils.cit import fisherz
-from pytrad.utils.TXT2GeneralGraph import txt2generalgraph
-from pytrad.utils.DAG2CPDAG import dag2cpdag
-from pytrad.search.ConstraintBased.PC import pc
+from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
+from causallearn.graph.ArrowConfusion import ArrowConfusion
+from causallearn.graph.SHD import SHD
+from causallearn.utils.cit import fisherz
+from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
+from causallearn.utils.DAG2CPDAG import dag2cpdag
+from causallearn.search.ConstraintBased.PC import pc
 
 class TestConfusion(unittest.TestCase):
     def test_confusion_case1(self):

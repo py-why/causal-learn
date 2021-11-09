@@ -4,7 +4,7 @@ sys.path.append("")
 import unittest
 import numpy as np
 
-from pytrad.search.HiddenCausal.GIN.GIN import GIN
+from causallearn.search.HiddenCausal.GIN.GIN import GIN
 
 
 class TestGIN(unittest.TestCase):

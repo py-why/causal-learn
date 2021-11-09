@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Pytrad'
+project = 'causal-learn'
 copyright = '2021, CLeaR'
 author = 'CLeaR'
 

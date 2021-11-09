@@ -7,7 +7,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.PDAG2DAG import pdag2dag
+    from causallearn.utils.PDAG2DAG import pdag2dag
     Gd = pdag2dag(G)
 
 Parameters

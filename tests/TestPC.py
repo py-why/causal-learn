@@ -3,8 +3,8 @@ import sys
 sys.path.append("")
 import unittest
 import numpy as np
-from pytrad.search.ConstraintBased.PC import pc
-from pytrad.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
+from causallearn.search.ConstraintBased.PC import pc
+from causallearn.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
 
 
 class TestPC(unittest.TestCase):

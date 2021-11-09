@@ -7,7 +7,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.DAG2PAG import dag2pag
+    from causallearn.utils.DAG2PAG import dag2pag
     PAG = dag2pag(dag, islatent)
 
 Parameters

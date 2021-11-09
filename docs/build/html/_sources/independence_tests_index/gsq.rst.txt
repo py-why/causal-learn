@@ -9,7 +9,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.cit import gsq
+    from causallearn.utils.cit import gsq
     p = gsq(data, X, Y, conditioning_set)
 
 Parameters

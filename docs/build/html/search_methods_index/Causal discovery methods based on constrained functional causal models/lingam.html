@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LiNGAM-based Methods &mdash; Pytrad 0.1 documentation</title>
+  <title>LiNGAM-based Methods &mdash; causal-learn 0.1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/styles.css" type="text/css" />
@@ -29,7 +29,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Pytrad
+            <a href="../../index.html" class="icon icon-home"> causal-learn
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -75,7 +75,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">Pytrad</a>
+          <a href="../../index.html">causal-learn</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -98,7 +98,7 @@
   <section id="lingam-based-methods">
 <h1>LiNGAM-based Methods<a class="headerlink" href="#lingam-based-methods" title="Permalink to this headline"></a></h1>
 <p>Estimation of Linear, Non-Gaussian Acyclic Model from observed data. It assumes non-Gaussianity of the noise terms in the causal model.</p>
-<p>Pytrad has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM <a class="footnote-reference brackets" href="#id5" id="id1">1</a>, DirectLiNGAM <a class="footnote-reference brackets" href="#id6" id="id2">2</a>, RCD <a class="footnote-reference brackets" href="#id7" id="id3">3</a>, and CAM-UV <a class="footnote-reference brackets" href="#id8" id="id4">4</a>).
+<p>causal-learn has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM <a class="footnote-reference brackets" href="#id5" id="id1">1</a>, DirectLiNGAM <a class="footnote-reference brackets" href="#id6" id="id2">2</a>, RCD <a class="footnote-reference brackets" href="#id7" id="id3">3</a>, and CAM-UV <a class="footnote-reference brackets" href="#id8" id="id4">4</a>).
 And we are actively updating the list.</p>
 <dl class="footnote brackets">
 <dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
@@ -116,7 +116,7 @@ And we are actively updating the list.</p>
 </dl>
 <section id="ica-based-lingam">
 <h2>ICA-based LiNGAM<a class="headerlink" href="#ica-based-lingam" title="Permalink to this headline"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">ICALiNGAM</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
@@ -137,7 +137,7 @@ The adjacency matrix B of fitted model, where n_features is the number of featur
 </section>
 <section id="directlingam">
 <h2>DirectLiNGAM<a class="headerlink" href="#directlingam" title="Permalink to this headline"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">DirectLiNGAM</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="n">prior_knowledge</span><span class="p">,</span> <span class="n">apply_prior_knowledge_softly</span><span class="p">,</span> <span class="n">measure</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
@@ -169,7 +169,7 @@ The adjacency matrix B of fitted model, where n_features is the number of featur
 </section>
 <section id="rcd">
 <h2>RCD<a class="headerlink" href="#rcd" title="Permalink to this headline"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">RCD</span><span class="p">(</span><span class="n">max_explanatory_num</span><span class="p">,</span> <span class="n">cor_alpha</span><span class="p">,</span> <span class="n">ind_alpha</span><span class="p">,</span> <span class="n">shapiro_alpha</span><span class="p">,</span> <span class="n">MLHSICR</span><span class="p">,</span> <span class="n">bw_method</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
@@ -202,7 +202,7 @@ The list of causal ancestors sets, where n_features is the number of features.</
 </section>
 <section id="cam-uv">
 <h2>CAM-UV<a class="headerlink" href="#cam-uv" title="Permalink to this headline"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased.lingam</span> <span class="kn">import</span> <span class="n">CAMUV</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased.lingam</span> <span class="kn">import</span> <span class="n">CAMUV</span>
 <span class="n">P</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">CAMUV</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">num_explanatory_vals</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">P</span><span class="p">):</span>

@@ -1,7 +1,7 @@
 import sys, os
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
-from pytrad.search.Granger.Granger import Granger
+from causallearn.search.Granger.Granger import Granger
 import sys
 import pandas as pd
 import unittest

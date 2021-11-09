@@ -13,7 +13,7 @@ Usage
 ----------------------------
 .. code-block:: python
 
-    from pytrad.search.ScoreBased.GES import ges
+    from causallearn.search.ScoreBased.GES import ges
     Record = ges(X, score_func, maxP, parameters)
 
 Parameters

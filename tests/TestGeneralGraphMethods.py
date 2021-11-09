@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import unittest
-from pytrad.graph.GeneralGraph import GeneralGraph
-from pytrad.graph.GraphNode import GraphNode
-from pytrad.graph.Edge import Edge
-from pytrad.graph.Endpoint import Endpoint
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
 import numpy as np
 
 class TestGeneralGraphMethods(unittest.TestCase):

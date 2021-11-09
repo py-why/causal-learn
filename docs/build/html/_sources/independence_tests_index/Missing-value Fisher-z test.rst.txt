@@ -10,7 +10,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.cit import mv_fisherz
+    from causallearn.utils.cit import mv_fisherz
     p = mv_fisherz(mvdata, X, Y, condition_set)
 
 

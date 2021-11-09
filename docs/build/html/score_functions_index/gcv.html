@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generalized score with cross validation &mdash; Pytrad 0.1 documentation</title>
+  <title>Generalized score with cross validation &mdash; causal-learn 0.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/styles.css" type="text/css" />
@@ -28,7 +28,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> Pytrad
+            <a href="../index.html" class="icon icon-home"> causal-learn
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -76,7 +76,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Pytrad</a>
+          <a href="../index.html">causal-learn</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -102,7 +102,7 @@
 <p>Calculate the local score using negative k-fold cross-validated log likelihood as the score, based on a regression model in RKHS <a class="footnote-reference brackets" href="#id7" id="id2">1</a>.</p>
 <section id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.score.LocalScoreFunction</span> <span class="kn">import</span> <span class="n">local_score_cv_general</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.score.LocalScoreFunction</span> <span class="kn">import</span> <span class="n">local_score_cv_general</span>
 <span class="n">score</span> <span class="o">=</span> <span class="n">local_score_cv_general</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">PAi</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -131,7 +131,7 @@
 based on a regression model in RKHS for data with multi-dimensional variables <a class="footnote-reference brackets" href="#id7" id="id3">1</a>.</p>
 <section id="id4">
 <h3>Usage<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.score.LocalScoreFunction</span> <span class="kn">import</span> <span class="n">local_score_cv_multi</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.score.LocalScoreFunction</span> <span class="kn">import</span> <span class="n">local_score_cv_multi</span>
 <span class="n">score</span> <span class="o">=</span> <span class="n">local_score_cv_multi</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">PAi</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
 </pre></div>
 </div>

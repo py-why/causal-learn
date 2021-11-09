@@ -3,10 +3,10 @@ import sys
 sys.path.append("")
 
 import unittest
-from pytrad.graph.Dag import Dag
-from pytrad.graph.GraphNode import GraphNode
-from pytrad.utils.GraphUtils import GraphUtils
-from pytrad.utils.DAG2PAG import dag2pag
+from causallearn.graph.Dag import Dag
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.utils.GraphUtils import GraphUtils
+from causallearn.utils.DAG2PAG import dag2pag
 
 class testGraphVisualization(unittest.TestCase):
 

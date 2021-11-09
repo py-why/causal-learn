@@ -9,7 +9,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.cit import chisq
+    from causallearn.utils.cit import chisq
     p = chisq(data, X, Y, conditioning_set)
 
 

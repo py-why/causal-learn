@@ -1,4 +1,4 @@
-from pytrad.search.ScoreBased.ExactSearch import bic_exact_search
+from causallearn.search.ScoreBased.ExactSearch import bic_exact_search
 import sys
 sys.path.append("")
 import unittest

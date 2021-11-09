@@ -1,6 +1,6 @@
 Evaluations
 ================================================
-In this section, we would like to introduce evaluations in pytrad.
+In this section, we would like to introduce evaluations in causal-learn.
 
 
 Contents:

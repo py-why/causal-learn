@@ -16,7 +16,7 @@ Usage
 ----------------------------
 .. code-block:: python
 
-    from pytrad.search.ConstraintBased.PC import pc
+    from causallearn.search.ConstraintBased.PC import pc
     G = pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc, correction_name, background_knowledge)
     G.to_nx_graph()
     G.draw_nx_graph(skel=False)
@@ -54,7 +54,7 @@ Parameters
 **correction_name**. Missing value correction if using missing-value PC. Default: 'MV_Crtn_Fisher_Z'
 
 **background_knowledge**: class BackgroundKnowledge. Add prior edges according to assigned causal connections.
-For detailed usage, please kindly refer to its `usage example <https://github.com/cmu-phil/pytrad/blob/develop/tests/TestBackgroundKnowledge.py>`_.
+For detailed usage, please kindly refer to its `usage example <https://github.com/cmu-phil/causal-learn/blob/develop/tests/TestBackgroundKnowledge.py>`_.
 
 Returns
 -------------------

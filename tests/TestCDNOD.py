@@ -3,8 +3,8 @@ import sys
 sys.path.append("")
 import unittest
 import numpy as np
-from pytrad.search.ConstraintBased.CDNOD import cdnod
-from pytrad.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
+from causallearn.search.ConstraintBased.CDNOD import cdnod
+from causallearn.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
 
 
 class TestCDNOD(unittest.TestCase):

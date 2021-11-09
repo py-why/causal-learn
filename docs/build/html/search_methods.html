@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search methods &mdash; Pytrad 0.1 documentation</title>
+  <title>Search methods &mdash; causal-learn 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -28,7 +28,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Pytrad
+            <a href="index.html" class="icon icon-home"> causal-learn
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -121,7 +121,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Pytrad</a>
+          <a href="index.html">causal-learn</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -152,7 +152,7 @@ missing-value testwise-deletion PC is included (by choosing ‘MV-Fisher_Z” fo
 </section>
 <section id="usage">
 <h4>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.ConstraintBased.PC</span> <span class="kn">import</span> <span class="n">pc</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.ConstraintBased.PC</span> <span class="kn">import</span> <span class="n">pc</span>
 <span class="n">G</span> <span class="o">=</span> <span class="n">pc</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">indep_test</span><span class="p">,</span> <span class="n">stable</span><span class="p">,</span> <span class="n">uc_rule</span><span class="p">,</span> <span class="n">uc_priority</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -211,7 +211,7 @@ missing-value testwise-deletion PC is included (by choosing ‘MV-Fisher_Z” fo
 </section>
 <section id="id3">
 <h4>Usage<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.ConstraintBased.FCI</span> <span class="kn">import</span> <span class="n">fci</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.ConstraintBased.FCI</span> <span class="kn">import</span> <span class="n">fci</span>
 <span class="n">G</span> <span class="o">=</span> <span class="n">fci</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indep_test</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -253,7 +253,7 @@ missing-value testwise-deletion PC is included (by choosing ‘MV-Fisher_Z” fo
 </section>
 <section id="id8">
 <h4>Usage<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.ScoreBased.GES</span> <span class="kn">import</span> <span class="n">ges</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.ScoreBased.GES</span> <span class="kn">import</span> <span class="n">ges</span>
 <span class="n">Record</span> <span class="o">=</span> <span class="n">ges</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">score_func</span><span class="p">,</span> <span class="n">maxP</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -318,7 +318,7 @@ missing-value testwise-deletion PC is included (by choosing ‘MV-Fisher_Z” fo
 </section>
 <section id="id17">
 <h4>Usage<a class="headerlink" href="#id17" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.ScoreBased.ExactSearch</span> <span class="kn">import</span> <span class="n">bic_exact_search</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.ScoreBased.ExactSearch</span> <span class="kn">import</span> <span class="n">bic_exact_search</span>
 <span class="n">dag_est</span><span class="p">,</span> <span class="n">search_stats</span> <span class="o">=</span> <span class="n">bic_exact_search</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">super_graph</span><span class="p">,</span> <span class="n">search_method</span><span class="p">,</span>
                  <span class="n">use_path_extension</span><span class="p">,</span> <span class="n">use_k_cycle_heuristic</span><span class="p">,</span>
                  <span class="n">k</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">include_graph</span><span class="p">,</span> <span class="n">max_parents</span><span class="p">)</span>
@@ -373,7 +373,7 @@ If None, no max on parents. Default is None.</p>
 <section id="lingam-based-methods">
 <h3>LiNGAM-based Methods<a class="headerlink" href="#lingam-based-methods" title="Permalink to this headline"></a></h3>
 <p>Estimation of Linear, Non-Gaussian Acyclic Model (<a class="reference internal" href="#lingam">LiNGAM</a>) from observed data. It assumes non-Gaussianity of the noise terms in the causal model.</p>
-<p>Pytrad has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based <a class="reference internal" href="#lingam">LiNGAM</a>, <a class="reference internal" href="#directlingam">DirectLiNGAM</a>, <a class="reference internal" href="#rcd">RCD</a>, and CAM-UV <a class="reference internal" href="#camuv" id="id20"><span>[CAMUV]</span></a>).
+<p>causal-learn has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based <a class="reference internal" href="#lingam">LiNGAM</a>, <a class="reference internal" href="#directlingam">DirectLiNGAM</a>, <a class="reference internal" href="#rcd">RCD</a>, and CAM-UV <a class="reference internal" href="#camuv" id="id20"><span>[CAMUV]</span></a>).
 And we are actively updating the list.</p>
 <dl class="citation">
 <dt class="label" id="lingam"><span class="brackets">LiNGAM</span></dt>
@@ -391,7 +391,7 @@ And we are actively updating the list.</p>
 </dl>
 <section id="ica-based-lingam">
 <h4>ICA-based LiNGAM<a class="headerlink" href="#ica-based-lingam" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">ICALiNGAM</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
@@ -412,7 +412,7 @@ The adjacency matrix B of fitted model, where n_features is the number of featur
 </section>
 <section id="id21">
 <h4>DirectLiNGAM<a class="headerlink" href="#id21" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">DirectLiNGAM</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="n">prior_knowledge</span><span class="p">,</span> <span class="n">apply_prior_knowledge_softly</span><span class="p">,</span> <span class="n">measure</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
@@ -444,7 +444,7 @@ The adjacency matrix B of fitted model, where n_features is the number of featur
 </section>
 <section id="id22">
 <h4>RCD<a class="headerlink" href="#id22" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased</span> <span class="kn">import</span> <span class="n">lingam</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">lingam</span><span class="o">.</span><span class="n">RCD</span><span class="p">(</span><span class="n">max_explanatory_num</span><span class="p">,</span> <span class="n">cor_alpha</span><span class="p">,</span> <span class="n">ind_alpha</span><span class="p">,</span> <span class="n">shapiro_alpha</span><span class="p">,</span> <span class="n">MLHSICR</span><span class="p">,</span> <span class="n">bw_method</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
@@ -477,7 +477,7 @@ The list of causal ancestors sets, where n_features is the number of features.</
 </section>
 <section id="cam-uv">
 <h4>CAM-UV<a class="headerlink" href="#cam-uv" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased.lingam</span> <span class="kn">import</span> <span class="n">CAMUV</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased.lingam</span> <span class="kn">import</span> <span class="n">CAMUV</span>
 <span class="n">P</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">CAMUV</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">num_explanatory_vals</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">P</span><span class="p">):</span>
@@ -552,7 +552,7 @@ The list of causal ancestors sets, where n_features is the number of features.</
 </section>
 <section id="id30">
 <h4>Usage<a class="headerlink" href="#id30" title="Permalink to this headline"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pytrad.search.FCMBased.GIN.GIN</span> <span class="kn">import</span> <span class="n">GIN</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">causal-learn.search.FCMBased.GIN.GIN</span> <span class="kn">import</span> <span class="n">GIN</span>
 <span class="n">G</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">GIN</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>

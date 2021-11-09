@@ -1,12 +1,12 @@
 import unittest
 import numpy as np
-from pytrad.graph.GraphClass import CausalGraph
-from pytrad.search.ConstraintBased.PC import pc
-from pytrad.utils.PCUtils import Algorithm1
-from pytrad.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from pytrad.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
-from pytrad.graph.GraphNode import GraphNode
-from pytrad.utils.cit import fisherz
+from causallearn.graph.GraphClass import CausalGraph
+from causallearn.search.ConstraintBased.PC import pc
+from causallearn.utils.PCUtils import Algorithm1
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
+from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.utils.cit import fisherz
 
 
 class TestPC(unittest.TestCase):

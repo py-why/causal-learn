@@ -1,12 +1,12 @@
-# Pytrad: Causal Discovery for Python
+# causal-learn: Causal Discovery for Python
 
-Pytrad is an open-source causal discovery library for Python, which is a Python translation and extension of [Tetrad](https://github.com/cmu-phil/tetrad).
+causal-learn is an open-source causal discovery library for Python, which is a Python translation and extension of [Tetrad](https://github.com/cmu-phil/tetrad).
 
 The package is on its very first version and we are actively developing it. Please, as a beta user, if you are willing, would you please kindly share any feedbacks (issues, suggestions, etc.) about it with us?
 
 # Package Overview
 
-Our Pytrad implements methods for causal discovery:
+Our causal-learn implements methods for causal discovery:
 
 * Constrained-based causal discovery methods.
 * Score-based causal discovery methods.
@@ -17,7 +17,7 @@ Our Pytrad implements methods for causal discovery:
 
 # Install
 
-Pytrad needs the following packages to be installed beforehand:
+causal-learn needs the following packages to be installed beforehand:
 
 * python 3
 * numpy
@@ -33,12 +33,12 @@ Pytrad needs the following packages to be installed beforehand:
 * matplotlib
 * graphviz
 
-To use Pytrad, we could install it using [pip](https://pypi.org/project/sqlparse/):
+To use causal-learn, we could install it using [pip](https://pypi.org/project/sqlparse/):
 
 ```
-pip install pytrad
+pip install causal-learn
 ```
 
 # Documentation
 
-Please kindly refer to [Pytrad Doc](https://pytrad-docs.readthedocs.io/en/latest/) for detailed tutorials and usages.
+Please kindly refer to [causal-learn Doc](https://causal-learn-docs.readthedocs.io/en/latest/) for detailed tutorials and usages.

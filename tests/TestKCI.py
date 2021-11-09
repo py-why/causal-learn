@@ -2,9 +2,9 @@ import sys, os
 # BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 # sys.path.append(BASE_DIR)
 import unittest
-from pytrad.utils.KCI.KCI import KCI_UInd, KCI_CInd
+from causallearn.utils.KCI.KCI import KCI_UInd, KCI_CInd
 import numpy as np
-import pytrad.utils.cit as cit
+import causallearn.utils.cit as cit
 
 
 class TestKCI(unittest.TestCase):

@@ -17,7 +17,7 @@ Usage
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased.ANM.ANM import ANM
+    from causallearn.search.FCMBased.ANM.ANM import ANM
     anm = ANM()
     p_value_foward, p_value_backward = anm.cause_or_effect(data_x, data_y)
 

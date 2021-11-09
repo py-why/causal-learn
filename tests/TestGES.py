@@ -1,10 +1,10 @@
 import sys
-from pytrad.score.LocalScoreFunction import local_score_bdeu
+from causallearn.score.LocalScoreFunction import local_score_bdeu
 sys.path.append("")
 import unittest
 from pickle import load
 import numpy as np
-from pytrad.search.ScoreBased.GES import ges
+from causallearn.search.ScoreBased.GES import ges
 import warnings
 
 
