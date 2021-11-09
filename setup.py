@@ -3,7 +3,7 @@ import setuptools
 with open('README.md', 'r') as fh:
     README = fh.read()
 
-VERSION = '0.1.1.6'
+VERSION = '0.1.1.7'
 
 setuptools.setup(
     name='causal-learn',
