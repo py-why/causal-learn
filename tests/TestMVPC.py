@@ -6,8 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import unittest
 import numpy as np
-from pytrad.search.ConstraintBased.PC import pc, pc_alg, mvpc_alg, get_adjacancy_matrix
-from pytrad.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
+from causallearn.search.ConstraintBased.PC import pc, pc_alg, mvpc_alg, get_adjacancy_matrix
+from causallearn.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
 
 
 def load(filename):

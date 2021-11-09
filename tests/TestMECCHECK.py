@@ -2,9 +2,9 @@ import sys
 
 sys.path.append("")
 import unittest
-from pytrad.graph.Dag import Dag
-from pytrad.graph.GraphNode import GraphNode
-from pytrad.utils.MECCheck import mec_check
+from causallearn.graph.Dag import Dag
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.utils.MECCheck import mec_check
 
 class TestMECCHECK(unittest.TestCase):
 

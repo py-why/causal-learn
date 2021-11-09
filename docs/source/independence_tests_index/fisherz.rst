@@ -9,7 +9,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.cit import fisherz
+    from causallearn.utils.cit import fisherz
     p = fisherz(data, X, Y, condition_set, correlation_matrix)
 
 Parameters

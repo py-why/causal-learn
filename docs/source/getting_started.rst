@@ -28,23 +28,23 @@ Requirements
 Install via PyPI
 ------------
 
-To use Pytrad, we could install it using `pip <https://pypi.org/project/sqlparse/>`_:
+To use causal-learn, we could install it using `pip <https://pypi.org/project/sqlparse/>`_:
 
 .. code-block:: console
 
-   (.venv) $ pip install pytrad
+   (.venv) $ pip install causal-learn
 
 
 Install from source
 ------------
 
-For development version, please kindly refer to our `GitHub Repository <https://github.com/cmu-phil/pytrad>`_.
+For development version, please kindly refer to our `GitHub Repository <https://github.com/cmu-phil/causal-learn>`_.
 
 
 Running examples
 ^^^^^^^^^^^^
 
-For search methods in causal discovery, there are various running examples in the 'tests' directory in our `GitHub Repository <https://github.com/cmu-phil/pytrad>`_,
+For search methods in causal discovery, there are various running examples in the 'tests' directory in our `GitHub Repository <https://github.com/cmu-phil/causal-learn>`_,
 such as TestPC.py and TestGES.py.
 
 For the implemented modules, such as (conditional) independent test methods, we provide unit tests for the convenience of developing your own methods.

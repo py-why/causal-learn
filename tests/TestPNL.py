@@ -2,7 +2,7 @@ import sys, os
 sys.path.append("")
 # # BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 # # sys.path.append(BASE_DIR)
-from pytrad.search.FCMBased.PNL.PNL import PNL
+from causallearn.search.FCMBased.PNL.PNL import PNL
 import pandas as pd
 import unittest
 from pickle import load

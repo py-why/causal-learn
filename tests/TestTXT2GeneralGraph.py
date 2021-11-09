@@ -2,7 +2,7 @@ import sys
 
 sys.path.append("")
 import unittest
-from pytrad.utils.TXT2GeneralGraph import txt2generalgraph
+from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
 
 
 

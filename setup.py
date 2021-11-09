@@ -3,13 +3,13 @@ import setuptools
 with open('README.md', 'r') as fh:
     README = fh.read()
 
-VERSION = '0.1.1.5'
+VERSION = '0.1.1.6'
 
 setuptools.setup(
-    name='Pytrad',
+    name='causal-learn',
     version=VERSION,
     author='',
-    description='Pytrad Python Package',
+    description='causal-learn Python Package',
     long_description=README,
     long_description_content_type='text/markdown',
     install_requires=[
@@ -23,7 +23,7 @@ setuptools.setup(
         'networkx',
         'pydot'
     ],
-    url='https://github.com/cmu-phil/pytrad',
+    url='https://github.com/cmu-phil/causal-learn',
     packages=setuptools.find_packages(),
     classifiers=[
         'Programming Language :: Python :: 3',

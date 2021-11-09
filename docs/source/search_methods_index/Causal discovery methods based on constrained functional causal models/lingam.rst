@@ -5,7 +5,7 @@ LiNGAM-based Methods
 
 Estimation of Linear, Non-Gaussian Acyclic Model from observed data. It assumes non-Gaussianity of the noise terms in the causal model.
 
-Pytrad has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM [1]_, DirectLiNGAM [2]_, VAR-LiNGAM [3]_, RCD [4]_, and CAM-UV [5]_).
+causal-learn has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM [1]_, DirectLiNGAM [2]_, VAR-LiNGAM [3]_, RCD [4]_, and CAM-UV [5]_).
 And we are actively updating the list.
 
 .. [1] Shimizu, S., Hoyer, P. O., Hyvärinen, A., Kerminen, A., & Jordan, M. (2006). A linear non-Gaussian acyclic model for causal discovery. Journal of Machine Learning Research, 7(10).
@@ -19,7 +19,7 @@ ICA-based LiNGAM
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased import lingam
+    from causallearn.search.FCMBased import lingam
     model = lingam.ICALiNGAM(random_state, max_iter)
     model.fit(X)
 
@@ -51,7 +51,7 @@ DirectLiNGAM
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased import lingam
+    from causallearn.search.FCMBased import lingam
     model = lingam.DirectLiNGAM(random_state, prior_knowledge, apply_prior_knowledge_softly, measure)
     model.fit(X)
 
@@ -90,7 +90,7 @@ VAR-LiNGAM
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased import lingam
+    from causallearn.search.FCMBased import lingam
     model = lingam.VARLiNGAM(lags, criterion, prune, ar_coefs, lingam_model, random_state)
     model.fit(X)
 
@@ -132,7 +132,7 @@ RCD
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased import lingam
+    from causallearn.search.FCMBased import lingam
     model = lingam.RCD(max_explanatory_num, cor_alpha, ind_alpha, shapiro_alpha, MLHSICR, bw_method)
     model.fit(X)
 
@@ -172,7 +172,7 @@ CAM-UV
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased.lingam import CAMUV
+    from causallearn.search.FCMBased.lingam import CAMUV
     P, U = CAMUV.execute(data, alpha, num_explanatory_vals)
 
     for i, result in enumerate(P):

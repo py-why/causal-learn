@@ -5,15 +5,15 @@ sys.path.append("")
 import unittest
 import numpy as np
 import pandas as pd
-from pytrad.search.ConstraintBased.FCI import fci, mod_endpoint
-from pytrad.utils.cit import fisherz, kci
+from causallearn.search.ConstraintBased.FCI import fci, mod_endpoint
+from causallearn.utils.cit import fisherz, kci
 from itertools import combinations
 
-from pytrad.graph.GeneralGraph import GeneralGraph
-from pytrad.graph.GraphNode import GraphNode
-from pytrad.graph.Edge import Edge
-from pytrad.graph.Endpoint import Endpoint
-from pytrad.utils.GraphUtils import GraphUtils
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.utils.GraphUtils import GraphUtils
 
 
 def gen_coef():

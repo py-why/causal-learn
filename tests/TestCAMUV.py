@@ -2,7 +2,7 @@ import sys
 sys.path.append("")
 import unittest
 import numpy as np
-from pytrad.search.FCMBased.lingam import CAMUV
+from causallearn.search.FCMBased.lingam import CAMUV
 import random
 
 def get_random_constant(s,b):

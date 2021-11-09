@@ -8,7 +8,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.score.LocalScoreFunction import local_score_bic
+    from causallearn.score.LocalScoreFunction import local_score_bic
     score = local_score_bic(Data, i, PAi, parameters)
 
 

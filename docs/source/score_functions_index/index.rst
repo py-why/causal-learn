@@ -1,6 +1,6 @@
 Score functions
 ===================
-In this section, we would like to introduce score functions in Pytrad. Currently we have BIC score [1]_, BDeu score [2]_, generalized score
+In this section, we would like to introduce score functions in causal-learn. Currently we have BIC score [1]_, BDeu score [2]_, generalized score
 with cross validation or marginal likelihood [3]_.
 
 

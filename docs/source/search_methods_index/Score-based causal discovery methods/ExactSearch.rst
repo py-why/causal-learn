@@ -11,7 +11,7 @@ Usage
 --------------------------------------
 .. code-block:: python
 
-    from pytrad.search.ScoreBased.ExactSearch import bic_exact_search
+    from causallearn.search.ScoreBased.ExactSearch import bic_exact_search
     dag_est, search_stats = bic_exact_search(X, super_graph, search_method,
                      use_path_extension, use_k_cycle_heuristic,
                      k, verbose, include_graph, max_parents)

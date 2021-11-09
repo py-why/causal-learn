@@ -11,7 +11,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.cit import kci
+    from causallearn.utils.cit import kci
     p = kci(data, X, Y, condition_set, kernelX, kernelY, kernelZ, est_width, polyd, kwidthx, kwidthy, kwidthz)
 
 Parameters

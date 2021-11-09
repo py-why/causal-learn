@@ -13,7 +13,7 @@ Usage
 ----------------------------
 .. code-block:: python
 
-    from pytrad.search.ConstraintBased.CDNOD import cdnod
+    from causallearn.search.ConstraintBased.CDNOD import cdnod
     G = cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvpc, correction_name)
     G.to_nx_graph()
     G.draw_nx_graph(skel=False)

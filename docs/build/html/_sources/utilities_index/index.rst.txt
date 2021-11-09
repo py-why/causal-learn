@@ -1,6 +1,6 @@
 Utilities
 ===================
-In this section, we would like to introduce utilities in Pytrad, such as graph operations and evaluations.
+In this section, we would like to introduce utilities in causal-learn, such as graph operations and evaluations.
 
 
 Contents:

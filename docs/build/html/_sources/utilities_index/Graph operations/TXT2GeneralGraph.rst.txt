@@ -1,13 +1,13 @@
 TXT2GeneralGraph
 ==========================
 
-Convert text file of Tetrad results into GeneralGraph class for Pytrad.
+Convert text file of Tetrad results into GeneralGraph class for causal-learn.
 
 Usage
 --------
 .. code-block:: python
 
-    from pytrad.utils.TXT2GeneralGraph import txt2generalgraph
+    from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
     G = txt2generalgraph(filename)
 
 Parameters
@@ -16,4 +16,4 @@ Parameters
 
 Returns
 ------------------
-**G**: GeneralGraph Class for Pytrad.
+**G**: GeneralGraph Class for causal-learn.

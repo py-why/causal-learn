@@ -19,7 +19,7 @@ Usage
 """"""""""""""""""""""""""""""""""""
 .. code-block:: python
 
-    from pytrad.search.ConstraintBased.PC import pc
+    from causallearn.search.ConstraintBased.PC import pc
     G = pc(data, alpha, indep_test, stable, uc_rule, uc_priority)
 
 Parameters
@@ -69,7 +69,7 @@ Usage
 
 .. code-block:: python
 
-    from pytrad.search.ConstraintBased.FCI import fci
+    from causallearn.search.ConstraintBased.FCI import fci
     G = fci(data, indep_test, alpha, verbose=True)
 
 Parameters
@@ -108,7 +108,7 @@ Usage
 """"""""""""""""""""""""""""""""""""
 .. code-block:: python
 
-    from pytrad.search.ScoreBased.GES import ges
+    from causallearn.search.ScoreBased.GES import ges
     Record = ges(X, score_func, maxP, parameters)
 
 Parameters
@@ -157,7 +157,7 @@ Usage
 """"""""""""""""""""""""""""""""""""
 .. code-block:: python
 
-    from pytrad.search.ScoreBased.ExactSearch import bic_exact_search
+    from causallearn.search.ScoreBased.ExactSearch import bic_exact_search
     dag_est, search_stats = bic_exact_search(X, super_graph, search_method,
                      use_path_extension, use_k_cycle_heuristic,
                      k, verbose, include_graph, max_parents)
@@ -213,7 +213,7 @@ LiNGAM-based Methods
 
 Estimation of Linear, Non-Gaussian Acyclic Model (LiNGAM_) from observed data. It assumes non-Gaussianity of the noise terms in the causal model.
 
-Pytrad has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM_, DirectLiNGAM_, RCD_, and CAM-UV [CAMUV]_).
+causal-learn has the official implementations for a set of LiNGAM-based methods (e.g., ICA-based LiNGAM_, DirectLiNGAM_, RCD_, and CAM-UV [CAMUV]_).
 And we are actively updating the list.
 
 .. [LiNGAM] Shimizu, Shohei, et al. "A linear non-Gaussian acyclic model for causal discovery." JMLR 7.10 (2006).
@@ -226,7 +226,7 @@ ICA-based LiNGAM
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased import lingam
+    from causallearn.search.FCMBased import lingam
     model = lingam.ICALiNGAM(random_state, max_iter)
     model.fit(X)
 
@@ -252,7 +252,7 @@ DirectLiNGAM
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased import lingam
+    from causallearn.search.FCMBased import lingam
     model = lingam.DirectLiNGAM(random_state, prior_knowledge, apply_prior_knowledge_softly, measure)
     model.fit(X)
 
@@ -285,7 +285,7 @@ RCD
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased import lingam
+    from causallearn.search.FCMBased import lingam
     model = lingam.RCD(max_explanatory_num, cor_alpha, ind_alpha, shapiro_alpha, MLHSICR, bw_method)
     model.fit(X)
 
@@ -322,7 +322,7 @@ CAM-UV
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased.lingam import CAMUV
+    from causallearn.search.FCMBased.lingam import CAMUV
     P, U = CAMUV.execute(data, alpha, num_explanatory_vals)
 
     for i, result in enumerate(P):
@@ -399,7 +399,7 @@ Usage
 """"""""""""""""""""""""""""""""""""
 .. code-block:: python
 
-    from pytrad.search.FCMBased.GIN.GIN import GIN
+    from causallearn.search.FCMBased.GIN.GIN import GIN
     G, K = GIN(data)
 
 Parameters

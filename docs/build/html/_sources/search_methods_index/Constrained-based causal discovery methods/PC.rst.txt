@@ -12,7 +12,7 @@ Usage
 ----------------------------
 .. code-block:: python
 
-    from pytrad.search.ConstraintBased.PC import pc
+    from causallearn.search.ConstraintBased.PC import pc
     G = pc(data, alpha, indep_test, stable, uc_rule, uc_priority)
 
 Parameters

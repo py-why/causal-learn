@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import unittest
-from pytrad.graph.Dag import Dag
-from pytrad.graph.GraphNode import GraphNode
-from pytrad.graph.Edge import Edge
-from pytrad.graph.Endpoint import Endpoint
+from causallearn.graph.Dag import Dag
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
 import numpy as np
 
 class TestDagMethods(unittest.TestCase):

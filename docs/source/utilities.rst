@@ -52,7 +52,7 @@ Returns
 TXT2GenralGraph
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Convert text file of Tetrad results into GeneralGraph class for Pytrad.
+Convert text file of Tetrad results into GeneralGraph class for causal-learn.
 
 Parameters
 """"""""""""""""""""""""""""""""""""
@@ -60,4 +60,4 @@ Parameters
 
 Returns
 """"""""""""""""""""""""""""""""""""
-**G**: GeneralGraph Class for Pytrad.
+**G**: GeneralGraph Class for causal-learn.

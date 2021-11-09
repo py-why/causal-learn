@@ -2,7 +2,7 @@
 
 Graph operations
 ================================================
-In this section, we would like to introduce graph operations in pytrad.
+In this section, we would like to introduce graph operations in causal-learn.
 
 
 Contents:

@@ -8,7 +8,7 @@ Usage
 --------
 .. code-block:: python
 
-    from pytrad.score.LocalScoreFunction import local_score_bdeu
+    from causallearn.score.LocalScoreFunction import local_score_bdeu
     score = local_score_bdeu(Data, i, PAi, parameters)
 
 

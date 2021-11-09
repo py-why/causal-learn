@@ -17,7 +17,7 @@ Usage
 
 .. code-block:: python
 
-    from pytrad.search.FCMBased.PNL.PNL import PNL
+    from causallearn.search.FCMBased.PNL.PNL import PNL
     pnl = PNL()
     p_value_foward, p_value_backward = pnl.cause_or_effect(x)
 

@@ -1,6 +1,6 @@
 (Conditional) independence tests
 ===================
-In this section, we would like to introduce (conditional) independence tests in Pytrad. Currently we have Fisher-z test [1]_,
+In this section, we would like to introduce (conditional) independence tests in causal-learn. Currently we have Fisher-z test [1]_,
 Missing-value Fisher-z test, Chi-Square test, Kernel-based conditional independence (KCI) test and independence test [2]_,
 and G-Square test [3]_.
 
