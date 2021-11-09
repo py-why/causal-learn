@@ -41,4 +41,4 @@ pip install causal-learn
 
 # Documentation
 
-Please kindly refer to [causal-learn Doc](https://causal-learn-docs.readthedocs.io/en/latest/) for detailed tutorials and usages.
+Please kindly refer to [causal-learn Doc](https://causal-learn.readthedocs.io/en/latest/) for detailed tutorials and usages.
