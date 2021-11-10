@@ -58,7 +58,7 @@ For detailed usage, please kindly refer to its `usage example <https://github.co
 
 Returns
 -------------------
-**cg** : a CausalGraph object.
+**cg** : a CausalGraph object. Nodes in the graph correspond to the column indices in the data.
 
 .. [1] Spirtes, P., Glymour, C. N., Scheines, R., & Heckerman, D. (2000). Causation, prediction, and search. MIT press.
 .. [2] Tu, R., Zhang, C., Ackermann, P., Mohan, K., Kjellström, H., & Zhang, K. (2019, April). Causal discovery in the presence of missing data. In The 22nd International Conference on Artificial Intelligence and Statistics (pp. 1762-1770). PMLR.

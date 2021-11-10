@@ -36,6 +36,6 @@ Parameters
 
 Returns
 -------------------
-**cg** : a CausalGraph object.
+**cg** : a CausalGraph object. Nodes in the graph correspond to the column indices in the data.
 
 .. [1] Spirtes, P., Meek, C., & Richardson, T. (1995, August). Causal inference in the presence of latent variables and selection bias. In Proceedings of the Eleventh conference on Uncertainty in artificial intelligence (pp. 499-506).

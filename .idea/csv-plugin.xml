@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\docs\source\search_methods_index\Constrained-based causal discovery methods\PC.rst">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\tests\TestPC.py">
           <value>
             <Attribute>

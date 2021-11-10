@@ -54,6 +54,6 @@ Parameters
 
 Returns
 -------------------
-**cg** : a CausalGraph object.
+**cg** : a CausalGraph object. Nodes in the graph correspond to the column indices in the data.
 
 .. [1] Huang, B., Zhang, K., Zhang, J., Ramsey, J. D., Sanchez-Romero, R., Glymour, C., & Schölkopf, B. (2020). Causal Discovery from Heterogeneous/Nonstationary Data. J. Mach. Learn. Res., 21(89), 1-53.
