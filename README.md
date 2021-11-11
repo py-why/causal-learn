@@ -1,8 +1,8 @@
 # causal-learn: Causal Discovery for Python
 
-Causal-learn is an open-source causal discovery library for Python, which is a Python translation and extension of [Tetrad](https://github.com/cmu-phil/tetrad).
+Causal-learn is a python package for causal discovery that implements both classical and state-of-the-art causal discovery algorithms, which is a Python translation and extension of [Tetrad](https://github.com/cmu-phil/tetrad).
 
-The package is on its very first version and we are actively developing it. Please, as a beta user, if you are willing, would you please kindly share any feedbacks (issues, suggestions, etc.) about it with us?
+The package is actively being developed. Feedbacks(issues, suggestions, etc.) are highly encouraged.
 
 # Package Overview
 
