@@ -19,7 +19,8 @@ Usage
 Parameters
 -------------------
 
-**data**: input data (n, d).
+**data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
+and n_features is the number of features.
 
 Returns
 -------------------

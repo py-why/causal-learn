@@ -20,7 +20,8 @@ Usage
 
 Parameters
 -------------------
-**data**: data set (numpy ndarray).
+**data**:  numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
+and n_features is the number of features.
 
 **c_indx**: time index or domain index that captures the unobserved changing factors.
 

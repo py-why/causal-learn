@@ -20,7 +20,8 @@ Usage
 
 Parameters
 -------------------
-**data**: Input data matrix
+**data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
+and n_features is the number of features.
 
 **alpha**: Significance level of individual partial correlation tests.
 

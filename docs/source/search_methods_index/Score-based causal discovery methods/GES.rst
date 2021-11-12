@@ -18,7 +18,8 @@ Usage
 
 Parameters
 -------------------
-**X**: Data with T*D dimensions.
+**X**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
+and n_features is the number of features.
 
 **score_func**: The score function you would like to use, including (see :ref:`score_functions`.).
               - ":ref:`local_score_BIC <BIC score>`": BIC score [3]_.
