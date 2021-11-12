@@ -11,6 +11,7 @@ Usage
 
     from causallearn.graph.ArrowConfusion import ArrowConfusion
     from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
+    from causallearn.graph.SHD import SHD
 
     # For arrows
     arrow = ArrowConfusion(truth_cpdag, est)
@@ -34,6 +35,8 @@ Usage
     adjPrec = adj.get_adj_precision()
     adjRec = adj.get_adj_recall()
 
+    # Structural Hamming Distance
+    shd = SHD(truth_cpdag, est).get_shd()
 
 Parameters
 -------------------
@@ -57,4 +60,6 @@ Returns
 **adjPrec**: Precision for the adjacency matrix.
 
 **adjRec**: Recall for the adjacency matrix.
+
+**shd**: Structural Hamming Distance.
 
