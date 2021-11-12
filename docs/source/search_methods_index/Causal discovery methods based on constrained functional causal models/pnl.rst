@@ -24,8 +24,9 @@ Usage
 Parameters
 --------------------------------------
 
-*data_x*: input data (n, 1), n is the sample size.
-*data_y*: output data (n, 1), n is the sample size
+**data_x**: input data (n, 1), n is the sample size.
+
+**data_y**: output data (n, 1), n is the sample size.
 
 Returns
 --------------------------------------
