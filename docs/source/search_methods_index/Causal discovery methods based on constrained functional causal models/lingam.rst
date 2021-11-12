@@ -30,10 +30,12 @@ ICA-based LiNGAM
 Parameters
 """"""""""""""""""""""""""""""""""""
 
-
 **random_state**: int, optional (default=None). The seed used by the random number generator.
 
 **max_iter**: int, optional (default=1000). The maximum number of iterations of FastICA.
+
+**X**: array-like, shape (n_samples, n_features). Training data, where n_samples is the number of samples
+and n_features is the number of features.
 
 Returns
 """"""""""""""""""""""""""""""""""""
@@ -74,6 +76,9 @@ The elements of prior knowledge matrix are defined as follows:
 
 **measure**: {'pwling', 'kernel'}, optional (default='pwling'). Measure to evaluate independence: 'pwling' or 'kernel'.
 
+**X**: array-like, shape (n_samples, n_features). Training data, where n_samples is the number of samples
+and n_features is the number of features.
+
 Returns
 """"""""""""""""""""""""""""""""""""
 
@@ -113,6 +118,9 @@ Parameters
 **lingam_model**: lingam object inherits 'lingam._BaseLiNGAM', optional (default=None). LiNGAM model for causal discovery. If None, DirectLiNGAM algorithm is selected.
 
 **random_state**: int, optional (default=None). 'random_state' is the seed used by the random number generator.
+
+**X**: array-like, shape (n_samples, n_features). Training data, where n_samples is the number of samples
+and n_features is the number of features.
 
 Returns
 """"""""""""""""""""""""""""""""""""
@@ -157,6 +165,9 @@ Parameters
     - 'scott': Scott's Rule of Thumb.
     - 'silverman': Silverman's Rule of Thumb.
 
+**X**: array-like, shape (n_samples, n_features). Training data, where n_samples is the number of samples
+and n_features is the number of features.
+
 Returns
 """"""""""""""""""""""""""""""""""""
 
@@ -185,7 +196,8 @@ CAM-UV
 Parameters
 """"""""""""""""""""""""""""""""""""
 
-**X**: matrixs.
+**data**: array-like, shape (n_samples, n_features). Training data, where n_samples is the number of samples
+and n_features is the number of features.
 
 **alpha**: the alpha level for independence testing.
 
