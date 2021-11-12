@@ -69,9 +69,9 @@ All results are average over 10 runs with different random seeds.
 Contributors
 ^^^^^^^^^^^^
 
-**Group Leaders**: Kun Zhang, Joseph Ramsey, Shohei Shimizu, Peter Spirtes, Clark Glymour
+**Team Leaders**: Kun Zhang, Joseph Ramsey, Mingming Gong, Shohei Shimizu, Peter Spirtes, Clark Glymour
 
-**Coordinators**: Yujia Zheng, Mingming Gong, Biwei Huang, Wei Chen
+**Coordinators**: Yujia Zheng, Biwei Huang, Wei Chen
 
 **Developers**:
 
