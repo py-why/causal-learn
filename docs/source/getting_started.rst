@@ -69,13 +69,13 @@ All results are average over 10 runs with different random seeds.
 Contributors
 ^^^^^^^^^^^^
 
-**Team Leaders**: Kun Zhang, Joseph Ramsey, Mingming Gong, Shohei Shimizu, Peter Spirtes, Clark Glymour
+**Team Leaders**: Kun Zhang, Joseph Ramsey, Mingming Gong, Ruichu Cai, Shohei Shimizu, Peter Spirtes, Clark Glymour
 
 **Coordinators**: Yujia Zheng, Biwei Huang, Wei Chen
 
 **Developers**:
 
-- Wei Chen, Ruichu Cai, Biwei Huang, Yuequn Liu, Zhiyi Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operaitions <graphoperation>`.
+- Wei Chen, Biwei Huang, Yuequn Liu, Zhiyi Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operaitions <graphoperation>`.
 - Mingming Gong, Erdun Gao: :ref:`PNL <pnl>`, :ref:`ANM <anm>`, :ref:`Granger causality <granger>`, and :ref:`KCI <Kernel-based conditional independence (KCI) test and independence test>`.
 - Shohei Shimizu, Takashi Nicholas Maeda, Takashi Ikeuchi: :ref:`LiNGAM-based methods <lingam>`.
 - Madelyn Glymour: several helpers.
