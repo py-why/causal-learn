@@ -19,12 +19,13 @@ Usage
 
     from causallearn.search.FCMBased.PNL.PNL import PNL
     pnl = PNL()
-    p_value_foward, p_value_backward = pnl.cause_or_effect(x)
+    p_value_foward, p_value_backward = pnl.cause_or_effect(data_x, data_y)
 
 Parameters
 --------------------------------------
 
-**x**: (n, 2). It has two columns, each of them corresponds to a continuous variable. n is the sample size.
+*data_x*: input data (n, 1), n is the sample size.
+*data_y*: output data (n, 1), n is the sample size
 
 Returns
 --------------------------------------
