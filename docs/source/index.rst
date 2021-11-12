@@ -12,7 +12,7 @@ up-to-date causal discovery methods as well as *simple* and
 
 .. note::
 
-   This project is under active development.
+   This project is under active development. For source code, please kindly refer to our `GitHub Repository <https://github.com/cmu-phil/causal-learn>`_.
 
 Contents
 ========
