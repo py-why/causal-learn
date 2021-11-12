@@ -44,7 +44,7 @@ For development version, please kindly refer to our `GitHub Repository <https://
 Running examples
 ^^^^^^^^^^^^
 
-For search methods in causal discovery, there are various running examples in the 'tests' directory in our `GitHub Repository <https://github.com/cmu-phil/causal-learn>`_,
+For search methods in causal discovery, **there are various running examples in the 'tests' directory in our `GitHub Repository <https://github.com/cmu-phil/causal-learn>`_**,
 such as TestPC.py and TestGES.py.
 
 For the implemented modules, such as (conditional) independent test methods, we provide unit tests for the convenience of developing your own methods.
