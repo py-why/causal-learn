@@ -42,3 +42,10 @@ pip install causal-learn
 # Documentation
 
 Please kindly refer to [causal-learn Doc](https://causal-learn.readthedocs.io/en/latest/) for detailed tutorials and usages.
+
+
+# Contribution
+
+Please feel free to open an [issue](issues/new) if you find anything unexpected.
+And please [create pull requests](pulls), perhaps after passing unittests in 'tests/', if you would like to contribute to causal-learn.
+We are always targeting to make our community better!
