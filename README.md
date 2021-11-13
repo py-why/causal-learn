@@ -46,6 +46,6 @@ Please kindly refer to [causal-learn Doc](https://causal-learn.readthedocs.io/en
 
 # Contribution
 
-Please feel free to open an [issue](issues/new) if you find anything unexpected.
-And please [create pull requests](pulls), perhaps after passing unittests in 'tests/', if you would like to contribute to causal-learn.
+Please feel free to open an issue if you find anything unexpected.
+And please create pull requests, perhaps after passing unittests in 'tests/', if you would like to contribute to causal-learn.
 We are always targeting to make our community better!
