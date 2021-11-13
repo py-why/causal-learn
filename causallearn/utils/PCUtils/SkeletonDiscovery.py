@@ -1,8 +1,9 @@
-import numpy as np
-from causallearn.graph.GraphClass import CausalGraph
-from causallearn.utils.PCUtils.Helper import append_value
 from itertools import permutations, combinations
 
+import numpy as np
+
+from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.PCUtils.Helper import append_value
 
 
 def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None):
@@ -50,7 +51,10 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
             if len(Neigh_x) >= depth:
                 for S in combinations(Neigh_x, depth):
                     p = cg.ci_test(x, y, S)
-                    if p > alpha or (background_knowledge is not None and (background_knowledge.is_forbidden(cg.G.nodes[x], cg.G.nodes[y]) and background_knowledge.is_forbidden(cg.G.nodes[y], cg.G.nodes[x]))):
+                    if p > alpha or (background_knowledge is not None and (
+                            background_knowledge.is_forbidden(cg.G.nodes[x],
+                                                              cg.G.nodes[y]) and background_knowledge.is_forbidden(
+                            cg.G.nodes[y], cg.G.nodes[x]))):
                         if p > alpha:
                             print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
                         else:

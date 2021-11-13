@@ -1,14 +1,11 @@
+import warnings
 from copy import deepcopy
 from itertools import combinations, chain, permutations
-from math import sqrt, log
-from scipy.stats import norm, chi2
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
-import warnings
-
 from sklearn.linear_model import LinearRegression
 
 #######################################################################################################################
@@ -97,6 +94,7 @@ def chisq(data, X, Y, conditioning_set, G_sq=False):
     else:
         return chi2.sf(sum_of_chi_square, sum_of_df)
 """
+
 
 #######################################################################################################################
 
@@ -369,7 +367,7 @@ def dag2pattern(adjmat):
         for (i, j, k, l) in Kites:
             if is_undirected(pattern, i, j) and is_undirected(pattern, i, k) and is_fully_directed(pattern, j,
                                                                                                    l) and is_fully_directed(
-                    pattern, k, l) \
+                pattern, k, l) \
                     and is_undirected(pattern, i, l):
                 pattern[i, l] = 1
                 Loop = True
@@ -424,7 +422,6 @@ def is_dsep(nx_graph, x, y, Z):
 def tetrad2adjmat(path):
     "Convert the graph (.txt output by TETRAD) at path into an adjacency matrix (np.ndarray)"
     tetrad_file = pd.read_csv(path, sep='\t')
-
 
     if ',' in str(tetrad_file.loc[0][0]):
         var_names = str(tetrad_file.loc[0][0]).split(',')
@@ -511,6 +508,7 @@ def adjmat2tetrad(PATH, adjmat):
         file.write(str(next(a)) + '. ' + 'X' + str(i + 1) + ' <-> X' + str(j + 1) + '\n')
 
     file.close()
+
 
 #######################################################################################################################
 # mvpc utils
@@ -721,7 +719,3 @@ def get_indx_complete_rows(mvdata):
         bindxRows = np.logical_and(bindxRows, ~np.isnan(mvdata[:, i]))
     indxRows = indxRows[bindxRows]
     return indxRows
-
-
-
-

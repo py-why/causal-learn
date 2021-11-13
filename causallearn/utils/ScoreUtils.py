@@ -1,9 +1,10 @@
 import sys
 import warnings
-import scipy
-import scipy.sparse
+
 import numpy as np
 import numpy.linalg
+import scipy
+import scipy.sparse
 
 
 def kernel(x, xKern, theta):

@@ -1,10 +1,10 @@
-import networkx as nx
 from itertools import combinations, permutations
+
+import networkx as nx
 
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
-
 from causallearn.search.ConstraintBased.FCI import rule1, rule2, rule3, rule4
 
 

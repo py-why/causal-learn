@@ -111,7 +111,7 @@ class DirectLiNGAM(_BaseLiNGAM):
             pairs, counts = np.unique(check_pairs, axis=0, return_counts=True)
             if len(pairs[counts > 1]) > 0:
                 raise ValueError(
-                    f'The prior knowledge contains inconsistencies at the following indices: {pairs[counts>1].tolist()}')
+                    f'The prior knowledge contains inconsistencies at the following indices: {pairs[counts > 1].tolist()}')
 
         # Check for inconsistencies in pairs without path.
         # If there are duplicate pairs without path, they cancel out and are not ordered.
@@ -142,8 +142,8 @@ class DirectLiNGAM(_BaseLiNGAM):
         k2 = 7.4129
         gamma = 0.37457
         return (1 + np.log(2 * np.pi)) / 2 - \
-            k1 * (np.mean(np.log(np.cosh(u))) - gamma)**2 - \
-            k2 * (np.mean(u * np.exp((-u**2) / 2)))**2
+               k1 * (np.mean(np.log(np.cosh(u))) - gamma) ** 2 - \
+               k2 * (np.mean(u * np.exp((-u ** 2) / 2))) ** 2
 
     def _diff_mutual_info(self, xi_std, xj_std, ri_j, rj_i):
         """Calculate the difference of the mutual informations."""
@@ -210,7 +210,7 @@ class DirectLiNGAM(_BaseLiNGAM):
                     rj_i = xj_std if j in Vj and i in Uc else self._residual(
                         xj_std, xi_std)
                     M += np.min([0, self._diff_mutual_info(xi_std,
-                                                           xj_std, ri_j, rj_i)])**2
+                                                           xj_std, ri_j, rj_i)]) ** 2
             M_list.append(-1.0 * M)
         return Uc[np.argmax(M_list)]
 
@@ -219,12 +219,12 @@ class DirectLiNGAM(_BaseLiNGAM):
         kappa, sigma = param
         n = len(x1)
         X1 = np.tile(x1, (n, 1))
-        K1 = np.exp(-1/(2*sigma**2) * (X1**2 + X1.T**2 - 2*X1*X1.T))
+        K1 = np.exp(-1 / (2 * sigma ** 2) * (X1 ** 2 + X1.T ** 2 - 2 * X1 * X1.T))
         X2 = np.tile(x2, (n, 1))
-        K2 = np.exp(-1/(2*sigma**2) * (X2**2 + X2.T**2 - 2*X2*X2.T))
+        K2 = np.exp(-1 / (2 * sigma ** 2) * (X2 ** 2 + X2.T ** 2 - 2 * X2 * X2.T))
 
-        tmp1 = K1 + n*kappa*np.identity(n)/2
-        tmp2 = K2 + n*kappa*np.identity(n)/2
+        tmp1 = K1 + n * kappa * np.identity(n) / 2
+        tmp2 = K2 + n * kappa * np.identity(n) / 2
         K_kappa = np.r_[np.c_[tmp1 @ tmp1, K1 @ K2],
                         np.c_[K2 @ K1, tmp2 @ tmp2]]
         D_kappa = np.r_[np.c_[tmp1 @ tmp1, np.zeros([n, n])],
@@ -233,7 +233,7 @@ class DirectLiNGAM(_BaseLiNGAM):
         sigma_K = np.linalg.svd(K_kappa, compute_uv=False)
         sigma_D = np.linalg.svd(D_kappa, compute_uv=False)
 
-        return (-1/2)*(np.sum(np.log(sigma_K)) - np.sum(np.log(sigma_D)))
+        return (-1 / 2) * (np.sum(np.log(sigma_K)) - np.sum(np.log(sigma_D)))
 
     def _search_causal_order_kernel(self, X, U):
         """Search the causal ordering by kernel method."""

@@ -15,7 +15,6 @@ class Endpoint(Enum):
     TAIL_AND_ARROW = 4
     ARROW_AND_ARROW = 5
 
-
     # Prints out the name of the type
     def __str__(self):
         return self.name

@@ -75,4 +75,3 @@ class Edges:
                     return edge.get_node1()
 
         return None
-

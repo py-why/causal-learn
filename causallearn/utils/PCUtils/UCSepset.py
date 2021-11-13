@@ -1,8 +1,8 @@
 from copy import deepcopy
-from causallearn.utils.PCUtils.Helper import sort_dict_ascending
+
 from causallearn.graph.Edge import Edge
-from causallearn.graph.Edges import Edges
 from causallearn.graph.Endpoint import Endpoint
+from causallearn.utils.PCUtils.Helper import sort_dict_ascending
 
 
 def uc_sepset(cg, priority=3, background_knowledge=None):
@@ -135,7 +135,6 @@ def uc_sepset(cg, priority=3, background_knowledge=None):
         return cg_new
 
 
-
 def maxp(cg, priority=3, background_knowledge=None):
     '''
     Run (MaxP) to orient unshielded colliders
@@ -266,6 +265,7 @@ def maxp(cg, priority=3, background_knowledge=None):
                 cg_new.G.add_edge(Edge(cg_new.G.nodes[z], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
         return cg_new
+
 
 def definite_maxp(cg, alpha, priority=4, background_knowledge=None):
     '''

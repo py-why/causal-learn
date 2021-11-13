@@ -1,7 +1,8 @@
-import numpy.matlib
-import pandas as pd
-from causallearn.utils.ScoreUtils import *
 import math
+
+import pandas as pd
+
+from causallearn.utils.ScoreUtils import *
 
 
 def local_score_bic(Data, i, PAi, parameters=None):
@@ -40,6 +41,7 @@ def local_score_bic(Data, i, PAi, parameters=None):
 
     return score
 
+
 def local_score_bdeu(Data, i, PAi, parameters=None):
     '''
     Calculate the local score with BDeu for the discrete case
@@ -61,7 +63,7 @@ def local_score_bdeu(Data, i, PAi, parameters=None):
     if parameters is None:
         sample_prior = 1  # default sample_prior = 1
         structure_prior = 1  # default structure_prior = 1
-        r_i_map = {i:len(np.unique(np.asarray(Data[:, i])) )  for i in range(Data.shape[1])}
+        r_i_map = {i: len(np.unique(np.asarray(Data[:, i]))) for i in range(Data.shape[1])}
     else:
         sample_prior = parameters['sample_prior']
         structure_prior = parameters['structure_prior']
@@ -81,7 +83,8 @@ def local_score_bdeu(Data, i, PAi, parameters=None):
     Nij_map_keys_list = list(Nij_map.keys())
 
     # calculate N_{ijk}
-    Nijk_map = {ij: Data_pd_group_Nij.get_group(ij).groupby('x{}'.format(i)).apply(len).reset_index() for ij in Nij_map.keys()}
+    Nijk_map = {ij: Data_pd_group_Nij.get_group(ij).groupby('x{}'.format(i)).apply(len).reset_index() for ij in
+                Nij_map.keys()}
     for v in Nijk_map.values():
         v.columns = ['x{}'.format(i), 'times']
 
@@ -98,11 +101,13 @@ def local_score_bdeu(Data, i, PAi, parameters=None):
         second_term = 0
         Nijk_list = Nijk_map.get(Nij_map_keys_list[pa])['times'].to_numpy()
         for Nijk in Nijk_list:
-            second_term += math.lgamma(Nijk + sample_prior / (r_i_map[i] * q_i)) - math.lgamma(sample_prior / (r_i_map[i] * q_i))
+            second_term += math.lgamma(Nijk + sample_prior / (r_i_map[i] * q_i)) - math.lgamma(
+                sample_prior / (r_i_map[i] * q_i))
 
         BDeu_score += first_term + second_term
 
     return BDeu_score
+
 
 def local_score_cv_general(Data, Xi, PAi, parameters):
     '''
@@ -129,9 +134,9 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
 
     T = Data.shape[0]
     X = Data[:, Xi]
-    var_lambda = parameters['lambda']   # regularization parameter
-    k = parameters['kfold'] # k-fold cross validation
-    n0 = math.floor( T /k)
+    var_lambda = parameters['lambda']  # regularization parameter
+    k = parameters['kfold']  # k-fold cross validation
+    n0 = math.floor(T / k)
     gamma = 0.01
     Thresh = 1E-5
 
@@ -144,14 +149,14 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
         R = np.tile(GX.T, (T, 1))
         dists = Q + R - 2 * X * X.T
         dists = dists - np.tril(dists)
-        dists = np.reshape(dists, ( T**2, 1))
-        width = np.sqrt(0.5 * np.median(dists[np.where(dists > 0)], axis=1)[0, 0]) # median value
+        dists = np.reshape(dists, (T ** 2, 1))
+        width = np.sqrt(0.5 * np.median(dists[np.where(dists > 0)], axis=1)[0, 0])  # median value
         width = width * 2
         theta = 1 / (width ** 2)
 
-        Kx, _ = kernel(X, X, (theta, 1)) # Gaussian kernel
-        H0 = np.mat(np.eye(T)) - np.mat(np.ones((T, T))) / (T) # for centering of the data in feature space
-        Kx = H0 * Kx * H0 # kernel matrix for X
+        Kx, _ = kernel(X, X, (theta, 1))  # Gaussian kernel
+        H0 = np.mat(np.eye(T)) - np.mat(np.ones((T, T))) / (T)  # for centering of the data in feature space
+        Kx = H0 * Kx * H0  # kernel matrix for X
 
         # eig_Kx, eix = eigdec((Kx + Kx.T)/2, np.min([400, math.floor(T/2)]), evals_only=False)   # /2
         # IIx = np.where(eig_Kx > np.max(eig_Kx) * Thresh)[0]
@@ -163,7 +168,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
         Kpa = np.mat(np.ones((T, T)))
 
         for m in range(PA.shape[1]):
-            G = np.sum((np.multiply(PA[:, m] ,PA[:, m])), axis=1)
+            G = np.sum((np.multiply(PA[:, m], PA[:, m])), axis=1)
             Q = np.tile(G, (1, T))
             R = np.tile(G.T, (T, 1))
             dists = Q + R - 2 * PA[:, m] * PA[:, m].T
@@ -175,8 +180,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
             Kpa = np.multiply(Kpa, kernel(PA[:, m], PA[:, m], (theta, 1))[0])
 
         H0 = np.mat(np.eye(T)) - np.mat(np.ones((T, T))) / (T)  # for centering of the data in feature space
-        Kpa = H0 * Kpa * H0 # kernel matrix for PA
-
+        Kpa = H0 * Kpa * H0  # kernel matrix for PA
 
         CV = 0
         for kk in range(k):
@@ -187,8 +191,8 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
                 Kpa_te = Kpa[0:n0, 0: n0]
                 Kpa_tr = Kpa[n0: T, n0: T]
                 Kpa_tr_te = Kpa[n0: T, 0: n0]
-                nv = n0 # sample size of validated data
-            if (kk == k- 1):
+                nv = n0  # sample size of validated data
+            if (kk == k - 1):
                 Kx_te = Kx[kk * n0:T, kk * n0: T]
                 Kx_tr = Kx[0:kk * n0, 0: kk * n0]
                 Kx_tr_te = Kx[0:kk * n0, kk * n0: T]
@@ -505,21 +509,21 @@ def local_score_marginal_general(Data, Xi, PAi, parameters):
         covfunc = np.asarray(['covSum', ['covSEard', 'covNoise']])
         logtheta0 = np.vstack([np.log(widthPA), 0, np.log(np.sqrt(0.1))])
         logtheta, fvals, iter = minimize(logtheta0, 'gpr_multi_new', -300, covfunc, PA,
-                                              2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
+                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
 
         nlml, dnlml = gpr_multi_new(logtheta, covfunc, PA,
-                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
-                                         nargout=2)
+                                    2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
+                                    nargout=2)
     else:
         covfunc = np.asarray(['covSum', ['covSEard', 'covNoise']])
         PA = np.mat(np.zeros((T, 1)))
         logtheta0 = np.mat([100, 0, np.log(np.sqrt(0.1))]).T
         logtheta, fvals, iter = minimize(logtheta0, 'gpr_multi_new', -300, covfunc, PA,
-                                              2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
+                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
 
         nlml, dnlml = gpr_multi_new(logtheta, covfunc, PA,
-                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
-                                         nargout=2)
+                                    2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
+                                    nargout=2)
     score = nlml  # negative log-likelihood
     return score
 
@@ -581,25 +585,26 @@ def local_score_marginal_multi(Data, Xi, PAi, parameters):
             dists = dists - np.tril(dists)
             dists = np.reshape(dists, (T ** 2, 1))
             widthPA = np.sqrt(0.5 * np.median(dists[np.where(dists > 0)], axis=1)[0, 0])
-            widthPA_all = np.hstack([widthPA_all, widthPA * np.mat(np.ones((1, np.size(parameters['dlabel'][PAi[m]]))))])
+            widthPA_all = np.hstack(
+                [widthPA_all, widthPA * np.mat(np.ones((1, np.size(parameters['dlabel'][PAi[m]]))))])
         widthPA_all = widthPA_all * 2.5  # kernel width
         covfunc = np.asarray(['covSum', ['covSEard', 'covNoise']])
         logtheta0 = np.vstack([np.log(widthPA_all.T), 0, np.log(np.sqrt(0.1))])
         logtheta, fvals, iter = minimize(logtheta0, 'gpr_multi_new', -300, covfunc, PA_all,
-                                              2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
+                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
 
         nlml, dnlml = gpr_multi_new(logtheta, covfunc, PA_all,
-                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
-                                         nargout=2)
+                                    2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
+                                    nargout=2)
     else:
         covfunc = np.asarray(['covSum', ['covSEard', 'covNoise']])
         PA = np.mat(np.zeros((T, 1)))
         logtheta0 = np.mat([100, 0, np.log(np.sqrt(0.1))]).T
         logtheta, fvals, iter = minimize(logtheta0, 'gpr_multi_new', -300, covfunc, PA,
-                                              2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
+                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]))
 
         nlml, dnlml = gpr_multi_new(logtheta, covfunc, PA,
-                                         2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
-                                         nargout=2)
+                                    2 * np.sqrt(T) * eix * np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
+                                    nargout=2)
     score = nlml  # negative log-likelihood
     return score

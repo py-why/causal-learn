@@ -1,7 +1,9 @@
 from copy import deepcopy
+
+import numpy as np
+
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
-import numpy as np
 
 
 def pdag2dag(G):

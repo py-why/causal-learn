@@ -16,7 +16,9 @@ def orient_by_background_knowledge(cg, background_knowledge):
 
     """
     if type(cg) != CausalGraph or type(background_knowledge) != BackgroundKnowledge:
-        raise TypeError('cg must be type of CausalGraph and background_knowledge must be type of BackgroundKnowledge. cg = ' + str(type(cg)) + ' background_knowledge = ' + str(type(background_knowledge)))
+        raise TypeError(
+            'cg must be type of CausalGraph and background_knowledge must be type of BackgroundKnowledge. cg = ' + str(
+                type(cg)) + ' background_knowledge = ' + str(type(background_knowledge)))
     for edge in cg.G.get_graph_edges():
         if cg.G.is_undirected_from_to(edge.get_node1(), edge.get_node2()):
             if background_knowledge.is_forbidden(edge.get_node2(), edge.get_node1()):
@@ -31,4 +33,3 @@ def orient_by_background_knowledge(cg, background_knowledge):
             elif background_knowledge.is_required(edge.get_node1(), edge.get_node2()):
                 cg.G.remove_edge(edge)
                 cg.G.add_directed_edge(edge.get_node1(), edge.get_node2())
-

@@ -1,16 +1,17 @@
 from causallearn.graph.Graph import Graph
 
+
 class AdjacencyConfusion:
     __adjFn = 0
     __adjTp = 0
     __adjFp = 0
     __adjTn = 0
 
-    def __init__(self, truth:Graph, est:Graph):
+    def __init__(self, truth: Graph, est: Graph):
         nodes = truth.get_nodes()
         nodes_name = [node.get_name() for node in nodes]
         for i in list(range(0, len(nodes))):
-            for j in list(range(i+1,len(nodes))):
+            for j in list(range(i + 1, len(nodes))):
                 estAdj = est.is_adjacent_to(est.get_node(nodes_name[i]), est.get_node(nodes_name[j]))
                 truthAdj = truth.is_adjacent_to(truth.get_node(nodes_name[i]), truth.get_node(nodes_name[j]))
 
@@ -22,7 +23,6 @@ class AdjacencyConfusion:
                     self.__adjTp = self.__adjTp + 1
                 elif not estAdj and not truthAdj:
                     self.__adjTn = self.__adjTn + 1
-
 
     def get_adj_tp(self):
         return self.__adjTp
@@ -37,7 +37,7 @@ class AdjacencyConfusion:
         return self.__adjTn
 
     def get_adj_precision(self):
-        return self.__adjTp/ (self.__adjTp + self.__adjFp)
+        return self.__adjTp / (self.__adjTp + self.__adjFp)
 
     def get_adj_recall(self):
-        return self.__adjTp/ (self.__adjTp + self.__adjFn)
+        return self.__adjTp / (self.__adjTp + self.__adjFn)

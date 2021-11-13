@@ -26,7 +26,8 @@ class VARMALiNGAM:
        Analyzing relationships among ARMA processes based on non-Gaussianity of external influences. Neurocomputing, Volume 74: 2212-2221, 2011
     """
 
-    def __init__(self, order=(1, 1), criterion='bic', prune=False, max_iter=100, ar_coefs=None, ma_coefs=None, lingam_model=None, random_state=None):
+    def __init__(self, order=(1, 1), criterion='bic', prune=False, max_iter=100, ar_coefs=None, ma_coefs=None,
+                 lingam_model=None, random_state=None):
         """Construct a VARMALiNGAM model.
 
         Parameters
@@ -151,7 +152,7 @@ class VARMALiNGAM:
         ar_coefs = self._ar_coefs
         ma_coefs = self._ma_coefs
 
-        total_effects = np.zeros([n_sampling, n_features, n_features*(1+p)])
+        total_effects = np.zeros([n_sampling, n_features, n_features * (1 + p)])
 
         adjacency_matrices = []
         for i in range(n_sampling):
@@ -186,14 +187,14 @@ class VARMALiNGAM:
             # total effects
             for c, to in enumerate(reversed(self._causal_order)):
                 # time t
-                for from_ in self._causal_order[:n_features-(c+1)]:
+                for from_ in self._causal_order[:n_features - (c + 1)]:
                     total_effects[i, to, from_] = self.estimate_total_effect(
                         resampled_X, ee, from_, to)
 
                 # time t-tau
                 for lag in range(p):
                     for from_ in range(n_features):
-                        total_effects[i, to, from_+n_features] = self.estimate_total_effect(
+                        total_effects[i, to, from_ + n_features] = self.estimate_total_effect(
                             resampled_X, ee, from_, to, lag + 1)
 
         self._criterion = criterion
@@ -235,17 +236,17 @@ class VARMALiNGAM:
 
         # X + lagged X
         X_joined = np.zeros(
-            (X.shape[0], X.shape[1]*(1+from_lag+self._order[0]+self._order[1])))
+            (X.shape[0], X.shape[1] * (1 + from_lag + self._order[0] + self._order[1])))
 
-        for p in range(1+self._order[0]):
+        for p in range(1 + self._order[0]):
             pos = n_features * p
             X_joined[:, pos:pos +
-                     n_features] = np.roll(X[:, 0:n_features], p, axis=0)
+                            n_features] = np.roll(X[:, 0:n_features], p, axis=0)
 
         for q in range(self._order[1]):
-            pos = n_features * (1+self._order[0]) + n_features * q
+            pos = n_features * (1 + self._order[0]) + n_features * q
             X_joined[:, pos:pos +
-                     n_features] = np.roll(E[:, 0:n_features], q+1, axis=0)
+                            n_features] = np.roll(E[:, 0:n_features], q + 1, axis=0)
 
         # concat psi and omega
         psi = self._adjacency_matrices[0]
@@ -254,8 +255,8 @@ class VARMALiNGAM:
 
         # from_index + parents indices
         parents = np.where(np.abs(am[from_index]) > 0)[0]
-        from_index = from_index if from_lag == 0 else from_index+n_features
-        parents = parents if from_lag == 0 else parents+n_features
+        from_index = from_index if from_lag == 0 else from_index + n_features
+        parents = parents if from_lag == 0 else parents + n_features
         predictors = [from_index]
         predictors.extend(parents)
 
@@ -308,7 +309,8 @@ class VARMALiNGAM:
                     min_value = value
                     result = fitted
 
-        return result.coefficient_matrices_var, result.coefficient_matrices_vma, result.specification['order'], result.resid
+        return result.coefficient_matrices_var, result.coefficient_matrices_vma, result.specification[
+            'order'], result.resid
 
     def _calc_residuals(self, X, ar_coefs, ma_coefs, p, q):
         X = X.T
@@ -356,19 +358,19 @@ class VARMALiNGAM:
         n_features = X.shape[1]
 
         # join X(t), X(t-1) and e(t-1)
-        X_joined = np.zeros((X.shape[0], X.shape[1]*(1+order[0]+order[1])))
-        for p in range(1+order[0]):
+        X_joined = np.zeros((X.shape[0], X.shape[1] * (1 + order[0] + order[1])))
+        for p in range(1 + order[0]):
             pos = n_features * p
             X_joined[:, pos:pos +
-                     n_features] = np.roll(X[:, 0:n_features], p, axis=0)
+                            n_features] = np.roll(X[:, 0:n_features], p, axis=0)
 
         for q in range(order[1]):
-            pos = n_features * (1+order[0]) + n_features * q
+            pos = n_features * (1 + order[0]) + n_features * q
             X_joined[:, pos:pos +
-                     n_features] = np.roll(ee[:, 0:n_features], q+1, axis=0)
+                            n_features] = np.roll(ee[:, 0:n_features], q + 1, axis=0)
 
         # pruned by adaptive lasso
-        psi_omega = np.zeros((n_features, n_features*(1+order[0]+order[1])))
+        psi_omega = np.zeros((n_features, n_features * (1 + order[0] + order[1])))
         for i, target in enumerate(causal_order):
             predictors = [j for j in range(
                 X_joined.shape[1]) if j not in causal_order[i:]]
@@ -384,15 +386,15 @@ class VARMALiNGAM:
             psi_omega[target, predictors] = reg.coef_ * weight
 
         # split psi and omega
-        psis = np.zeros(((1+order[0]), n_features, n_features))
-        for p in range(1+order[0]):
+        psis = np.zeros(((1 + order[0]), n_features, n_features))
+        for p in range(1 + order[0]):
             pos = n_features * p
-            psis[p] = psi_omega[:, pos:pos+n_features]
+            psis[p] = psi_omega[:, pos:pos + n_features]
 
         omegas = np.zeros((order[1], n_features, n_features))
         for q in range(order[1]):
-            pos = n_features * (1+order[0]) + n_features * q
-            omegas[q] = psi_omega[:, pos:pos+n_features]
+            pos = n_features * (1 + order[0]) + n_features * q
+            omegas[q] = psi_omega[:, pos:pos + n_features]
 
         return psis, omegas
 

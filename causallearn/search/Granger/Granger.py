@@ -1,14 +1,13 @@
-import os, sys
-import pandas as pd
 import numpy as np
-from statsmodels.tsa.stattools import grangercausalitytests
 from sklearn.linear_model import LassoCV
+from statsmodels.tsa.stattools import grangercausalitytests
 
 
 class Granger(object):
     '''
     Python implementation of granger causality, including 1) regression+hypothesis test and 2) lass regression
     '''
+
     def __init__(self, maxlag=2, test='ssr_ftest', cv=5):
         '''
         Construct the Granger model.
@@ -36,7 +35,7 @@ class Granger(object):
         p_value_matrix: p values for x1->x2 and x2->x1
         '''
         n, dim = data.shape
-        assert dim==2, "Data have more than two dimensions"
+        assert dim == 2, "Data have more than two dimensions"
         p_value_matrix = np.zeros((dim, dim))
         for c in range(dim):
             for r in range(dim):
@@ -61,12 +60,12 @@ class Granger(object):
         n, dim = data.shape
         # stack data to form one-vs-all regression
         Y = data[self.maxlag:]
-        X = np.hstack([data[self.maxlag-k:-k] for k in range(1, self.maxlag+1)])
+        X = np.hstack([data[self.maxlag - k:-k] for k in range(1, self.maxlag + 1)])
 
         lasso_cv = LassoCV(cv=self.cv)
-        coeff = np.zeros((dim, dim*self.maxlag))
+        coeff = np.zeros((dim, dim * self.maxlag))
         # Consider one variable after the other as target
         for i in range(dim):
-            lasso_cv.fit(X, Y[:,i])
+            lasso_cv.fit(X, Y[:, i])
             coeff[i] = lasso_cv.coef_
         return coeff

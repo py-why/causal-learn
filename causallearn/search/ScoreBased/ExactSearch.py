@@ -7,16 +7,16 @@ https://arxiv.org/abs/1608.02682
 
 Ignavier Ng, Yujia Zheng, Jiji Zhang, Kun Zhang
 """
-from bisect import bisect_left
-from collections import OrderedDict
 import itertools as it
 import logging
+from bisect import bisect_left
+from collections import OrderedDict
+
 import networkx as nx
 import numpy as np
 
-from causallearn.utils.PriorityQueue import PriorityQueue
 from causallearn.graph.Dag import Dag
-
+from causallearn.utils.PriorityQueue import PriorityQueue
 
 _logger = logging.getLogger(__name__)
 INF = float("inf")
@@ -72,7 +72,7 @@ def bic_exact_search(X, super_graph=None, search_method='astar',
     else:
         assert Dag.is_dag(include_graph)
 
-    assert set(super_graph.diagonal()) == {0}    # Diagonals must be zeros
+    assert set(super_graph.diagonal()) == {0}  # Diagonals must be zeros
     if max_parents is None:
         max_parents = d
 
@@ -98,7 +98,7 @@ def bic_exact_search(X, super_graph=None, search_method='astar',
     else:
         raise ValueError("Unknown search method.")
 
-    search_stats.update(shortest_path_stats)    # Store in search_stats
+    search_stats.update(shortest_path_stats)  # Store in search_stats
     if verbose:
         _logger.info("Finished searching for shortest path.")
 
@@ -150,13 +150,13 @@ def astar_shortest_path(parent_graphs, use_path_extension=True,
     score = {(): 0}
     h = sum(parent_graphs[i][0][1] for i in range(d))
     opened.push(((), [() for i in range(d)]), h)
-    max_n_opened = 1    # For counting the maximum length of open list
-    while_iter = 0    # For counting the number of iterations of the while loop
-    for_iter = 0    # For counting the number of iterations of the for loop
+    max_n_opened = 1  # For counting the maximum length of open list
+    while_iter = 0  # For counting the number of iterations of the while loop
+    for_iter = 0  # For counting the number of iterations of the for loop
     while not opened.empty():
         while_iter += 1
         _, (U, structures) = opened.pop()
-        U = tuple(sorted(U))    # Ensure consistency of variable order
+        U = tuple(sorted(U))  # Ensure consistency of variable order
 
         if U in closed:
             continue
@@ -238,7 +238,7 @@ def dp_shortest_path(parent_graphs, use_path_extension=True, verbose=False):
     """
     d = len(parent_graphs)
     order_graph = nx.DiGraph()
-    for i in range(d+1):
+    for i in range(d + 1):
         optimal_child = {}
         for subset in it.combinations(range(d), i):
             order_graph.add_node(subset)
@@ -253,19 +253,19 @@ def dp_shortest_path(parent_graphs, use_path_extension=True, verbose=False):
 
                 structure, weight = query_best_structure(parent_graphs[variable], parent)
                 order_graph.add_edge(parent, subset, weight=weight,
-                    structure=structure)
+                                     structure=structure)
 
         if use_path_extension:
-        # Remove some edges indicated by optimal path extension
+            # Remove some edges indicated by optimal path extension
             for parent, child in optimal_child.items():
                 edges_to_remove = [edge for edge in nx.edges(order_graph, parent) if edge[1] != child]
                 for edge in edges_to_remove:
                     order_graph.remove_edge(*edge)
 
     path = nx.shortest_path(order_graph, source=(), target=tuple(range(d)),
-        weight='weight', method='bellman-ford')
+                            weight='weight', method='bellman-ford')
 
-    score, structures = 0, list( None for i in range(d) )
+    score, structures = 0, list(None for i in range(d))
     for u, v in zip(path[:-1], path[1:]):
         idx = list(set(v) - set(u))[0]
         parents = order_graph.get_edge_data(u, v)['structure']
@@ -320,7 +320,7 @@ def generate_parent_graph(X, i, max_parents=None, parent_set=None, include_paren
         parent_set = tuple(set(parent_set))
 
     if include_parents is None:
-        include_parents = ()    # Emptry tuple
+        include_parents = ()  # Emptry tuple
 
     parent_graph = []
     for j in range(len(parent_set) + 1):
@@ -359,7 +359,7 @@ def bic_score_node(X, i, structure):
     structure = list(structure)
     n, d = X.shape
     if len(structure) == 0:
-        residual = np.sum(X[:, i]**2)
+        residual = np.sum(X[:, i] ** 2)
     else:
         _, residual, _, _ = np.linalg.lstsq(a=X[:, structure],
                                             b=X[:, i],
@@ -375,6 +375,7 @@ def insort(parent_graph, structure, score):
     at the corresponding position such that the list remains sorted.
     Referred from https://stackoverflow.com/a/39501468
     """
+
     class KeyWrapper:
         def __init__(self, iterable, key):
             self.it = iterable
@@ -433,12 +434,12 @@ def create_dynamic_pd(parent_graphs, k=2):
     V = tuple(range(d))
 
     PD_final = OrderedDict()
-    PD_prev = {V: 0}    # Working variable
-    delta_h = {V: 0}    # Working variable
+    PD_prev = {V: 0}  # Working variable
+    delta_h = {V: 0}  # Working variable
     save = set()
     # Perform BFS for k levels
     for l in range(1, k + 1):
-        PD_curr = {}    # Working variable
+        PD_curr = {}  # Working variable
         for U in PD_prev:
             # TODO: Handle edge cases if length of U is 1
             expand(U, l, PD_prev, PD_curr, parent_graphs)

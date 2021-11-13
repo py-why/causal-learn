@@ -9,6 +9,6 @@ class LinearKernel(Kernel):
         """
         Computes the linear kernel k(x,y)=x^Ty
         """
-        if Y==None:
-            Y=X
+        if Y == None:
+            Y = X
         return X.dot(Y.T)

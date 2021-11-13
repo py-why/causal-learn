@@ -49,7 +49,7 @@ class BootstrapMixin():
 
             # Calculate total effects
             for c, from_ in enumerate(self._causal_order):
-                for to in self._causal_order[c+1:]:
+                for to in self._causal_order[c + 1:]:
                     total_effects[i, to, from_] = self.estimate_total_effect(
                         X, from_, to)
 
@@ -268,12 +268,12 @@ class BootstrapResult(object):
         bp = np.zeros(shape)
         for B in adjacency_matrices:
             bp += np.where(np.abs(B) > min_causal_effect, 1, 0)
-        bp = bp/len(adjacency_matrices)
+        bp = bp / len(adjacency_matrices)
 
-        if int(shape[1]/shape[0]) == 1:
+        if int(shape[1] / shape[0]) == 1:
             return bp
         else:
-            return np.hsplit(bp, int(shape[1]/shape[0]))
+            return np.hsplit(bp, int(shape[1] / shape[0]))
 
     def get_total_causal_effects(self, min_causal_effect=None):
         """Get total effects list.
@@ -305,7 +305,7 @@ class BootstrapResult(object):
         # Calculate probability
         probs = np.sum(np.where(np.abs(self._total_effects) >
                                 min_causal_effect, 1, 0), axis=0, keepdims=True)[0]
-        probs = probs/len(self._total_effects)
+        probs = probs / len(self._total_effects)
 
         # Causal directions
         dirs = np.array(np.where(np.abs(probs) > 0))
@@ -372,7 +372,7 @@ class BootstrapResult(object):
 
         # Sort by count
         order = np.argsort(-counts)
-        probs = counts[order]/len(self._adjacency_matrices)
+        probs = counts[order] / len(self._adjacency_matrices)
         paths_str = paths_str[order]
 
         # Calculate median of causal effect for each path
@@ -633,7 +633,7 @@ class LongitudinalBootstrapResult(object):
         prob = np.zeros(self._adjacency_matrices[0].shape)
         for adj_mat in self._adjacency_matrices:
             prob += np.where(np.abs(adj_mat) > min_causal_effect, 1, 0)
-        prob = prob/len(self._adjacency_matrices)
+        prob = prob / len(self._adjacency_matrices)
 
         return prob
 
@@ -667,7 +667,7 @@ class LongitudinalBootstrapResult(object):
         # probability
         probs = np.sum(np.where(np.abs(self._total_effects) >
                                 min_causal_effect, 1, 0), axis=0, keepdims=True)[0]
-        probs = probs/len(self._total_effects)
+        probs = probs / len(self._total_effects)
 
         # causal directions
         dirs = np.array(np.where(np.abs(probs) > 0))

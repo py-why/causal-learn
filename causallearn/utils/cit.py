@@ -1,17 +1,14 @@
 from math import sqrt, log
-from scipy.stats import norm, chi2
-import numpy as np
-from causallearn.utils.KCI.KCI import KCI_UInd, KCI_CInd
-from causallearn.utils.KCI.GaussianKernel import GaussianKernel
-from causallearn.utils.KCI.PolynomialKernel import PolynomialKernel
-from causallearn.utils.KCI.LinearKernel import LinearKernel
-from causallearn.utils.PCUtils import Helper
 
+import numpy as np
+from scipy.stats import norm, chi2
+
+from causallearn.utils.KCI.KCI import KCI_UInd, KCI_CInd
+from causallearn.utils.PCUtils import Helper
 
 
 def kci(data, X, Y, condition_set=None, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian',
         est_width='empirical', polyd=2, kwidthx=None, kwidthy=None, kwidthz=None):
-
     if condition_set is None or len(condition_set) < 1:
         return kci_ui(data[np.ix_(range(data.shape[0]), [X])], data[np.ix_(range(data.shape[0]), [Y])],
                       kernelX, kernelY, est_width, polyd, kwidthx, kwidthy)
@@ -39,11 +36,13 @@ def kci_ui(X, Y, kernelX='Gaussian', kernelY='Gaussian', est_width='empirical', 
        kwidthy: kernel width for data y (standard deviation sigma)
     '''
 
-    kci_uind = KCI_UInd(kernelX, kernelY, est_width=est_width, polyd=polyd, kwidthx=kwidthx, kwidthy=kwidthy )
+    kci_uind = KCI_UInd(kernelX, kernelY, est_width=est_width, polyd=polyd, kwidthx=kwidthx, kwidthy=kwidthy)
     pvalue, _ = kci_uind.compute_pvalue(X, Y)
     return pvalue
 
-def kci_ci(X, Y, Z, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', est_width='empirical', polyd=2, kwidthx=None, kwidthy=None, kwidthz=None):
+
+def kci_ci(X, Y, Z, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', est_width='empirical', polyd=2,
+           kwidthx=None, kwidthy=None, kwidthz=None):
     '''
      To test if x and y are conditionally independent given z
        Parameters
@@ -63,11 +62,13 @@ def kci_ci(X, Y, Z, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', 
        kwidthz: kernel width for data y (standard deviation sigma)
     '''
 
-    kci_cind = KCI_CInd(kernelX, kernelY, kernelZ, est_width=est_width, polyd=polyd, kwidthx=kwidthx, kwidthy=kwidthy, kwidthz=kwidthz)
+    kci_cind = KCI_CInd(kernelX, kernelY, kernelZ, est_width=est_width, polyd=polyd, kwidthx=kwidthx, kwidthy=kwidthy,
+                        kwidthz=kwidthz)
     pvalue, _ = kci_cind.compute_pvalue(X, Y, Z)
     return pvalue
 
-def mv_fisherz(mvdata, X, Y, condition_set, sample_size = None):
+
+def mv_fisherz(mvdata, X, Y, condition_set, sample_size=None):
     '''
     Perform an independence test using Fisher-Z's test for data with missing values
 
@@ -145,6 +146,7 @@ def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
         cond_set_bgn_0 = []
 
     return mv_fisherz(data_vir, 0, 1, tuple(cond_set_bgn_0), effective_sz)
+
 
 def fisherz(data, X, Y, condition_set, correlation_matrix=None):
     '''

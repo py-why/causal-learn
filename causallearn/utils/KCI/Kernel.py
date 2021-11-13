@@ -1,4 +1,5 @@
 from abc import abstractmethod
+
 from numpy import eye, shape
 from numpy.linalg import pinv
 

@@ -1,4 +1,6 @@
-import os, sys
+import os
+import sys
+
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
 import numpy as np
@@ -7,14 +9,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 from causallearn.utils.KCI.KCI import KCI_UInd
-from causallearn.utils.KCI import GaussianKernel
 import torch.autograd as autograd
+
 
 class MLP(nn.Module):
     """
     Python implementation MLP, which is the same of G1 and G2
     Input: X (x1 or x2)
     """
+
     def __init__(self, n_inputs, n_outputs, n_layers=1, n_units=100):
         """ The MLP must have the first and last layers as FC.
         :param n_inputs: input dim
@@ -47,16 +50,17 @@ class MixGaussianLayer(nn.Module):
     def __init__(self, Mix_K=3):
         super(MixGaussianLayer, self).__init__()
         self.Mix_K = Mix_K
-        self.Pi = nn.Parameter(torch.randn(self.Mix_K,1))
-        self.Mu = nn.Parameter(torch.randn(self.Mix_K,1))
-        self.Var = nn.Parameter(torch.randn(self.Mix_K,1))
+        self.Pi = nn.Parameter(torch.randn(self.Mix_K, 1))
+        self.Mu = nn.Parameter(torch.randn(self.Mix_K, 1))
+        self.Var = nn.Parameter(torch.randn(self.Mix_K, 1))
 
     def forward(self, x):
         Constraint_Pi = F.softmax(self.Pi, 0)
         # -(x-u)**2/(2var**2)
-        Middle1 = -((x.expand(len(x),self.Mix_K) - self.Mu.T.expand(len(x),self.Mix_K)).pow(2)).div(2*(self.Var.T.expand(len(x),self.Mix_K)).pow(2))
+        Middle1 = -((x.expand(len(x), self.Mix_K) - self.Mu.T.expand(len(x), self.Mix_K)).pow(2)).div(
+            2 * (self.Var.T.expand(len(x), self.Mix_K)).pow(2))
         # sum Pi*Middle/var
-        Middle2 = torch.exp(Middle1).mm(Constraint_Pi.div(torch.sqrt(2*math.pi*self.Var.pow(2))))
+        Middle2 = torch.exp(Middle1).mm(Constraint_Pi.div(torch.sqrt(2 * math.pi * self.Var.pow(2))))
         # log sum
         out = sum(torch.log(Middle2))
 
@@ -76,6 +80,7 @@ class PNL(object):
             3) performs the independence tests to see if the assumed cause if
             independent from the learned disturbance.
     """
+
     def __init__(self, kernelX='Gaussian', kernelY='Gaussian', mix_K=3, epochs=1000):
         '''
         Construct the ANM model.
@@ -106,11 +111,11 @@ class PNL(object):
         Y (n*T): the separation result.
         """
         trpattern = X.T
-        trpattern = trpattern - np.tile(np.mean(trpattern, axis=1).reshape(2,1), (1, len(trpattern[0])))
+        trpattern = trpattern - np.tile(np.mean(trpattern, axis=1).reshape(2, 1), (1, len(trpattern[0])))
         trpattern = np.dot(np.diag(1.5 / np.std(trpattern, axis=1)), trpattern)
         # --------------------------------------------------------
-        x1 = torch.from_numpy(trpattern[0,:]).type(torch.FloatTensor).reshape(-1,1)
-        x2 = torch.from_numpy(trpattern[1,:]).type(torch.FloatTensor).reshape(-1,1)
+        x1 = torch.from_numpy(trpattern[0, :]).type(torch.FloatTensor).reshape(-1, 1)
+        x2 = torch.from_numpy(trpattern[1, :]).type(torch.FloatTensor).reshape(-1, 1)
         x1.requires_grad = True
         x2.requires_grad = True
         y1 = x1
@@ -134,11 +139,11 @@ class PNL(object):
 
             jacob = autograd.grad(outputs=G2(x2), inputs=x2, grad_outputs=torch.ones(y2.shape), create_graph=True,
                                   retain_graph=True, only_inputs=True)[0]
-            loss_jacob = -sum(torch.log(torch.abs(jacob)+1e-10))
+            loss_jacob = -sum(torch.log(torch.abs(jacob) + 1e-10))
 
-            loss = 0.1*loss_jacob + loss_pdf
+            loss = 0.1 * loss_jacob + loss_pdf
 
-            if loss[0]<Min_loss:
+            if loss[0] < Min_loss:
                 Min_loss = loss[0]
                 Final_y2 = y2
 

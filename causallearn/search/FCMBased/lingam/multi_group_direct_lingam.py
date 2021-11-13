@@ -7,7 +7,6 @@ import numbers
 import warnings
 
 import numpy as np
-from sklearn.linear_model import LinearRegression
 from sklearn.utils import check_array, resample
 
 from .bootstrap import BootstrapResult
@@ -132,7 +131,7 @@ class MultiGroupDirectLiNGAM(DirectLiNGAM):
 
             # Calculate total effects
             for c, from_ in enumerate(self._causal_order):
-                for to in self._causal_order[c+1:]:
+                for to in self._causal_order[c + 1:]:
                     effects = self.estimate_total_effect(
                         resampled_X_list, from_, to)
                     for i, effect in enumerate(effects):
@@ -176,7 +175,6 @@ class MultiGroupDirectLiNGAM(DirectLiNGAM):
 
         effects = []
         for X, am in zip(X_list, self._adjacency_matrices):
-
             # from_index + parents indices
             parents = np.where(np.abs(am[from_index]) > 0)[0]
             predictors = [from_index]
@@ -263,7 +261,7 @@ class MultiGroupDirectLiNGAM(DirectLiNGAM):
                         rj_i = xj_std if j in Vj and i in Uc else self._residual(
                             xj_std, xi_std)
                         M += np.min([0, self._diff_mutual_info(xi_std,
-                                                               xj_std, ri_j, rj_i)])**2
+                                                               xj_std, ri_j, rj_i)]) ** 2
                 MG += M * (len(X) / total_size)
             MG_list.append(-1.0 * MG)
         return Uc[np.argmax(MG_list)]

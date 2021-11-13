@@ -1,7 +1,8 @@
-from causallearn.graph.Edge import Edge
-from causallearn.graph.GeneralGraph import GeneralGraph
-from causallearn.graph.Endpoint import Endpoint
 import numpy as np
+
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GeneralGraph import GeneralGraph
 
 
 def dag2cpdag(G):
@@ -20,7 +21,6 @@ def dag2cpdag(G):
     -------
     Yuequn Liu@dmirlab, Wei Chen@dmirlab, Kun Zhang@CMU
     '''
-
 
     # order the edges in G
     nodes_order = list(

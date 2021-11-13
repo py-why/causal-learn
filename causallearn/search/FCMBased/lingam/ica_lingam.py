@@ -5,8 +5,8 @@ The LiNGAM Project: https://sites.google.com/site/sshimizu06/lingam
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-from sklearn.utils import check_array
 from sklearn.decomposition import FastICA
+from sklearn.utils import check_array
 
 from .base import _BaseLiNGAM
 
@@ -89,7 +89,7 @@ class ICALiNGAM(_BaseLiNGAM):
 
         row_num = matrix.shape[0]
         original_index = np.arange(row_num)
-    
+
         while 0 < len(matrix):
             # find a row all of which elements are zero
             row_index_list = np.where(np.sum(np.abs(matrix), axis=1) == 0)[0]
@@ -97,11 +97,11 @@ class ICALiNGAM(_BaseLiNGAM):
                 break
 
             target_index = row_index_list[0]
-    
+
             # append i to the end of the list
             causal_order.append(original_index[target_index])
             original_index = np.delete(original_index, target_index, axis=0)
-    
+
             # remove the i-th row and the i-th column from matrix
             mask = np.delete(np.arange(len(matrix)), target_index, axis=0)
             matrix = matrix[mask][:, mask]
@@ -138,7 +138,7 @@ class ICALiNGAM(_BaseLiNGAM):
             matrix[i, j] = 0
 
             causal_order = self._search_causal_order(matrix)
-            if causal_order is not None: 
+            if causal_order is not None:
                 break
 
         return causal_order

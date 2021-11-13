@@ -1,14 +1,17 @@
+import warnings
+from itertools import permutations
+
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
-from itertools import permutations
-from causallearn.utils.PCUtils.Helper import list_union, powerset
-from causallearn.graph.GraphNode import GraphNode
-from causallearn.graph.GeneralGraph import GeneralGraph
+
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
-import warnings
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.utils.PCUtils.Helper import list_union, powerset
+
 
 class CausalGraph:
     def __init__(self, no_of_var):
@@ -35,14 +38,12 @@ class CausalGraph:
         self.prt_m = {}  # store the parents of missingness indicators
         self.mvpc = None
 
-
-    def set_ind_test(self, indep_test, mvpc = False):
+    def set_ind_test(self, indep_test, mvpc=False):
         """Set the conditional independence test that will be used"""
         # assert name_of_test in ["Fisher_Z", "Chi_sq", "G_sq"]
         if mvpc:
             self.mvpc = True
         self.test = indep_test
-
 
     def ci_test(self, i, j, S):
         """Define the conditional independence test"""
@@ -50,11 +51,9 @@ class CausalGraph:
             return self.test(self.data, self.nx_skel, self.prt_m, i, j, S, self.data.shape[0])
         return self.test(self.data, i, j, S)
 
-
     def neighbors(self, i):
         """Find the neighbors of node i in adjmat"""
         return np.where(self.G.graph[i, :] != 0)[0]
-
 
     def max_degree(self):
         """Return the maximum number of edges connected to a node in adjmat"""
@@ -66,18 +65,15 @@ class CausalGraph:
                 max_degree = len_neigh_i
         return max_degree
 
-
     def find_arrow_heads(self):
         """Return the list of i o-> j in adjmat as (i, j)"""
         L = np.where(self.G.graph == 1)
         return list(zip(L[1], L[0]))
 
-
     def find_tails(self):
         """Return the list of i --o j in adjmat as (j, i)"""
         L = np.where(self.G.graph == -1)
         return list(zip(L[1], L[0]))
-
 
     def find_undirected(self):
         """Return the list of undirected edge i --- j in adjmat as (i, j) [with symmetry]"""
@@ -87,32 +83,28 @@ class CausalGraph:
         """Return the list of directed edges i --> j in adjmat as (i, j)"""
         return [(edge[0], edge[1]) for edge in self.find_arrow_heads() if self.G.graph[edge[0], edge[1]] == -1]
 
-
     def find_bi_directed(self):
         """Return the list of bidirected edges i <-> j in adjmat as (i, j) [with symmetry]"""
-        return [(edge[1], edge[0]) for edge in self.find_arrow_heads() if (self.G.graph[edge[1], edge[0]] == Endpoint.ARROW.value and self.G.graph[edge[0], edge[1]] == Endpoint.ARROW.value)]
-
+        return [(edge[1], edge[0]) for edge in self.find_arrow_heads() if (
+                    self.G.graph[edge[1], edge[0]] == Endpoint.ARROW.value and self.G.graph[
+                edge[0], edge[1]] == Endpoint.ARROW.value)]
 
     def find_adj(self):
         """Return the list of adjacencies i --- j in adjmat as (i, j) [with symmetry]"""
         return list(self.find_tails() + self.find_arrow_heads())
 
-
     def is_undirected(self, i, j):
         """Return True if i --- j holds in adjmat and False otherwise"""
         return self.G.graph[i, j] == -1 and self.G.graph[j, i] == -1
-
 
     def is_fully_directed(self, i, j):
         """Return True if i --> j holds in adjmat and False otherwise"""
         return self.G.graph[i, j] == -1 and self.G.graph[j, i] == 1
 
-
     def find_unshielded_triples(self):
         """Return the list of unshielded triples i o-o j o-o k in adjmat as (i, j, k)"""
         return [(pair[0][0], pair[0][1], pair[1][1]) for pair in permutations(self.find_adj(), 2)
                 if pair[0][1] == pair[1][0] and pair[0][0] != pair[1][1] and self.G.graph[pair[0][0], pair[1][1]] == 0]
-
 
     def find_triangles(self):
         """Return the list of triangles i o-o j o-o k o-o i in adjmat as (i, j, k) [with symmetry]"""
@@ -120,14 +112,12 @@ class CausalGraph:
         return [(pair[0][0], pair[0][1], pair[1][1]) for pair in permutations(Adj, 2)
                 if pair[0][1] == pair[1][0] and pair[0][0] != pair[1][1] and (pair[0][0], pair[1][1]) in Adj]
 
-
     def find_kites(self):
         """Return the list of non-ambiguous kites i o-o j o-o l o-o k o-o i o-o l in adjmat \
         (where j and k are non-adjacent) as (i, j, k, l) [with asymmetry j < k]"""
         return [(pair[0][0], pair[0][1], pair[1][1], pair[0][2]) for pair in permutations(self.find_triangles(), 2)
                 if pair[0][0] == pair[1][0] and pair[0][2] == pair[1][2]
                 and pair[0][1] < pair[1][1] and self.G.graph[pair[0][1], pair[1][1]] == 0]
-
 
     def find_cond_sets(self, i, j):
         """return the list of conditioning sets of the neighbors of i or j in adjmat"""
@@ -137,16 +127,13 @@ class CausalGraph:
         pow_neigh_y = powerset(neigh_y)
         return list_union(pow_neigh_x, pow_neigh_y)
 
-
     def find_cond_sets_with_mid(self, i, j, k):
         """return the list of conditioning sets of the neighbors of i or j in adjmat which contains k"""
         return [S for S in self.find_cond_sets(i, j) if k in S]
 
-
     def find_cond_sets_without_mid(self, i, j, k):
         """return the list of conditioning sets of the neighbors of i or j which in adjmat does not contain k"""
         return [S for S in self.find_cond_sets(i, j) if k not in S]
-
 
     def rearrange(self, PATH):
         """Rearrange adjmat according to the data imported at PATH"""
@@ -175,7 +162,6 @@ class CausalGraph:
         for (i, j) in bidirected:
             self.nx_graph.add_edge(i, j, color='r')  # Red edge: bidirected edge
 
-
     def to_nx_skeleton(self):
         """Convert adjmat into its skeleton (a networkx.Graph object) named nx_skel"""
         nodes = range(len(self.G.graph))
@@ -183,7 +169,6 @@ class CausalGraph:
         adj = [(i, j) for (i, j) in self.find_adj() if i < j]
         for (i, j) in adj:
             self.nx_skel.add_edge(i, j, color='g')  # Green edge: undirected edge
-
 
     def draw_nx_graph(self, skel=False):
         """Draw nx_graph if skel = False and draw nx_skel otherwise"""

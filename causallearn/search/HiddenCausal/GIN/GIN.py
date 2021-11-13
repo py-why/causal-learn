@@ -5,14 +5,16 @@
     From DMIRLab: https://dmir.gdut.edu.cn/
 '''
 
-import numpy as np
+from collections import deque
 from itertools import combinations
 
-from causallearn.graph.NodeType import NodeType
-from causallearn.graph.GraphNode import GraphNode
+import numpy as np
+
 from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.graph.NodeType import NodeType
 from causallearn.search.FCMBased.lingam.hsic import hsic_test_gamma
-from collections import deque
+
 
 def GIN(data):
     '''
@@ -71,12 +73,13 @@ def GIN(data):
             if l != l_node:
                 G.add_directed_edge(l, l_node)
         for o in cluster:
-            o_node = GraphNode(f"X{o+1}")
+            o_node = GraphNode(f"X{o + 1}")
             G.add_node(o_node)
             G.add_directed_edge(l_node, o_node)
         latent_id += 1
 
     return G, K
+
 
 def cal_dep_for_gin(data, cov, X, Z):
     '''
@@ -145,12 +148,14 @@ def find_root(data, cov, clusters, K):
 
     return root
 
+
 def _get_all_elements(S):
     result = set()
     for i in S:
         for j in i:
             result |= {j}
     return result
+
 
 # merging cluster
 def merge_overlaping_cluster(cluster_list):
@@ -192,4 +197,3 @@ def merge_overlaping_cluster(cluster_list):
         cluster[cluster_dict[i]].append(i)
 
     return cluster
-

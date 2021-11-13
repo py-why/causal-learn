@@ -1,7 +1,8 @@
-from causallearn.graph.Graph import Graph
-from causallearn.graph.Endpoint import Endpoint
-
 import numpy as np
+
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.Graph import Graph
+
 
 class ArrowConfusion:
     __arrowsFp = 0
@@ -14,7 +15,7 @@ class ArrowConfusion:
     __arrowsTpCE = 0
     __arrowsTnCE = 0
 
-    def __init__(self, truth:Graph, est:Graph):
+    def __init__(self, truth: Graph, est: Graph):
         nodes = truth.get_nodes()
         nodes_name = [node.get_name() for node in nodes]
 
@@ -85,5 +86,3 @@ class ArrowConfusion:
 
     def get_arrows_recall_ce(self):
         return self.__arrowsTpCE / (self.__arrowsTpCE + self.__arrowsFnCE)
-
-

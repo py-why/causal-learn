@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 
-from causallearn.graph.Graph import Graph
-from causallearn.graph.Endpoint import Endpoint
-from causallearn.graph.Edge import Edge
 from collections import deque
-from causallearn.graph.NodeType import NodeType
-from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
-from causallearn.graph.ArrowConfusion import ArrowConfusion
 from itertools import permutations
 
-import numpy as np
 import pydot
-import warnings
-from causallearn.graph.Edges import Edges
 
+from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
+from causallearn.graph.ArrowConfusion import ArrowConfusion
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Edges import Edges
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.Graph import Graph
+from causallearn.graph.NodeType import NodeType
 
 
 class GraphUtils:
@@ -406,7 +404,6 @@ class GraphUtils:
         #        if pair[0][0] == pair[1][0] and pair[0][2] == pair[1][2]
         #        and pair[0][1] < pair[1][1] and self.adjmat[pair[0][1], pair[1][1]] == -1]
 
-
     def sdh(self, graph1: Graph, graph2: Graph):
         nodes = graph1.get_nodes()
         error = 0
@@ -448,32 +445,32 @@ class GraphUtils:
 
     def directed(self, e: Edge):
         return (e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.ARROW) \
-            or (e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.TAIL)
+               or (e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.TAIL)
 
     def bi_directed(self, e: Edge):
         return e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.ARROW
 
-    def adj_precision(self, truth:Graph, est:Graph):
+    def adj_precision(self, truth: Graph, est: Graph):
         confusion = AdjacencyConfusion(truth, est)
         return confusion.get_adj_tp() / (confusion.get_adj_tp() + confusion.get_adj_fp())
 
-    def adj_recall(self, truth:Graph, est:Graph):
+    def adj_recall(self, truth: Graph, est: Graph):
         confusion = AdjacencyConfusion(truth, est)
         return confusion.get_adj_tp() / (confusion.get_adj_tp() + confusion.get_adj_fn())
 
-    def arrow_precision(self, truth:Graph, est:Graph):
+    def arrow_precision(self, truth: Graph, est: Graph):
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fp())
 
-    def arrow_recall(self, truth:Graph, est:Graph):
+    def arrow_recall(self, truth: Graph, est: Graph):
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fn())
 
-    def arrow_precision_common_edges(self, truth:Graph, est:Graph):
+    def arrow_precision_common_edges(self, truth: Graph, est: Graph):
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fp_ce())
 
-    def arrow_recall_common_edges(self, truth:Graph, est:Graph):
+    def arrow_recall_common_edges(self, truth: Graph, est: Graph):
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fn_ce())
 
@@ -578,4 +575,3 @@ class GraphUtils:
                            arrowhead=get_g_arrow_type(edge.get_endpoint2())))
 
         return pydot_g
-

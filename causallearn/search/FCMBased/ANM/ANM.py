@@ -1,10 +1,11 @@
-import os, sys
+import os
+import sys
+
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as C
 from causallearn.utils.KCI.KCI import KCI_UInd
-from causallearn.utils.KCI import GaussianKernel
 
 
 class ANM(object):
@@ -14,6 +15,7 @@ class ANM(object):
     ----------
     [1] Hoyer, Patrik O., et al. "Nonlinear causal discovery with additive noise models." NIPS. Vol. 21. 2008.
     '''
+
     def __init__(self, kernelX='Gaussian', kernelY='Gaussian'):
         '''
         Construct the ANM model.

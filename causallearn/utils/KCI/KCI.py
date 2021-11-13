@@ -1,13 +1,14 @@
 import numpy as np
 from numpy import sqrt
 from numpy.linalg import eigh, eigvalsh
-from causallearn.utils.KCI.Kernel import Kernel
-from causallearn.utils.KCI.GaussianKernel import GaussianKernel
-from causallearn.utils.KCI.LinearKernel import LinearKernel
-from causallearn.utils.KCI.PolynomialKernel import PolynomialKernel
 from scipy import stats
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as C
+
+from causallearn.utils.KCI.GaussianKernel import GaussianKernel
+from causallearn.utils.KCI.Kernel import Kernel
+from causallearn.utils.KCI.LinearKernel import LinearKernel
+from causallearn.utils.KCI.PolynomialKernel import PolynomialKernel
 
 
 # Cannot find reference 'xxx' in '__init__.pyi | __init__.pyi | __init__.pxd' is a bug in pycharm, please ignore
@@ -23,6 +24,7 @@ class KCI_UInd(object):
     [2] A. Gretton, K. Fukumizu, C.-H. Teo, L. Song, B. Schölkopf, and A. Smola, "A kernel
        Statistical test of independence." In NIPS 21, 2007.
     '''
+
     def __init__(self, kernelX='Gaussian', kernelY='Gaussian', null_ss=1000, approx=True, est_width='empirical',
                  polyd=2, kwidthx=None, kwidthy=None):
         '''
@@ -79,7 +81,7 @@ class KCI_UInd(object):
             null_dstr = self.null_sample_spectral(Kxc, Kyc)
             pvalue = sum(null_dstr.squeeze() > test_stat) / float(self.nullss)
         return pvalue, test_stat
-    
+
     def kernel_matrix(self, data_x, data_y):
         '''
         Compute kernel matrix for data x and data y
@@ -183,6 +185,7 @@ class KCI_CInd(object):
     ----------
     [1] K. Zhang, J. Peters, D. Janzing, and B. Schölkopf, "A kernel-based conditional independence test and application in causal discovery," In UAI 2011.
     '''
+
     def __init__(self, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', nullss=5000, est_width='empirical',
                  use_gp=False, approx=True, polyd=2, kwidthx=None, kwidthy=None, kwidthz=None):
         '''
@@ -326,7 +329,7 @@ class KCI_CInd(object):
                 # learning the kernel width of Kz using Gaussian process
                 n, Dz = data_z.shape
                 if self.kernelX == 'Gaussian':
-                    widthz = sqrt(1.0 / (kernelX.width*data_x.shape[1]))
+                    widthz = sqrt(1.0 / (kernelX.width * data_x.shape[1]))
                 else:
                     widthz = 1.0
                 # Instantiate a Gaussian Process model for x

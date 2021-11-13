@@ -1,6 +1,8 @@
 from copy import deepcopy
+
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
+
 
 def meek(cg, background_knowledge=None):
     '''
@@ -141,4 +143,3 @@ def definite_meek(cg, background_knowledge=None):
                     Loop = True
 
     return cg_new
-

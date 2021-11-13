@@ -1,5 +1,5 @@
-from causallearn.graph.Graph import Graph
 from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.Graph import Graph
 
 
 class SHD:
@@ -14,7 +14,7 @@ class SHD:
         for i in list(range(0, len(nodes))):
             for j in list(range(i + 1, len(nodes))):
                 if truth.get_edge(truth.get_node(nodes_name[i]), truth.get_node(nodes_name[j])) and (
-                not est.get_edge(est.get_node(nodes_name[i]), est.get_node(nodes_name[j]))):
+                        not est.get_edge(est.get_node(nodes_name[i]), est.get_node(nodes_name[j]))):
                     self.__SHD += 1
                 if (not truth.get_edge(truth.get_node(nodes_name[i]), truth.get_node(nodes_name[j]))) and est.get_edge(
                         est.get_node(nodes_name[i]), est.get_node(nodes_name[j])):
@@ -28,7 +28,7 @@ class SHD:
                     continue
                 if truth.get_endpoint(truth.get_node(nodes_name[i]),
                                       truth.get_node(nodes_name[j])) == Endpoint.ARROW and est.get_endpoint(
-                        est.get_node(nodes_name[j]), est.get_node(nodes_name[i])) == Endpoint.ARROW:
+                    est.get_node(nodes_name[j]), est.get_node(nodes_name[i])) == Endpoint.ARROW:
                     self.__SHD += 1
 
     def get_shd(self):

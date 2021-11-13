@@ -1,16 +1,16 @@
 import time
-from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
 from itertools import permutations, combinations
-from causallearn.graph.GraphClass import CausalGraph
-from causallearn.graph.Edge import Edge
-from causallearn.graph.Edges import Edges
-from causallearn.graph.Endpoint import Endpoint
-import numpy as np
-from causallearn.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci, mc_fisherz
+
 import networkx as nx
+import numpy as np
+
+from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
+from causallearn.utils.cit import fisherz, mc_fisherz
 
 
-def cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False, correction_name='MV_Crtn_Fisher_Z'):
+def cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False,
+          correction_name='MV_Crtn_Fisher_Z'):
     '''
     Causal discovery from nonstationary/heterogeneous data
     phase 1: learning causal skeleton,
@@ -28,12 +28,12 @@ def cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=Fa
     '''
     data_aug = np.concatenate((data, c_indx), axis=1)
     if mvpc:
-        return mvcdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
-                        uc_rule=uc_rule, uc_priority=uc_priority)
+        return mvcdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, correction_name=correction_name,
+                           stable=stable,
+                           uc_rule=uc_rule, uc_priority=uc_priority)
     else:
         return cdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
-                      uc_priority=uc_priority)
-
+                         uc_priority=uc_priority)
 
 
 def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
@@ -74,7 +74,7 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
 
     # orient the direction from c_indx to X, if there is an edge between c_indx and X
-    c_indx_id = data.shape[1]-1
+    c_indx_id = data.shape[1] - 1
     for i in cg_1.G.get_adjacent_nodes(cg_1.G.nodes[c_indx_id]):
         cg_1.G.add_directed_edge(i, cg_1.G.nodes[c_indx_id])
 
@@ -104,8 +104,6 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
     cg.PC_elapsed = end - start
 
     return cg
-
-
 
 
 def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority):
@@ -154,7 +152,7 @@ def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_pr
 
     ## Step 3: Orient the edges
     # orient the direction from c_indx to X, if there is an edge between c_indx and X
-    c_indx_id = data.shape[1]-1
+    c_indx_id = data.shape[1] - 1
     for i in cg_corr.G.get_adjacent_nodes(cg_corr.G.nodes[c_indx_id]):
         cg_corr.G.add_directed_edge(i, cg_corr.G.nodes[c_indx_id])
 
@@ -440,5 +438,3 @@ def matrix_diff(cg1, cg2):
                 diff_ls.append((i, j))
                 count += 1
     return count / 2, diff_ls
-
-

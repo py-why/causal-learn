@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-from causallearn.graph.Graph import Graph
-from causallearn.graph.Endpoint import Endpoint
-from causallearn.graph.Edge import Edge
-from causallearn.utils.GraphUtils import GraphUtils
-from causallearn.graph.GraphNode import GraphNode
 import numpy as np
+
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.Graph import Graph
+from causallearn.utils.GraphUtils import GraphUtils
 
 
 # Represents a graph using a matrix. Variables are permitted to be either measured
@@ -739,7 +739,7 @@ class GeneralGraph(Graph):
         i = self.node_map[node1]
         j = self.node_map[node2]
 
-        return not(self.graph[j, i] == 0 and self.graph[i, j] == 0)
+        return not (self.graph[j, i] == 0 and self.graph[i, j] == 0)
 
     # Returns true iff the given node is exogenous.
     def is_exogenous(self, node):
@@ -1037,7 +1037,7 @@ class GeneralGraph(Graph):
         return self.attributes[key]
 
     def remove_attribute(self, key):
-        self.attributes.pop[key] # it's useful
+        self.attributes.pop[key]  # it's useful
 
     def add_attribute(self, key, value):
         self.attributes[key] = value

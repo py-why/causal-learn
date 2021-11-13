@@ -28,7 +28,8 @@ class RCD():
        In Proc. 23rd International Conference on Artificial Intelligence and Statistics (AISTATS2020), Palermo, Sicily, Italy. PMLR  108:735-745, 2020.
     """
 
-    def __init__(self, max_explanatory_num=2, cor_alpha=0.01, ind_alpha=0.01, shapiro_alpha=0.01, MLHSICR=False, bw_method='mdbs'):
+    def __init__(self, max_explanatory_num=2, cor_alpha=0.01, ind_alpha=0.01, shapiro_alpha=0.01, MLHSICR=False,
+                 bw_method='mdbs'):
         """Construct a RCD model.
 
            Parameters
@@ -223,9 +224,9 @@ class RCD():
         l = 1
         hu_history = {}
 
-        while(True):
+        while (True):
             changed = False
-            U_list = itertools.combinations(range(n_features), l+1)
+            U_list = itertools.combinations(range(n_features), l + 1)
             for U in U_list:
                 U = list(U)
                 U.sort()

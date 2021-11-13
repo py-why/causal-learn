@@ -1,13 +1,14 @@
-from causallearn.utils.KCI.Kernel import Kernel
 from numpy import exp, shape, sqrt, median
 from numpy.random import permutation
 from scipy.spatial.distance import squareform, pdist, cdist
+
+from causallearn.utils.KCI.Kernel import Kernel
 
 
 class GaussianKernel(Kernel):
     def __init__(self, width=1.0):
         Kernel.__init__(self)
-        self.width = 1.0 / width**2
+        self.width = 1.0 / width ** 2
 
     def kernel(self, X, Y=None):
         """
@@ -16,7 +17,7 @@ class GaussianKernel(Kernel):
         if Y is None:
             sq_dists = squareform(pdist(X, 'sqeuclidean'))
         else:
-            assert(shape(X)[1]==shape(Y)[1])
+            assert (shape(X)[1] == shape(Y)[1])
             sq_dists = cdist(X, Y, 'sqeuclidean')
         K = exp(-0.5 * (sq_dists) * self.width)
         return K

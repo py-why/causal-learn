@@ -43,6 +43,7 @@ def get_kernel_width(X):
 
     return np.sqrt(0.5 * np.median(dists[dists > 0]))
 
+
 def _rbf_dot(X, Y, width):
     """Compute the inner product of radial basis functions."""
     n_samples_X = X.shape[0]
@@ -55,6 +56,7 @@ def _rbf_dot(X, Y, width):
     H = Q + R - 2 * np.dot(X, Y.T)
 
     return np.exp(-H / 2 / (width ** 2))
+
 
 def get_gram_matrix(X, width):
     """Get the centered gram matrices.
@@ -81,6 +83,7 @@ def get_gram_matrix(X, width):
 
     return K, Kc
 
+
 def hsic_teststat(Kc, Lc, n):
     """get the HSIC statistic.
 
@@ -99,6 +102,7 @@ def hsic_teststat(Kc, Lc, n):
     """
     # test statistic m*HSICb under H1
     return 1 / n * np.sum(np.sum(Kc.T * Lc))
+
 
 def hsic_test_gamma(X, Y, bw_method='mdbs'):
     """get the HSIC statistic.

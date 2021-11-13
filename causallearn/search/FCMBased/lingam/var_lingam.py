@@ -135,7 +135,7 @@ class VARLiNGAM:
         ar_coefs = self._ar_coefs
 
         total_effects = np.zeros(
-            [n_sampling, n_features, n_features*(1+self._lags)])
+            [n_sampling, n_features, n_features * (1 + self._lags)])
 
         adjacency_matrices = []
         for i in range(n_sampling):
@@ -160,15 +160,15 @@ class VARLiNGAM:
             # total effects
             for c, to in enumerate(reversed(self._causal_order)):
                 # time t
-                for from_ in self._causal_order[:n_features-(c+1)]:
+                for from_ in self._causal_order[:n_features - (c + 1)]:
                     total_effects[i, to, from_] = self.estimate_total_effect(
                         resampled_X, from_, to)
 
                 # time t-tau
                 for lag in range(self._lags):
                     for from_ in range(n_features):
-                        total_effects[i, to, from_+n_features] = self.estimate_total_effect(
-                            resampled_X, from_, to, lag+1)
+                        total_effects[i, to, from_ + n_features] = self.estimate_total_effect(
+                            resampled_X, from_, to, lag + 1)
 
         self._criterion = criterion
 
@@ -205,18 +205,18 @@ class VARLiNGAM:
                               f'is earlier than the source variable (from_index={from_index}).')
 
         # X + lagged X
-        X_joined = np.zeros((X.shape[0], X.shape[1]*(1+self._lags+from_lag)))
-        for p in range(1+self._lags+from_lag):
+        X_joined = np.zeros((X.shape[0], X.shape[1] * (1 + self._lags + from_lag)))
+        for p in range(1 + self._lags + from_lag):
             pos = n_features * p
             X_joined[:, pos:pos +
-                     n_features] = np.roll(X[:, 0:n_features], p, axis=0)
+                            n_features] = np.roll(X[:, 0:n_features], p, axis=0)
 
         # from_index + parents indices
         am = np.concatenate([*self._adjacency_matrices], axis=1)
         parents = np.where(np.abs(am[from_index]) > 0)[0]
         from_index = from_index if from_lag == 0 else from_index + \
-            (n_features*from_lag)
-        parents = parents if from_lag == 0 else parents+(n_features*from_lag)
+                                                      (n_features * from_lag)
+        parents = parents if from_lag == 0 else parents + (n_features * from_lag)
         predictors = [from_index]
         predictors.extend(parents)
 

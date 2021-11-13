@@ -8,7 +8,6 @@ import warnings
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
-from sklearn.linear_model import LinearRegression
 from sklearn.utils import check_array
 
 from .bootstrap import BootstrapMixin

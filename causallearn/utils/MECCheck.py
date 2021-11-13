@@ -1,6 +1,8 @@
-from causallearn.utils.DAG2CPDAG import dag2cpdag
-import numpy as np
 from copy import deepcopy
+
+import numpy as np
+
+from causallearn.utils.DAG2CPDAG import dag2cpdag
 
 
 def mec_check(DAG1, DAG2):

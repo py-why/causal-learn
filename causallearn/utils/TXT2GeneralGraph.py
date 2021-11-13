@@ -1,7 +1,7 @@
-from causallearn.graph.GeneralGraph import GeneralGraph
-from causallearn.graph.GraphNode import GraphNode
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
 
 
 def txt2generalgraph(filename):
@@ -47,6 +47,7 @@ def to_endpoint(s):
         return Endpoint.TAIL
     else:
         raise NotImplementedError
+
 
 def mod_endpoint(edge, z, end):
     if edge.get_node1() == z:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from enum import Enum
+
 from causallearn.graph.Endpoint import Endpoint
 
 

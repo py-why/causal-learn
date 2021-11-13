@@ -1,19 +1,23 @@
 import time
-from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
 from itertools import permutations, combinations
-from causallearn.graph.GraphClass import CausalGraph
-import numpy as np
-from causallearn.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci, mc_fisherz
+
 import networkx as nx
+import numpy as np
+
+from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
+from causallearn.utils.cit import fisherz, mc_fisherz
 
 
-def pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False, correction_name='MV_Crtn_Fisher_Z', background_knowledge=None):
+def pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False, correction_name='MV_Crtn_Fisher_Z',
+       background_knowledge=None):
     if mvpc:
-        return mvpc_alg(data=data, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable, uc_rule=uc_rule, uc_priority=uc_priority)
+        return mvpc_alg(data=data, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
+                        uc_rule=uc_rule, uc_priority=uc_priority)
     else:
-        return pc_alg(data=data, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule, uc_priority=uc_priority, background_knowledge=background_knowledge)
-
+        return pc_alg(data=data, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
+                      uc_priority=uc_priority, background_knowledge=background_knowledge)
 
 
 def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None):
@@ -51,7 +55,8 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     '''
 
     start = time.time()
-    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, background_knowledge=background_knowledge)
+    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
+                                                background_knowledge=background_knowledge)
 
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_1, background_knowledge)
@@ -82,8 +87,6 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     cg.PC_elapsed = end - start
 
     return cg
-
-
 
 
 def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority):
@@ -410,5 +413,3 @@ def matrix_diff(cg1, cg2):
                 diff_ls.append((i, j))
                 count += 1
     return count / 2, diff_ls
-
-

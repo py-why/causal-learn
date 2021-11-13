@@ -12,5 +12,5 @@ class PolynomialKernel(Kernel):
         Computes the polynomial kernel k(x,y)=(c+<x,y>)^degree
         """
         if Y == None:
-            Y=X
+            Y = X
         return pow(self.const + X.dot(Y.T), self.degree)

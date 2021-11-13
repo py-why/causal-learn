@@ -8,9 +8,7 @@ import numbers
 import warnings
 
 import numpy as np
-from scipy.stats import gamma
 from scipy.stats.distributions import chi2
-from sklearn.linear_model import LinearRegression
 from sklearn.utils import check_array, resample
 
 from .bootstrap import BootstrapResult
@@ -130,7 +128,7 @@ class BottomUpParceLiNGAM():
             pairs, counts = np.unique(check_pairs, axis=0, return_counts=True)
             if len(pairs[counts > 1]) > 0:
                 raise ValueError(
-                    f'The prior knowledge contains inconsistencies at the following indices: {pairs[counts>1].tolist()}')
+                    f'The prior knowledge contains inconsistencies at the following indices: {pairs[counts > 1].tolist()}')
 
         # Check for inconsistencies in pairs without path
         # If there are duplicate pairs without path, they cancel out and are not ordered.
@@ -273,7 +271,8 @@ class BottomUpParceLiNGAM():
 
     def _flatten(self, arr):
         """Return a copy of an array flattened in one dimension."""
-        return [val for item in arr for val in (self._flatten(item) if hasattr(item, '__iter__') and not isinstance(item, str) else [item])]
+        return [val for item in arr for val in
+                (self._flatten(item) if hasattr(item, '__iter__') and not isinstance(item, str) else [item])]
 
     def _estimate_adjacency_matrix(self, X, prior_knowledge=None):
         """Estimate adjacency matrix by causal order.
@@ -316,9 +315,9 @@ class BottomUpParceLiNGAM():
         # Set np.nan if order is unknown
         for unk_order in self._causal_order:
             if hasattr(unk_order, '__iter__') and not isinstance(unk_order, str):
-                for i in range(len(unk_order)-1):
+                for i in range(len(unk_order) - 1):
                     xi = unk_order[i]
-                    for xj in unk_order[i+1:]:
+                    for xj in unk_order[i + 1:]:
                         B[xi, xj] = np.nan
                         B[xj, xi] = np.nan
 
@@ -480,7 +479,7 @@ class BottomUpParceLiNGAM():
 
             # Calculate total effects
             for c, from_ in enumerate(self._causal_order):
-                for to in self._causal_order[c+1:]:
+                for to in self._causal_order[c + 1:]:
                     if hasattr(from_, '__iter__'):
                         for from_item in from_:
                             total_effects[i, to, from_item] = self.estimate_total_effect(

@@ -1,9 +1,9 @@
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 from causallearn.utils.GESUtils import *
 from causallearn.utils.PDAG2DAG import pdag2dag
-from causallearn.graph.GeneralGraph import GeneralGraph
-from causallearn.graph.GraphNode import GraphNode
-from causallearn.graph.Endpoint import Endpoint
 
 
 def ges(X, score_func, maxP=None, parameters=None):

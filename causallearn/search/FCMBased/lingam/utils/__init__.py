@@ -31,9 +31,9 @@ def print_causal_directions(cdc, n_sampling, labels=None):
         sign = '' if 'sign' not in cdc else '(b>0)' if cdc['sign'][i] > 0 else '(b<0)'
         if labels:
             print(
-                f'{labels[to]} <--- {labels[fr]} {sign} ({100*co/n_sampling:.1f}%)')
+                f'{labels[to]} <--- {labels[fr]} {sign} ({100 * co / n_sampling:.1f}%)')
         else:
-            print(f'x{to} <--- x{fr} {sign} ({100*co/n_sampling:.1f}%)')
+            print(f'x{to} <--- x{fr} {sign} ({100 * co / n_sampling:.1f}%)')
 
 
 def print_dagc(dagc, n_sampling, labels=None):
@@ -51,7 +51,7 @@ def print_dagc(dagc, n_sampling, labels=None):
         If set labels, the output feature name will be the specified label.
     """
     for i, (dag, co) in enumerate(zip(dagc['dag'], dagc['count'])):
-        print(f'DAG[{i}]: {100*co/n_sampling:.1f}%')
+        print(f'DAG[{i}]: {100 * co / n_sampling:.1f}%')
         for j, (fr, to) in enumerate(zip(dag['from'], dag['to'])):
             sign = '' if 'sign' not in dag else '(b>0)' if dag['sign'][j] > 0 else '(b<0)'
             if labels:
@@ -213,7 +213,8 @@ def make_dot(adjacency_matrix, labels=None, lower_limit=0.01,
         if prediction_coefs is not None and (len(prediction_feature_indices) != len(prediction_coefs)):
             raise ValueError(
                 "Length of 'prediction_coefs' does not match length of 'prediction_feature_indices'")
-        if prediction_feature_importance is not None and (len(prediction_feature_indices) != len(prediction_feature_importance)):
+        if prediction_feature_importance is not None and (
+                len(prediction_feature_indices) != len(prediction_feature_importance)):
             raise ValueError(
                 "Length of 'prediction_feature_importance' does not match length of 'prediction_feature_indices'")
 
@@ -363,7 +364,7 @@ def find_all_paths(dag, from_index, to_index, min_causal_effect=0.0):
     # Calculate the causal effect for each path
     effects = []
     for p in paths:
-        coefs = [dag[p[i+1], p[i]] for i in range(len(p)-1)]
+        coefs = [dag[p[i + 1], p[i]] for i in range(len(p) - 1)]
         effects.append(np.cumprod(coefs)[-1])
 
     return paths, effects

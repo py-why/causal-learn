@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-from causallearn.graph.Graph import Graph
-from causallearn.graph.Endpoint import Endpoint
-from causallearn.graph.Edge import Edge
-from causallearn.utils.GraphUtils import GraphUtils
-from causallearn.graph.GraphNode import GraphNode
-from causallearn.graph.Edge import Edge
-from causallearn.graph.GeneralGraph import GeneralGraph
-import numpy as np
-import networkx as nx
 from itertools import combinations
+
+import networkx as nx
+import numpy as np
+
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.Graph import Graph
+from causallearn.utils.GraphUtils import GraphUtils
 
 
 # Represents a directed acyclic graph--that is, a graph containing only
@@ -645,7 +645,7 @@ class Dag(Graph):
     def transfer_attributes(self, graph):
         graph.attributes = self.attributes
 
-# Returns the list of ambiguous triples associated with this graph. Triples <x, y, z> that no longer
+    # Returns the list of ambiguous triples associated with this graph. Triples <x, y, z> that no longer
     # lie along a path in the getModel graph are removed.
     def get_ambiguous_triples(self):
         return self.ambiguous_triples
@@ -742,7 +742,6 @@ class Dag(Graph):
     def add_attribute(self, key, value):
         self.attributes[key] = value
 
-
     def is_dag(B):
         """Check whether B corresponds to a DAG.
 
@@ -811,4 +810,3 @@ def mod_endpoint(edge, z, end):
         edge.set_endpoint2(end)
     else:
         raise ValueError("z not in edge")
-

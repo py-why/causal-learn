@@ -158,17 +158,16 @@ class CausalEffect(object):
 
         effects = []
         for i in range(X.shape[1]):
-
             # E[Y|do(Xi=mean)]
             Ex_do = self._get_propagated_effects(En, i, Ex[i])
             Ey_do = self._predict(Ex_do[vars_], pred_model)
 
             # E[Y|do(Xi=mean)]-E[Y|do(Xi=mean+std)]
-            Ex_do = self._get_propagated_effects(En, i, Ex[i]+X[:, i].std())
+            Ex_do = self._get_propagated_effects(En, i, Ex[i] + X[:, i].std())
             Ey1 = Ey_do - self._predict(Ex_do[vars_], pred_model)
 
             # E[Y|do(Xi=mean)]–E[Y|do(Xi=mean-std)]
-            Ex_do = self._get_propagated_effects(En, i, Ex[i]-X[:, i].std())
+            Ex_do = self._get_propagated_effects(En, i, Ex[i] - X[:, i].std())
             Ey2 = Ey_do - self._predict(Ex_do[vars_], pred_model)
 
             effects.append([np.abs(Ey1), np.abs(Ey2)])
@@ -239,4 +238,4 @@ class CausalEffect(object):
 
         coefs = np.insert(pred_model.coef_, target_index, 0)
 
-        return (desired_output - np.dot(coefs, Ex) - pred_model.intercept_)/np.dot(coefs, alpha)
+        return (desired_output - np.dot(coefs, Ex) - pred_model.intercept_) / np.dot(coefs, alpha)

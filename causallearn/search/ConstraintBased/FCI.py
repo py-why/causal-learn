@@ -1,16 +1,15 @@
+from copy import deepcopy
+from itertools import combinations, permutations
+
 import networkx as nx
 import numpy as np
-import pandas as pd
-from itertools import combinations, permutations
-from copy import deepcopy
 
-from causallearn.graph.GeneralGraph import GeneralGraph
-from causallearn.graph.GraphNode import GraphNode
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
-from causallearn.utils.GraphUtils import GraphUtils
-
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.cit import fisherz
+
 
 def trans_nodeset2str(Z):
     return tuple(str(z) for z in Z)
@@ -271,7 +270,6 @@ def fci(data, indep_test=fisherz, alpha=0.05, verbose=False):
                     sepset[(x, y)] |= set(Z)
                     sepset[(y, x)] |= set(Z)
                     break
-
 
         depth += 1
 
