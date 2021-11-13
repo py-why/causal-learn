@@ -1,5 +1,5 @@
 import time
-from causallearn.utils.PCUtils import Algorithm1, Algorithm2, Algorithm3, Helper
+from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
 from itertools import permutations, combinations
 from causallearn.graph.GraphClass import CausalGraph
 import numpy as np
@@ -51,32 +51,32 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     '''
 
     start = time.time()
-    cg_1 = Algorithm1.skeleton_discovery(data, alpha, indep_test, stable, background_knowledge=background_knowledge)
+    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, background_knowledge=background_knowledge)
 
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_1, background_knowledge)
 
     if uc_rule == 0:
         if uc_priority != -1:
-            cg_2 = Algorithm2.uc_sepset(cg_1, uc_priority, background_knowledge=background_knowledge)
+            cg_2 = UCSepset.uc_sepset(cg_1, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = Algorithm2.uc_sepset(cg_1, background_knowledge=background_knowledge)
-        cg = Algorithm3.meek(cg_2, background_knowledge=background_knowledge)
+            cg_2 = UCSepset.uc_sepset(cg_1, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_2, background_knowledge=background_knowledge)
 
     elif uc_rule == 1:
         if uc_priority != -1:
-            cg_2 = Algorithm2.maxp(cg_1, uc_priority, background_knowledge=background_knowledge)
+            cg_2 = UCSepset.maxp(cg_1, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = Algorithm2.maxp(cg_1, background_knowledge=background_knowledge)
-        cg = Algorithm3.meek(cg_2, background_knowledge=background_knowledge)
+            cg_2 = UCSepset.maxp(cg_1, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_2, background_knowledge=background_knowledge)
 
     elif uc_rule == 2:
         if uc_priority != -1:
-            cg_2 = Algorithm2.definite_maxp(cg_1, alpha, uc_priority, background_knowledge=background_knowledge)
+            cg_2 = UCSepset.definite_maxp(cg_1, alpha, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = Algorithm2.definite_maxp(cg_1, alpha, background_knowledge=background_knowledge)
-        cg_before = Algorithm3.definite_meek(cg_2, background_knowledge=background_knowledge)
-        cg = Algorithm3.meek(cg_before, background_knowledge=background_knowledge)
+            cg_2 = UCSepset.definite_maxp(cg_1, alpha, background_knowledge=background_knowledge)
+        cg_before = Meek.definite_meek(cg_2, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_before, background_knowledge=background_knowledge)
     end = time.time()
 
     cg.PC_elapsed = end - start
@@ -122,7 +122,7 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = Algorithm1.skeleton_discovery(data, alpha, indep_test, stable)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 
@@ -133,25 +133,25 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
     ## Step 3: Orient the edges
     if uc_rule == 0:
         if uc_priority != -1:
-            cg_2 = Algorithm2.uc_sepset(cg_corr, uc_priority)
+            cg_2 = UCSepset.uc_sepset(cg_corr, uc_priority)
         else:
-            cg_2 = Algorithm2.uc_sepset(cg_corr)
-        cg = Algorithm3.meek(cg_2)
+            cg_2 = UCSepset.uc_sepset(cg_corr)
+        cg = Meek.meek(cg_2)
 
     elif uc_rule == 1:
         if uc_priority != -1:
-            cg_2 = Algorithm2.maxp(cg_corr, uc_priority)
+            cg_2 = UCSepset.maxp(cg_corr, uc_priority)
         else:
-            cg_2 = Algorithm2.maxp(cg_corr)
-        cg = Algorithm3.meek(cg_2)
+            cg_2 = UCSepset.maxp(cg_corr)
+        cg = Meek.meek(cg_2)
 
     elif uc_rule == 2:
         if uc_priority != -1:
-            cg_2 = Algorithm2.definite_maxp(cg_corr, alpha, uc_priority)
+            cg_2 = UCSepset.definite_maxp(cg_corr, alpha, uc_priority)
         else:
-            cg_2 = Algorithm2.definite_maxp(cg_corr, alpha)
-        cg_before = Algorithm3.definite_meek(cg_2)
-        cg = Algorithm3.meek(cg_before)
+            cg_2 = UCSepset.definite_maxp(cg_corr, alpha)
+        cg_before = Meek.definite_meek(cg_2)
+        cg = Meek.meek(cg_before)
     end = time.time()
 
     cg.PC_elapsed = end - start
@@ -193,10 +193,7 @@ def get_prt_mpairs(data, alpha, indep_test, stable=True):
 
 def isempty(prt_r):
     """Test whether the parent of a missingness indicator is empty"""
-    if len(prt_r) == 0:
-        return True
-    else:
-        return False
+    return len(prt_r) == 0
 
 
 def get_mindx(data):

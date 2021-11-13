@@ -1,5 +1,5 @@
 import time
-from causallearn.utils.PCUtils import Algorithm1, Algorithm2, Algorithm3, Helper
+from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
 from itertools import permutations, combinations
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.graph.Edge import Edge
@@ -71,7 +71,7 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
     '''
 
     start = time.time()
-    cg_1 = Algorithm1.skeleton_discovery(data, alpha, indep_test, stable)
+    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
 
     # orient the direction from c_indx to X, if there is an edge between c_indx and X
     c_indx_id = data.shape[1]-1
@@ -80,25 +80,25 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
 
     if uc_rule == 0:
         if uc_priority != -1:
-            cg_2 = Algorithm2.uc_sepset(cg_1, uc_priority)
+            cg_2 = UCSepset.uc_sepset(cg_1, uc_priority)
         else:
-            cg_2 = Algorithm2.uc_sepset(cg_1)
-        cg = Algorithm3.meek(cg_2)
+            cg_2 = UCSepset.uc_sepset(cg_1)
+        cg = Meek.meek(cg_2)
 
     elif uc_rule == 1:
         if uc_priority != -1:
-            cg_2 = Algorithm2.maxp(cg_1, uc_priority)
+            cg_2 = UCSepset.maxp(cg_1, uc_priority)
         else:
-            cg_2 = Algorithm2.maxp(cg_1)
-        cg = Algorithm3.meek(cg_2)
+            cg_2 = UCSepset.maxp(cg_1)
+        cg = Meek.meek(cg_2)
 
     elif uc_rule == 2:
         if uc_priority != -1:
-            cg_2 = Algorithm2.definite_maxp(cg_1, alpha, uc_priority)
+            cg_2 = UCSepset.definite_maxp(cg_1, alpha, uc_priority)
         else:
-            cg_2 = Algorithm2.definite_maxp(cg_1, alpha)
-        cg_before = Algorithm3.definite_meek(cg_2)
-        cg = Algorithm3.meek(cg_before)
+            cg_2 = UCSepset.definite_maxp(cg_1, alpha)
+        cg_before = Meek.definite_meek(cg_2)
+        cg = Meek.meek(cg_before)
     end = time.time()
 
     cg.PC_elapsed = end - start
@@ -144,7 +144,7 @@ def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_pr
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = Algorithm1.skeleton_discovery(data, alpha, indep_test, stable)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 
@@ -160,25 +160,25 @@ def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_pr
 
     if uc_rule == 0:
         if uc_priority != -1:
-            cg_2 = Algorithm2.uc_sepset(cg_corr, uc_priority)
+            cg_2 = UCSepset.uc_sepset(cg_corr, uc_priority)
         else:
-            cg_2 = Algorithm2.uc_sepset(cg_corr)
-        cg = Algorithm3.meek(cg_2)
+            cg_2 = UCSepset.uc_sepset(cg_corr)
+        cg = Meek.meek(cg_2)
 
     elif uc_rule == 1:
         if uc_priority != -1:
-            cg_2 = Algorithm2.maxp(cg_corr, uc_priority)
+            cg_2 = UCSepset.maxp(cg_corr, uc_priority)
         else:
-            cg_2 = Algorithm2.maxp(cg_corr)
-        cg = Algorithm3.meek(cg_2)
+            cg_2 = UCSepset.maxp(cg_corr)
+        cg = Meek.meek(cg_2)
 
     elif uc_rule == 2:
         if uc_priority != -1:
-            cg_2 = Algorithm2.definite_maxp(cg_corr, alpha, uc_priority)
+            cg_2 = UCSepset.definite_maxp(cg_corr, alpha, uc_priority)
         else:
-            cg_2 = Algorithm2.definite_maxp(cg_corr, alpha)
-        cg_before = Algorithm3.definite_meek(cg_2)
-        cg = Algorithm3.meek(cg_before)
+            cg_2 = UCSepset.definite_maxp(cg_corr, alpha)
+        cg_before = Meek.definite_meek(cg_2)
+        cg = Meek.meek(cg_before)
     end = time.time()
 
     cg.PC_elapsed = end - start

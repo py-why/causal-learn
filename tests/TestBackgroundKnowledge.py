@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.search.ConstraintBased.PC import pc
-from causallearn.utils.PCUtils import Algorithm1
+from causallearn.utils.PCUtils import SkeletonDiscovery
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
 from causallearn.graph.GraphNode import GraphNode
@@ -114,13 +114,13 @@ class TestPC(unittest.TestCase):
     def test_skeleton_discovery(self):
         data_path = "data_linear_10.txt"
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
-        cg_1 = Algorithm1.skeleton_discovery(data, 0.05, fisherz, True, background_knowledge=None)
+        cg_1 = SkeletonDiscovery.skeleton_discovery(data, 0.05, fisherz, True, background_knowledge=None)
         assert cg_1.G.is_undirected_from_to(cg_1.G.nodes[0], cg_1.G.nodes[3])
 
         bk = BackgroundKnowledge()\
             .add_forbidden_by_node(cg_1.G.nodes[0], cg_1.G.nodes[3])\
             .add_forbidden_by_node(cg_1.G.nodes[3], cg_1.G.nodes[0])
-        cg_1 = Algorithm1.skeleton_discovery(data, 0.05, fisherz, True, background_knowledge=bk)
+        cg_1 = SkeletonDiscovery.skeleton_discovery(data, 0.05, fisherz, True, background_knowledge=bk)
         assert cg_1.G.get_edge(cg_1.G.nodes[0], cg_1.G.nodes[3]) is None
 
     def test_pc_with_background_knowledge(self):
