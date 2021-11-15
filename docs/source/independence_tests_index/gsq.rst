@@ -17,7 +17,7 @@ Parameters
 **data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
 and n_features is the number of features.
 
-**X, Y and condition_set**: column indices of datay.
+**X, Y and condition_set**: column indices of data.
 
 **G_sq**: True means using G-Square test; False means using Chi-Square test.
 
