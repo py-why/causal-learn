@@ -14,9 +14,10 @@ Usage
 
 Parameters
 -------------
-**data**: data matrices.
+**data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
+and n_features is the number of features.
 
-**X, Y and condition_set**: data matrices of size number_of_samples * dimensionality.
+**X, Y and condition_set**: column indices of datay.
 
 **G_sq**: True means using G-Square test; False means using Chi-Square test.
 

@@ -16,7 +16,10 @@ Usage
 
 Parameters
 -------------
-**X, Y, and condition_set**: data matrices of size number_of_samples * dimensionality. Z could be None.
+**data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
+and n_features is the number of features.
+
+**X, Y, and condition_set**: column indices of data. condition_set could be None.
 
 **KernelX/Y/Z (condition_set)**: ['GaussianKernel', 'LinearKernel', 'PolynomialKernel'].
 (For 'PolynomialKernel', the default degree is 2. Currently, users can change it by setting the 'degree' of 'class PolynomialKernel()'.

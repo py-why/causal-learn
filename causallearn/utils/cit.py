@@ -75,7 +75,7 @@ def mv_fisherz(mvdata, X, Y, condition_set, sample_size=None):
     Parameters
     ----------
     mvdata : data with missing values
-    X, Y and condition_set : data matrices of size number_of_samples * dimensionality
+    X, Y and condition_set : column indices of data
 
     Returns
     -------
@@ -155,7 +155,7 @@ def fisherz(data, X, Y, condition_set, correlation_matrix=None):
     Parameters
     ----------
     data : data matrices
-    X, Y and condition_set : data matrices of size number_of_samples * dimensionality
+    X, Y and condition_set : column indices of data
     correlation_matrix : correlation matrix; 
                          None means without the parameter of correlation matrix
 
@@ -191,7 +191,7 @@ def chisq_or_gsq_test(data, X, Y, conditioning_set, G_sq=False):
     Parameters
     ----------
     data : data matrices
-    X, Y and condition_set : data matrices of size number_of_samples * dimensionality
+    X, Y and condition_set : column indices of data
     G_sq : True means using G-square test;
            False means using chi-square test
 
