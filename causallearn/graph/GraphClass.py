@@ -35,6 +35,7 @@ class CausalGraph:
         self.redundant_nodes = []  # store the list of redundant nodes (for subgraphs)
         self.nx_graph = nx.DiGraph()  # store the directed graph
         self.nx_skel = nx.Graph()  # store the undirected graph
+        self.labels = {}
         self.prt_m = {}  # store the parents of missingness indicators
         self.mvpc = None
 
@@ -151,6 +152,7 @@ class CausalGraph:
     def to_nx_graph(self):
         """Convert adjmat into a networkx.Digraph object named nx_graph"""
         nodes = range(len(self.G.graph))
+        self.labels = {i:self.G.nodes[i].get_name() for i in nodes}
         self.nx_graph.add_nodes_from(nodes)
         undirected = self.find_undirected()
         directed = self.find_fully_directed()
@@ -179,6 +181,6 @@ class CausalGraph:
         edges = g_to_be_drawn.edges()
         colors = [g_to_be_drawn[u][v]['color'] for u, v in edges]
         pos = nx.circular_layout(g_to_be_drawn)
-        nx.draw(g_to_be_drawn, pos=pos, with_labels=True, edge_color=colors)
+        nx.draw(g_to_be_drawn, pos=pos, with_labels=True, labels=self.labels, edge_color=colors)
         plt.draw()
         plt.show()
