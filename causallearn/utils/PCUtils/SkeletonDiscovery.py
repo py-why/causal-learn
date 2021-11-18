@@ -73,6 +73,10 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                             append_value(cg.sepset, x, y, S)
                             append_value(cg.sepset, y, x, S)
                         break
+                    else:
+                        if p <= alpha:
+                            print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
+
 
         for (x, y) in list(set(edge_removal)):
             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
