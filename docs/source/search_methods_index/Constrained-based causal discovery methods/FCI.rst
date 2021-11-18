@@ -15,8 +15,6 @@ Usage
 
     from causallearn.search.ConstraintBased.FCI import fci
     G = fci(data, indep_test, alpha, verbose=True)
-    G.to_nx_graph()
-    G.draw_nx_graph(skel=False)
 
 Parameters
 -------------------
@@ -37,6 +35,6 @@ and n_features is the number of features.
 
 Returns
 -------------------
-**cg** : a CausalGraph object. Nodes in the graph correspond to the column indices in the data.
+**G** : a GeneralGraph object. Nodes in the graph correspond to the column indices in the data. For visualization, please refer to the `running example <https://github.com/cmu-phil/causal-learn/tree/main/tests>`_.
 
 .. [1] Spirtes, P., Meek, C., & Richardson, T. (1995, August). Causal inference in the presence of latent variables and selection bias. In Proceedings of the Eleventh conference on Uncertainty in artificial intelligence (pp. 499-506).
