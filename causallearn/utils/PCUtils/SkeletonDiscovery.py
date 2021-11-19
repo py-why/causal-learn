@@ -34,49 +34,53 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
     cg.data = data
     cg.set_ind_test(indep_test)
 
-    node_ids = range(no_of_var)
-    pair_of_variables = list(permutations(node_ids, 2))
-
     depth = -1
     while cg.max_degree() - 1 > depth:
         depth += 1
         edge_removal = []
-        for (x, y) in pair_of_variables:
+        for x in range(no_of_var):
             Neigh_x = cg.neighbors(x)
-            if y not in Neigh_x:
+            if len(Neigh_x) < depth - 1:
                 continue
-            else:
-                Neigh_x = np.delete(Neigh_x, np.where(Neigh_x == y))
-
-            if len(Neigh_x) >= depth:
-                for S in combinations(Neigh_x, depth):
-                    p = cg.ci_test(x, y, S)
-                    if p > alpha or (background_knowledge is not None and (
-                            background_knowledge.is_forbidden(cg.G.nodes[x],
-                                                              cg.G.nodes[y]) and background_knowledge.is_forbidden(
-                            cg.G.nodes[y], cg.G.nodes[x]))):
-                        if p > alpha:
-                            print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
-                        else:
-                            print('%d ind %d | %s with background knowledge\n' % (x, y, S))
-
-                        if not stable:  # Unstable: Remove x---y right away
+            for y in Neigh_x:
+                Neigh_x_noy = np.delete(Neigh_x, np.where(Neigh_x == y))
+                for S in combinations(Neigh_x_noy, depth):
+                    if background_knowledge is not None and (
+                            background_knowledge.is_forbidden(cg.G.nodes[x], cg.G.nodes[y])
+                            and background_knowledge.is_forbidden(cg.G.nodes[y], cg.G.nodes[x])):
+                        print('%d ind %d | %s with background knowledge\n' % (x, y, S))
+                        if not stable:
                             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
                             if edge1 is not None:
                                 cg.G.remove_edge(edge1)
                             edge2 = cg.G.get_edge(cg.G.nodes[y], cg.G.nodes[x])
                             if edge2 is not None:
                                 cg.G.remove_edge(edge2)
-                        else:  # Stable: x---y will be removed only
+                        else:
                             edge_removal.append((x, y))  # after all conditioning sets at
                             edge_removal.append((y, x))  # depth l have been considered
                             append_value(cg.sepset, x, y, S)
                             append_value(cg.sepset, y, x, S)
                         break
                     else:
-                        if p <= alpha:
+                        p = cg.ci_test(x, y, S)
+                        if p > alpha:
+                            print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
+                            if not stable:
+                                edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
+                                if edge1 is not None:
+                                    cg.G.remove_edge(edge1)
+                                edge2 = cg.G.get_edge(cg.G.nodes[y], cg.G.nodes[x])
+                                if edge2 is not None:
+                                    cg.G.remove_edge(edge2)
+                            else:
+                                edge_removal.append((x, y))  # after all conditioning sets at
+                                edge_removal.append((y, x))  # depth l have been considered
+                                append_value(cg.sepset, x, y, S)
+                                append_value(cg.sepset, y, x, S)
+                            break
+                        else:
                             print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
-
 
         for (x, y) in list(set(edge_removal)):
             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
