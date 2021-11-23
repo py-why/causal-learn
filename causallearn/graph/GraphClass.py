@@ -1,6 +1,8 @@
 import warnings
 from itertools import permutations
 
+import io
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -10,6 +12,7 @@ from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
+from causallearn.utils.GraphUtils import GraphUtils
 from causallearn.utils.PCUtils.Helper import list_union, powerset
 
 
@@ -184,3 +187,16 @@ class CausalGraph:
         nx.draw(g_to_be_drawn, pos=pos, with_labels=True, labels=self.labels, edge_color=colors)
         plt.draw()
         plt.show()
+
+    def draw_pydot_graph(self):
+        """Draw nx_graph if skel = False and draw nx_skel otherwise"""
+        warnings.filterwarnings("ignore", category=UserWarning)
+        pyd = GraphUtils.to_pydot(self.G)
+        tmp_png = pyd.create_png(f="png")
+        fp = io.BytesIO(tmp_png)
+        img = mpimg.imread(fp, format='png')
+        plt.axis('off')
+        plt.imshow(img)
+        plt.show()
+
+
