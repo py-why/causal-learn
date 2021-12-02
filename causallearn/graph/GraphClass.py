@@ -193,10 +193,9 @@ class CausalGraph:
         warnings.filterwarnings("ignore", category=UserWarning)
         pyd = GraphUtils.to_pydot(self.G)
         tmp_png = pyd.create_png(f="png")
+        pyd.write_png("result.png")
         fp = io.BytesIO(tmp_png)
         img = mpimg.imread(fp, format='png')
         plt.axis('off')
         plt.imshow(img)
         plt.show()
-
-
