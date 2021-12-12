@@ -175,7 +175,7 @@ class TestPC(unittest.TestCase):
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
 
         cg = pc(data, 0.05, mv_fisherz, True, 0,
-                4)  # Run PC and obtain the estimated graph (CausalGraph object)
+                4, mvpc=True)  # Run PC and obtain the estimated graph (CausalGraph object)
 
         # visualization using pydot
         cg.draw_pydot_graph()

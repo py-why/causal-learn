@@ -172,7 +172,7 @@ def fisherz(data, X, Y, condition_set, correlation_matrix=None):
     r = -inv[0, 1] / sqrt(inv[0, 0] * inv[1, 1])
     Z = 0.5 * log((1 + r) / (1 - r))
     X = sqrt(sample_size - len(condition_set) - 3) * abs(Z)
-    p = 1 - norm.cdf(abs(X))
+    p = 2 * (1 - norm.cdf(abs(X)))
     return p
 
 
