@@ -48,7 +48,7 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                     if background_knowledge is not None and (
                             background_knowledge.is_forbidden(cg.G.nodes[x], cg.G.nodes[y])
                             and background_knowledge.is_forbidden(cg.G.nodes[y], cg.G.nodes[x])):
-                        print('%d ind %d | %s with background knowledge\n' % (x, y, S))
+                        print('%d ind %d | %s with background background_knowledge\n' % (x, y, S))
                         if not stable:
                             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
                             if edge1 is not None:

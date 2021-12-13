@@ -14,8 +14,11 @@ Usage
 .. code-block:: python
 
     from causallearn.search.ConstraintBased.FCI import fci
-    G = fci(data, indep_test, alpha, verbose=True)
+    G = fci(data, indep_test, alpha, verbose, background_knowledge)
 
+    # visualization
+    pgv_g = GraphUtils.to_pgv(G)
+    pgv_g.draw('simple_test.png', prog='dot', format='png')
 Parameters
 -------------------
 **data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
@@ -31,6 +34,10 @@ and n_features is the number of features.
        - ":ref:`mv_fisherz <Missing-value Fisher-z test>`": Missing-value Fisher's Z conditional independence test.
 
 **verbose**: 0 - no output, 1 - detailed output.
+
+**background_knowledge**: class BackgroundKnowledge. Add prior edges according to assigned causal connections.
+For detailed usage, please kindly refer to its `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestBackgroundKnowledge.py>`_.
+
 
 
 Returns

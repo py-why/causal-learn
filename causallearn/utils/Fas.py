@@ -34,7 +34,7 @@ def forbiddenEdge(node_x, node_y, knowledge):
     if knowledge is None:
         return False
     elif knowledge.is_forbidden(node_x, node_y) and knowledge.is_forbidden(node_y, node_x):
-        print(node_x.get_name() + " --- " + node_y.get_name() + " because it was forbidden by background knowledge.")
+        print(node_x.get_name() + " --- " + node_y.get_name() + " because it was forbidden by background background_knowledge.")
         return True
     return False
 
@@ -148,7 +148,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     node: The search nodes.
     independence_test_method: the independence test method, which should be in causallearn.utils.cit
     alpha: Significance level of independence tests(p_value)(min = 0.00)
-    knowledge: background knowledge
+    knowledge: background background_knowledge
     depth: The depth for the fast adjacency search, or -1 if unlimited
     verbose: True is verbose output should be printed or logged
 
@@ -162,7 +162,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     if (depth is not None) and type(depth) != int:
         raise TypeError("'depth' must be 'int' type!")
     if (knowledge is not None) and type(knowledge) != BackgroundKnowledge:
-        raise TypeError("'knowledge' must be 'BackgroundKnowledge' type!")
+        raise TypeError("'background_knowledge' must be 'BackgroundKnowledge' type!")
 
     # --------end check parameter -----------
 

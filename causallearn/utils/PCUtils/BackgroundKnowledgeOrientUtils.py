@@ -4,12 +4,12 @@ from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 def orient_by_background_knowledge(cg, background_knowledge):
     """
-    orient the direction of edges using background knowledge after running skeleton_discovery in PC algorithm
+    orient the direction of edges using background background_knowledge after running skeleton_discovery in PC algorithm
 
     Parameters
     ----------
     cg: CausalGraph
-    background_knowledge: artificial background knowledge
+    background_knowledge: artificial background background_knowledge
 
     Returns
     -------

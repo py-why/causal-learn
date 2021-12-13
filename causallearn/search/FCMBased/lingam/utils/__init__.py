@@ -61,7 +61,7 @@ def print_dagc(dagc, n_sampling, labels=None):
 
 
 def make_prior_knowledge(n_variables, exogenous_variables=None, sink_variables=None, paths=None, no_paths=None):
-    """ Make matrix of prior knowledge.
+    """ Make matrix of prior background_knowledge.
 
     Parameters
     ----------
@@ -69,21 +69,21 @@ def make_prior_knowledge(n_variables, exogenous_variables=None, sink_variables=N
         Number of variables.
     exogenous_variables : array-like, shape (index, ...), optional (default=None)
         List of exogenous variables(index).
-        Prior knowledge is created with the specified variables as exogenous variables.
+        Prior background_knowledge is created with the specified variables as exogenous variables.
     sink_variables : array-like, shape (index, ...), optional (default=None)
         List of sink variables(index).
-        Prior knowledge is created with the specified variables as sink variables.
+        Prior background_knowledge is created with the specified variables as sink variables.
     paths : array-like, shape ((index, index), ...), optional (default=None)
         List of variables(index) pairs with directed path.
-        If ``(i, j)``, prior knowledge is created that xi has a directed path to xj.
+        If ``(i, j)``, prior background_knowledge is created that xi has a directed path to xj.
     no_paths : array-like, shape ((index, index), ...), optional (default=None)
         List of variables(index) pairs without directed path.
-        If ``(i, j)``, prior knowledge is created that xi does not have a directed path to xj.
+        If ``(i, j)``, prior background_knowledge is created that xi does not have a directed path to xj.
 
     Returns
     -------
     prior_knowledge : array-like, shape (n_variables, n_variables)
-        Return matrix of prior knowledge used for causal discovery.
+        Return matrix of prior background_knowledge used for causal discovery.
     """
     prior_knowledge = np.full((n_variables, n_variables), -1)
     if no_paths:

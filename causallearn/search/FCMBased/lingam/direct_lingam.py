@@ -29,15 +29,15 @@ class DirectLiNGAM(_BaseLiNGAM):
         random_state : int, optional (default=None)
             ``random_state`` is the seed used by the random number generator.
         prior_knowledge : array-like, shape (n_features, n_features), optional (default=None)
-            Prior knowledge used for causal discovery, where ``n_features`` is the number of features.
+            Prior background_knowledge used for causal discovery, where ``n_features`` is the number of features.
 
-            The elements of prior knowledge matrix are defined as follows [1]_:
+            The elements of prior background_knowledge matrix are defined as follows [1]_:
 
             * ``0`` : :math:`x_i` does not have a directed path to :math:`x_j`
             * ``1`` : :math:`x_i` has a directed path to :math:`x_j`
-            * ``-1`` : No prior knowledge is available to know if either of the two cases above (0 or 1) is true.
+            * ``-1`` : No prior background_knowledge is available to know if either of the two cases above (0 or 1) is true.
         apply_prior_knowledge_softly : boolean, optional (default=False)
-            If True, apply prior knowledge softly.
+            If True, apply prior background_knowledge softly.
         measure : {'pwling', 'kernel'}, optional (default='pwling')
             Measure to evaluate independence: 'pwling' [2]_ or 'kernel' [1]_.
         """
@@ -50,7 +50,7 @@ class DirectLiNGAM(_BaseLiNGAM):
             self._Aknw = check_array(self._Aknw)
             self._Aknw = np.where(self._Aknw < 0, np.nan, self._Aknw)
 
-            # Extract all partial orders in prior knowledge matrix
+            # Extract all partial orders in prior background_knowledge matrix
             if not self._apply_prior_knowledge_softly:
                 self._partial_orders = self._extract_partial_orders(self._Aknw)
 
@@ -74,7 +74,7 @@ class DirectLiNGAM(_BaseLiNGAM):
         if self._Aknw is not None:
             if (n_features, n_features) != self._Aknw.shape:
                 raise ValueError(
-                    'The shape of prior knowledge must be (n_features, n_features)')
+                    'The shape of prior background_knowledge must be (n_features, n_features)')
 
         # Causal discovery
         U = np.arange(n_features)
@@ -101,7 +101,7 @@ class DirectLiNGAM(_BaseLiNGAM):
         return self._estimate_adjacency_matrix(X, prior_knowledge=self._Aknw)
 
     def _extract_partial_orders(self, pk):
-        """ Extract partial orders from prior knowledge."""
+        """ Extract partial orders from prior background_knowledge."""
         path_pairs = np.array(np.where(pk == 1)).transpose()
         no_path_pairs = np.array(np.where(pk == 0)).transpose()
 
@@ -111,7 +111,7 @@ class DirectLiNGAM(_BaseLiNGAM):
             pairs, counts = np.unique(check_pairs, axis=0, return_counts=True)
             if len(pairs[counts > 1]) > 0:
                 raise ValueError(
-                    f'The prior knowledge contains inconsistencies at the following indices: {pairs[counts > 1].tolist()}')
+                    f'The prior background_knowledge contains inconsistencies at the following indices: {pairs[counts > 1].tolist()}')
 
         # Check for inconsistencies in pairs without path.
         # If there are duplicate pairs without path, they cancel out and are not ordered.
@@ -124,8 +124,8 @@ class DirectLiNGAM(_BaseLiNGAM):
 
         check_pairs = np.concatenate([path_pairs, no_path_pairs[:, [1, 0]]])
         if len(check_pairs) == 0:
-            # If no pairs are extracted from the specified prior knowledge, 
-            # discard the prior knowledge.
+            # If no pairs are extracted from the specified prior background_knowledge,
+            # discard the prior background_knowledge.
             self._Aknw = None
             return None
 
@@ -152,11 +152,11 @@ class DirectLiNGAM(_BaseLiNGAM):
 
     def _search_candidate(self, U):
         """ Search for candidate features """
-        # If no prior knowledge is specified, nothing to do.
+        # If no prior background_knowledge is specified, nothing to do.
         if self._Aknw is None:
             return U, []
 
-        # Apply prior knowledge in a strong way
+        # Apply prior background_knowledge in a strong way
         if not self._apply_prior_knowledge_softly:
             Uc = [i for i in U if i not in self._partial_orders[:, 1]]
             return Uc, []

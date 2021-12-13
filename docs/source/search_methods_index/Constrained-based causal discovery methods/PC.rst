@@ -17,7 +17,7 @@ Usage
 .. code-block:: python
 
     from causallearn.search.ConstraintBased.PC import pc
-    G = pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc, correction_name, background_knowledge)
+    cg = pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc, correction_name, background_knowledge)
 
     # visualization using pydot
     cg.draw_pydot_graph()

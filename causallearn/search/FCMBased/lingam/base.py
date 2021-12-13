@@ -124,7 +124,7 @@ class _BaseLiNGAM(BootstrapMixin, metaclass=ABCMeta):
             Training data, where n_samples is the number of samples
             and n_features is the number of features.
         prior_knowledge : array-like, shape (n_variables, n_variables), optional (default=None)
-            Prior knowledge matrix.
+            Prior background_knowledge matrix.
 
         Returns
         -------
@@ -140,7 +140,7 @@ class _BaseLiNGAM(BootstrapMixin, metaclass=ABCMeta):
             target = self._causal_order[i]
             predictors = self._causal_order[:i]
 
-            # Exclude variables specified in no_path with prior knowledge
+            # Exclude variables specified in no_path with prior background_knowledge
             if prior_knowledge is not None:
                 predictors = [p for p in predictors if pk[target, p] != 0]
 

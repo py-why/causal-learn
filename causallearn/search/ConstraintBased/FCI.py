@@ -553,7 +553,7 @@ def ruleR4B(graph, maxPathLength, data, independence_test_method, alpha, sep_set
 
 
 def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_path_length=-1,
-        verbose=False, knowledge=None):
+        verbose=False, background_knowledge=None):
     '''
     Causal Discovery with Fast Causal Inference
 
@@ -565,7 +565,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
     depth: The depth for the fast adjacency search, or -1 if unlimited
     max_path_length: the maximum length of any discriminating path, or -1 if unlimited.
     verbose: True is verbose output should be printed or logged
-    knowledge: background knowledge
+    background_knowledge: background knowledge
 
     Returns
     -------
@@ -576,8 +576,8 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
     ## ------- check parameters ------------
     if (depth is None) or type(depth) != int:
         raise TypeError("'depth' must be 'int' type!")
-    if (knowledge is not None) and type(knowledge) != BackgroundKnowledge:
-        raise TypeError("'knowledge' must be 'BackgroundKnowledge' type!")
+    if (background_knowledge is not None) and type(background_knowledge) != BackgroundKnowledge:
+        raise TypeError("'background_knowledge' must be 'BackgroundKnowledge' type!")
     if (max_path_length is not None) and type(max_path_length) != int:
         raise TypeError("'max_path_length' must be 'int' type!")
     ## ------- end check parameters ------------
@@ -588,7 +588,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
         node.add_attribute("id", i)
         nodes.append(node)
 
-    graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=knowledge, depth=depth, verbose=verbose)
+    graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose)
 
     # reorient all edges with CIRCLE Endpoint
     ori_edges = graph.get_graph_edges()
@@ -598,9 +598,9 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
         ori_edge.set_endpoint2(Endpoint.CIRCLE)
         graph.add_edge(ori_edge)
 
-    sp = SepsetsPossibleDsep(dataset, graph, independence_test_method, alpha, knowledge, depth, max_path_length, verbose)
+    sp = SepsetsPossibleDsep(dataset, graph, independence_test_method, alpha, background_knowledge, depth, max_path_length, verbose)
 
-    rule0(graph, nodes, sep_sets, knowledge, verbose)
+    rule0(graph, nodes, sep_sets, background_knowledge, verbose)
 
     waiting_to_deleted_edges = []
 
@@ -626,21 +626,21 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
             print(message)
 
     reorientAllWith(graph, Endpoint.CIRCLE)
-    rule0(graph, nodes, sep_sets, knowledge, verbose)
+    rule0(graph, nodes, sep_sets, background_knowledge, verbose)
 
     changeFlag = True
     firstTime = True
 
     while changeFlag:
         changeFlag = False
-        changeFlag = rulesR1R2cycle(graph, knowledge, changeFlag, verbose)
-        changeFlag = ruleR3(graph, sep_sets, knowledge, changeFlag, verbose)
+        changeFlag = rulesR1R2cycle(graph, background_knowledge, changeFlag, verbose)
+        changeFlag = ruleR3(graph, sep_sets, background_knowledge, changeFlag, verbose)
 
-        if changeFlag or (firstTime and knowledge is not None and
-                          len(knowledge.forbidden_rules_specs) > 0 and
-                          len(knowledge.required_rules_specs) > 0 and
-                          len(knowledge.tier_map.keys()) > 0):
-            changeFlag = ruleR4B(graph, max_path_length, dataset, independence_test_method, alpha, sep_sets, changeFlag, knowledge, verbose)
+        if changeFlag or (firstTime and background_knowledge is not None and
+                          len(background_knowledge.forbidden_rules_specs) > 0 and
+                          len(background_knowledge.required_rules_specs) > 0 and
+                          len(background_knowledge.tier_map.keys()) > 0):
+            changeFlag = ruleR4B(graph, max_path_length, dataset, independence_test_method, alpha, sep_sets, changeFlag, background_knowledge, verbose)
 
             firstTime = False
 

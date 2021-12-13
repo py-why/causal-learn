@@ -7,6 +7,8 @@ import numpy as np
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.search.ConstraintBased.FCI import fci
 from causallearn.utils.cit import fisherz, kci
+from causallearn.utils.GraphUtils import GraphUtils
+
 
 
 def gen_coef():
@@ -24,12 +26,14 @@ class TestFCI(unittest.TestCase):
         X4 = X2 * gen_coef() + X3 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         data = np.array([X1, X2, X3, X4]).T
         G = fci(data, fisherz, 0.05, verbose=True)
+        pgv_g = GraphUtils.to_pgv(G)
+        pgv_g.draw('simple_test.png', prog='dot', format='png')
 
         nodes = G.get_nodes()
         assert G.is_adjacent_to(nodes[0], nodes[1])
 
         bk = BackgroundKnowledge().add_forbidden_by_node(nodes[0], nodes[1]).add_forbidden_by_node(nodes[1], nodes[0])
-        G_with_background_knowledge = fci(data, fisherz, 0.05, verbose=True, knowledge=bk)
+        G_with_background_knowledge = fci(data, fisherz, 0.05, verbose=True, background_knowledge=bk)
         assert not G_with_background_knowledge.is_adjacent_to(nodes[0], nodes[1])
 
 
@@ -47,6 +51,8 @@ class TestFCI(unittest.TestCase):
         E = B * gen_coef() + T2 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         data = np.array([A, B, C, D, E, F, H]).T
         G = fci(data, fisherz, 0.05, verbose=True)
+        pgv_g = GraphUtils.to_pgv(G)
+        pgv_g.draw('simple_test_2.png', prog='dot', format='png')
         print(G)
 
     def test_fritl(self):
@@ -66,4 +72,6 @@ class TestFCI(unittest.TestCase):
         data = np.array([X1, X2, X3, X4, X5, X6, X7]).T
 
         G = fci(data, fisherz, 0.05, verbose=True)
+        pgv_g = GraphUtils.to_pgv(G)
+        pgv_g.draw('fritl.png', prog='dot', format='png')
         print(G)

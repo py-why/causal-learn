@@ -31,15 +31,15 @@ class MultiGroupDirectLiNGAM(DirectLiNGAM):
         random_state : int, optional (default=None)
             ``random_state`` is the seed used by the random number generator.
         prior_knowledge : array-like, shape (n_features, n_features), optional (default=None)
-            Prior knowledge used for causal discovery, where ``n_features`` is the number of features.
+            Prior background_knowledge used for causal discovery, where ``n_features`` is the number of features.
 
-            The elements of prior knowledge matrix are defined as follows [1]_:
+            The elements of prior background_knowledge matrix are defined as follows [1]_:
 
             * ``0`` : :math:`x_i` does not have a directed path to :math:`x_j`
             * ``1`` : :math:`x_i` has a directed path to :math:`x_j`
-            * ``-1`` : No prior knowledge is available to know if either of the two cases above (0 or 1) is true.
+            * ``-1`` : No prior background_knowledge is available to know if either of the two cases above (0 or 1) is true.
         apply_prior_knowledge_softly : boolean, optional (default=False)
-            If True, apply prior knowledge softly.
+            If True, apply prior background_knowledge softly.
         """
         super().__init__(random_state, prior_knowledge, apply_prior_knowledge_softly)
 
@@ -64,7 +64,7 @@ class MultiGroupDirectLiNGAM(DirectLiNGAM):
         if self._Aknw is not None:
             if (self._n_features, self._n_features) != self._Aknw.shape:
                 raise ValueError(
-                    'The shape of prior knowledge must be (n_features, n_features)')
+                    'The shape of prior background_knowledge must be (n_features, n_features)')
 
         # Causal discovery
         U = np.arange(self._n_features)
