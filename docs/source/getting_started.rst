@@ -63,7 +63,7 @@ All algorithms were run on a single cluster node with 8 CPUs (Intel Xeon E5-2470
 We denote running time as '>D' if it is more than one day.
 All results are average over 10 runs with different random seeds.
 
-.. image:: table_modified.png
+.. image:: table_modified_new.png
   :width: 500
 
 Contributors
