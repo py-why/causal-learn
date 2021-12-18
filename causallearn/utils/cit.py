@@ -176,15 +176,126 @@ def fisherz(data, X, Y, condition_set, correlation_matrix=None):
     return p
 
 
-def chisq(data, X, Y, conditioning_set):
-    return chisq_or_gsq_test(data=data, X=X, Y=Y, conditioning_set=conditioning_set)
+def chisq(data, X, Y, conditioning_set, cardinalities=None):
+    # though cardinalities can be computed from data, here we pass it as argument,
+    # to prevent from repeated computation on each variable's vardinality
+    if cardinalities is None: cardinalities = np.max(data, axis=0) + 1
+    indexs = list(conditioning_set) + [X, Y]
+    return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs])
+
+def gsq(data, X, Y, conditioning_set, cardinalities=None):
+    indexs = list(conditioning_set) + [X, Y]
+    return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs], G_sq=True)
+
+def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
+    '''by Haoyue@12/18/2021
+    Parameters
+    ----------
+    dataSXY: numpy.ndarray, in shape (|S|+2, n), where |S| is size of conditioning set (can be 0), n is sample size
+             dataSXY.dtype = np.int64, and each row has values [0, 1, 2, ..., card_of_this_row-1]
+    cardSXY: cardinalities of each row (each variable)
+    G_sq: True if use G-sq, otherwise (False by default), use Chi_sq
+    '''
+    def _Fill2DCountTable(dataXY, cardXY):
+        '''
+        e.g. dataXY: the observed dataset contains 5 samples, on variable x and y they're
+            x: 0 1 2 3 0
+            y: 1 0 1 2 1
+        cardXY: [4, 3]
+        fill in the counts by index, we have the joint count table in 4 * 3:
+            xy| 0 1 2
+            --|-------
+            0 | 0 2 0
+            1 | 1 0 0
+            2 | 0 1 0
+            3 | 0 0 1
+        note: if sample size is large enough, in theory:
+                min(dataXY[i]) == 0 && max(dataXY[i]) == cardXY[i] - 1
+            however some values may be missed.
+            also in joint count, not every value in [0, cardX * cardY - 1] occurs.
+            that's why we pass cardinalities in, and use `minlength=...` in bincount
+        '''
+        cardX, cardY = cardXY
+        xyIndexed = dataXY[0] * cardY + dataXY[1]
+        xyJointCounts = np.bincount(xyIndexed, minlength=cardX*cardY).reshape(cardXY)
+        xMarginalCounts = np.sum(xyJointCounts, axis=1)
+        yMarginalCounts = np.sum(xyJointCounts, axis=0)
+        return xyJointCounts, xMarginalCounts, yMarginalCounts
+
+    def _Fill3DCountTable(dataSXY, cardSXY):
+        cardX, cardY = cardSXY[-2:]
+        cardS = np.prod(cardSXY[:-2])
+
+        cardCumProd = np.ones_like(cardSXY)
+        cardCumProd[:-1] = np.cumprod(cardSXY[1:][::-1])[::-1]
+        SxyIndexed = np.dot(cardCumProd[None], dataSXY)[0]
+
+        SxyJointCounts = np.bincount(SxyIndexed, minlength=cardS*cardX*cardY).reshape((cardS, cardX, cardY))
+
+        SMarginalCounts = np.sum(SxyJointCounts, axis=(1, 2))
+        SMarginalCountsNonZero = SMarginalCounts != 0
+        SMarginalCounts = SMarginalCounts[SMarginalCountsNonZero]
+        SxyJointCounts = SxyJointCounts[SMarginalCountsNonZero]
+
+        SxJointCounts = np.sum(SxyJointCounts, axis=2)
+        SyJointCounts = np.sum(SxyJointCounts, axis=1)
+        return SxyJointCounts, SMarginalCounts, SxJointCounts, SyJointCounts
+
+    def _CalculatePValue(cTables, eTables):
+        '''
+        calculate the rareness (pValue) of an observation from a given distribution with certain sample size.
+
+        Let k, m, n be respectively the cardinality of S, x, y. if S=empty, k==1.
+        Parameters
+        ----------
+        cTables: tensor, (k, m, n) the [c]ounted tables (reflect joint P_XY)
+        eTables: tensor, (k, m, n) the [e]xpected tables (reflect product of marginal P_X*P_Y)
+          if there are zero entires in eTables, zero must occur in whole rows or columns.
+          e.g. w.l.o.g., row eTables[w, i, :] == 0, iff np.sum(cTables[w], axis=1)[i] == 0, i.e. cTables[w, i, :] == 0,
+               i.e. in configuration of conditioning set == w, no X can be in value i.
+
+        Returns: pValue (float in range (0, 1)), the larger pValue is (>alpha), the more independent.
+        -------
+        '''
+        eTables_zero_inds = eTables == 0
+        eTables_zero_to_one = np.copy(eTables)
+        eTables_zero_to_one[eTables_zero_inds] = 1 # for legal division
+
+        if G_sq == False:
+            sum_of_chi_square = np.sum(((cTables - eTables) ** 2) / eTables_zero_to_one)
+        else:
+            div = np.divide(cTables, eTables_zero_to_one)
+            div[div == 0] = 1  # It guarantees that taking natural log in the next step won't cause any error
+            sum_of_chi_square = 2 * np.sum(cTables * np.log(div))
+
+        # array in shape (k,), zero_counts_rows[w]=c (0<=c<m) means layer w has c all-zero rows
+        zero_counts_rows = eTables_zero_inds.all(axis=2).sum(axis=1)
+        zero_counts_cols = eTables_zero_inds.all(axis=1).sum(axis=1)
+        sum_of_df = np.sum((cTables.shape[1] - 1 - zero_counts_rows) * (cTables.shape[2] - 1 - zero_counts_cols))
+        return 1 if sum_of_df == 0 else chi2.sf(sum_of_chi_square, sum_of_df)
+
+    if len(cardSXY) == 2: # S is empty
+        xyJointCounts, xMarginalCounts, yMarginalCounts = _Fill2DCountTable(dataSXY, cardSXY)
+        xyExpectedCounts = np.outer(xMarginalCounts, yMarginalCounts) / dataSXY.shape[1] # divide by sample size
+        return _CalculatePValue(xyJointCounts[None], xyExpectedCounts[None])
+    # else, S is not empty: conditioning
+    SxyJointCounts, SMarginalCounts, SxJointCounts, SyJointCounts = _Fill3DCountTable(dataSXY, cardSXY)
+    SxyExpectedCounts = SxJointCounts[:, :, None] * SyJointCounts[:, None, :] / SMarginalCounts[:, None, None]
+
+    return _CalculatePValue(SxyJointCounts, SxyExpectedCounts)
 
 
-def gsq(data, X, Y, conditioning_set):
-    return chisq_or_gsq_test(data=data, X=X, Y=Y, conditioning_set=conditioning_set, G_sq=True)
+######## below we save the original test (which is slower but easier-to-read) ###########
+######## logic of new test is exactly the same as old, so returns exactly same result ###
+def chisq_notoptimized(data, X, Y, conditioning_set):
+    return chisq_or_gsq_test_notoptimized(data=data, X=X, Y=Y, conditioning_set=conditioning_set)
 
 
-def chisq_or_gsq_test(data, X, Y, conditioning_set, G_sq=False):
+def gsq_notoptimized(data, X, Y, conditioning_set):
+    return chisq_or_gsq_test_notoptimized(data=data, X=X, Y=Y, conditioning_set=conditioning_set, G_sq=True)
+
+
+def chisq_or_gsq_test_notoptimized(data, X, Y, conditioning_set, G_sq=False):
     '''
     Perform an independence test using chi-square test or G-square test
 
@@ -230,6 +341,12 @@ def chisq_or_gsq_test(data, X, Y, conditioning_set, G_sq=False):
         sub_data = recursive_and(L)[:, [X,
                                         Y]]  # obtain the subset dataset (containing only the X, Y columns) with only rows specifed in value_config
 
+        ############# Haoyue@12/18/2021  DEBUG: this line is a must:  #####################
+        ########### not all value_config in cartesian product occurs in data ##############
+        ########### otherwise #degree_of_freedom will add a spurious 1: (0-1)*(0-1) #######
+        if len(sub_data) == 0: continue   #################################################
+        ###################################################################################
+
         # Step 2: Generate contingency table (applying Fienberg's method)
         def make_ctable(D, cat_size):
             x = np.array(D[:, 0], dtype=np.dtype(int))
@@ -242,6 +359,7 @@ def chisq_or_gsq_test(data, X, Y, conditioning_set, G_sq=False):
             ctable = bin_count.reshape(cat_size, cat_size)
             ctable = ctable[~np.all(ctable == 0, axis=1)]  # Remove rows consisted entirely of zeros
             ctable = ctable[:, ~np.all(ctable == 0, axis=0)]  # Remove columns consisted entirely of zeros
+
             return ctable
 
         ctable = make_ctable(sub_data, max_categories)
@@ -274,6 +392,7 @@ def cartesian_product(lists):
     for pool in lists:
         result = [x + [y] for x in result for y in pool]
     return result
+
 
 
 def get_index_mv_rows(mvdata):
