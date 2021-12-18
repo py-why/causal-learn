@@ -1,4 +1,6 @@
 import sys
+import time
+import os
 
 sys.path.append("")
 import pandas as pd
@@ -6,7 +8,7 @@ import unittest
 import numpy as np
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.search.ConstraintBased.FCI import fci
-from causallearn.utils.cit import fisherz, kci
+from causallearn.utils.cit import fisherz, kci, chisq
 from causallearn.utils.GraphUtils import GraphUtils
 
 
@@ -75,3 +77,28 @@ class TestFCI(unittest.TestCase):
         pgv_g = GraphUtils.to_pgv(G)
         pgv_g.draw('fritl.png', prog='dot', format='png')
         print(G)
+
+    def test_bnlearn_discrete_datasets(self):
+        benchmark_names = [
+            "asia", "cancer", "earthquake", "sachs", "survey",
+            "alarm", "barley", "child", "insurance", "water",
+            "hailfinder", "hepar2", "win95pts",
+            "andes"
+        ]
+
+        bnlearn_path = './TestData/bnlearn_discrete_10000'
+        for bname in benchmark_names:
+            data = np.loadtxt(os.path.join(bnlearn_path, f'{bname}.txt'), skiprows=1)
+            start = time.time()
+            G = fci(data, chisq, 0.05, verbose=False)
+            end = time.time()
+            print(f'{bname}, used {end - start:.5f}s\n\n\n')
+
+    def test_large_continuous_dataset(self):
+        data = np.loadtxt('./data_linear_10.txt', skiprows=1)
+        start = time.time()
+        G = fci(data, fisherz, 0.05, verbose=False)
+        end = time.time()
+        print(f'./data_linear_10, used {end - start:.5f}s\n\n\n')
+
+
