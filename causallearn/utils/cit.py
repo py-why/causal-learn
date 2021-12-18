@@ -343,6 +343,8 @@ def chisq_or_gsq_test_notoptimized(data, X, Y, conditioning_set, G_sq=False):
 
         ############# Haoyue@12/18/2021  DEBUG: this line is a must:  #####################
         ########### not all value_config in cartesian product occurs in data ##############
+        # e.g. S=(S0,S1), where S0 has categories {0,1}, S1 has {2,3}. But in combination,#
+        ##### (S0,S1) only shows up with value pair (0,2), (0,3), (1,2) -> no (1,3). ######
         ########### otherwise #degree_of_freedom will add a spurious 1: (0-1)*(0-1) #######
         if len(sub_data) == 0: continue   #################################################
         ###################################################################################
