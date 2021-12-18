@@ -202,6 +202,7 @@ class TestPC(unittest.TestCase):
 
         print('finish')
 
+    # example13
     def test_new_old_gsq_chisq_equivalent(self):
         from causallearn.utils.cit import gsq_notoptimized, chisq_notoptimized
         from itertools import chain, combinations
@@ -222,6 +223,7 @@ class TestPC(unittest.TestCase):
                     assert np.isclose(chisq(data, X, Y, S, cardinalities), chisq_notoptimized(data, X, Y, S))
                     print(f'{X};{Y}|{S} passed')
 
+    # example14
     def test_bnlearn_discrete_datasets(self):
         import os
         benchmark_names = [
