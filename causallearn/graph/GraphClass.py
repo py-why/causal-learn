@@ -41,6 +41,9 @@ class CausalGraph:
         self.labels = {}
         self.prt_m = {}  # store the parents of missingness indicators
         self.mvpc = None
+        self.cardinalities = None # only works when self.data is discrete, i.e. self.test is chisq or gsq
+        self.is_discrete = False
+        self.citest_cache = dict()
 
     def set_ind_test(self, indep_test, mvpc=False):
         """Set the conditional independence test that will be used"""
@@ -51,9 +54,20 @@ class CausalGraph:
 
     def ci_test(self, i, j, S):
         """Define the conditional independence test"""
+        # assert i != j and not i in S and not j in S
         if self.mvpc:
             return self.test(self.data, self.nx_skel, self.prt_m, i, j, S, self.data.shape[0])
-        return self.test(self.data, i, j, S)
+
+        i, j = (i, j) if (i < j) else (j, i)
+        ijS_key = (i, j, frozenset(S))
+        if ijS_key in self.citest_cache:
+            return self.citest_cache[ijS_key]
+        # if discrete, assert self.test is chisq or gsq, pass into cardinalities
+        pValue = self.test(self.data, i, j, S, self.cardinalities) if self.is_discrete \
+                    else self.test(self.data, i, j, S)
+        self.citest_cache[ijS_key] = pValue
+        return pValue
+
 
     def neighbors(self, i):
         """Find the neighbors of node i in adjmat"""
@@ -61,13 +75,7 @@ class CausalGraph:
 
     def max_degree(self):
         """Return the maximum number of edges connected to a node in adjmat"""
-        nodes = range(len(self.G.graph))
-        max_degree = 0
-        for i in nodes:
-            len_neigh_i = len(self.neighbors(i))
-            if len_neigh_i > max_degree:
-                max_degree = len_neigh_i
-        return max_degree
+        return max(np.sum(self.G.graph != 0, axis=1))
 
     def find_arrow_heads(self):
         """Return the list of i o-> j in adjmat as (i, j)"""

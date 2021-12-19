@@ -201,3 +201,47 @@ class TestPC(unittest.TestCase):
         # cg.draw_nx_graph(skel=False)
 
         print('finish')
+
+    # example13
+    def test_new_old_gsq_chisq_equivalent(self):
+        from causallearn.utils.cit import gsq_notoptimized, chisq_notoptimized
+        from itertools import chain, combinations
+        def powerset(iterable):
+            return chain.from_iterable(combinations(list(iterable), r) for r in range(len(iterable) + 1))
+        def _unique(column):
+            return np.unique(column, return_inverse=True)[1]
+
+        data_path = "data_discrete_10.txt"
+        data = np.loadtxt(data_path, skiprows=1)
+        data = np.apply_along_axis(_unique, 0, data).astype(np.int32)
+        cardinalities = np.max(data, axis=0) + 1
+
+        for X in range(data.shape[1]):
+            for Y in range(X + 1, data.shape[1]):
+                for S in powerset([_ for _ in range(data.shape[1]) if _ != X and _ != Y]):
+                    assert np.isclose(gsq(data, X, Y, S, cardinalities), gsq_notoptimized(data, X, Y, S))
+                    assert np.isclose(chisq(data, X, Y, S, cardinalities), chisq_notoptimized(data, X, Y, S))
+                    print(f'{X};{Y}|{S} passed')
+
+    # example14
+    def test_bnlearn_discrete_datasets(self):
+        import os
+        benchmark_names = [
+            "asia", "cancer", "earthquake", "sachs", "survey",
+            "alarm", "barley", "child", "insurance", "water",
+            "hailfinder", "hepar2", "win95pts",
+            "andes",
+        ]
+
+        bnlearn_path = './TestData/bnlearn_discrete_10000'
+        for bname in benchmark_names:
+            data = np.loadtxt(os.path.join(bnlearn_path, f'{bname}.txt'), skiprows=1)
+            cg = pc(data, 0.05, chisq, True, 0, -1)  # Run PC and obtain the estimated graph (CausalGraph object)
+            print(f'{bname}: used {cg.PC_elapsed:.5f}s')
+            # visualization using pydot
+            cg.draw_pydot_graph()
+
+            # visualization using networkx
+            # cg.to_nx_graph()
+            # cg.draw_nx_graph(skel=False)
+

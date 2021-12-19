@@ -1,11 +1,14 @@
+citest_cache = dict()  # added by haoyue@12/18/2021
+
 from queue import Queue
 from causallearn.graph.Edge import Edge
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.cit import fisherz
+from causallearn.utils.cit import fisherz, chisq, gsq
 from causallearn.utils.Fas import fas
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
+import numpy as np
 
 
 class SepsetsPossibleDsep():
@@ -187,7 +190,15 @@ class SepsetsPossibleDsep():
                 condSet = [self.graph.node_map[possParents[index]] for index in choice]
                 choice = cg.next()
 
-                p_value = self.independence_test(self.data, self.graph.node_map[node_1], self.graph.node_map[node_2], tuple(condSet))
+                X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
+                X, Y = (X, Y) if (X < Y) else (Y, X)
+                XYS_key = (X, Y, frozenset(condSet))
+                if XYS_key in citest_cache:
+                    p_value = citest_cache[XYS_key]
+                else:
+                    p_value = self.independence_test(self.data, X, Y, tuple(condSet))
+                    citest_cache[XYS_key] = p_value
+
                 independent = p_value > self.alpha
 
                 if independent and noEdgeRequired:
@@ -427,13 +438,30 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
         raise Exception("illegal argument!")
     path = getPath(node_d, previous)
 
-    p_value = independence_test_method(data, graph.node_map[node_d], graph.node_map[node_c], tuple([graph.node_map[nn] for nn in path]))
+    X, Y = graph.node_map[node_d], graph.node_map[node_c]
+    X, Y = (X, Y) if (X < Y) else (Y, X)
+    condSet = tuple([graph.node_map[nn] for nn in path])
+    XYS_key = (X, Y, frozenset(condSet))
+    if XYS_key in citest_cache:
+        p_value = citest_cache[XYS_key]
+    else:
+        p_value = independence_test_method(data, X, Y, condSet)
+        citest_cache[XYS_key] = p_value
     ind = p_value > alpha
 
     path2 = list(path)
     path2.remove(node_b)
 
-    p_value2 = independence_test_method(data, graph.node_map[node_d], graph.node_map[node_c], tuple([graph.node_map[nn2] for nn2 in path2]))
+    X, Y = graph.node_map[node_d], graph.node_map[node_c]
+    X, Y = (X, Y) if (X < Y) else (Y, X)
+    condSet = tuple([graph.node_map[nn2] for nn2 in path2])
+    XYS_key = (X, Y, frozenset(condSet))
+    if XYS_key in citest_cache:
+        p_value2 = citest_cache[XYS_key]
+    else:
+        p_value2 = independence_test_method(data, X, Y, condSet)
+        citest_cache[XYS_key] = p_value2
+
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:
@@ -571,6 +599,11 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
     -------
     graph : Causal graph
     '''
+    def _unique(column):
+        return np.unique(column, return_inverse=True)[1]
+
+    if independence_test_method == chisq or independence_test_method == gsq:
+        dataset = np.apply_along_axis(_unique, 0, dataset).astype(np.int64)
 
 
     ## ------- check parameters ------------

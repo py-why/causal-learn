@@ -11,16 +11,16 @@ from causallearn.utils.cit import fisherz, mc_fisherz
 
 
 def pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False, correction_name='MV_Crtn_Fisher_Z',
-       background_knowledge=None):
+       background_knowledge=None, verbose=False):
     if mvpc:
         return mvpc_alg(data=data, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
-                        uc_rule=uc_rule, uc_priority=uc_priority)
+                        uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose)
     else:
         return pc_alg(data=data, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
-                      uc_priority=uc_priority, background_knowledge=background_knowledge)
+                      uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose)
 
 
-def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None):
+def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False):
     '''
     Perform Peter-Clark algorithm for causal discovery
 
@@ -56,7 +56,7 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
 
     start = time.time()
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
-                                                background_knowledge=background_knowledge)
+                                                background_knowledge=background_knowledge, verbose=verbose)
 
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_1, background_knowledge)
@@ -89,7 +89,7 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     return cg
 
 
-def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority):
+def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, verbose):
     """
     :param data: data set (numpy ndarray)
     :param alpha: desired significance level (float) in (0, 1)
@@ -125,7 +125,7 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose)
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 
