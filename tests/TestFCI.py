@@ -100,3 +100,5 @@ class TestFCI(unittest.TestCase):
         G = fci(data, fisherz, 0.05, verbose=False)
         end = time.time()
         print(f'./data_linear_10, used {end - start:.5f}s\n\n\n')
+
+

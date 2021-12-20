@@ -4,9 +4,9 @@ import numpy as np
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils.Helper import append_value
 from causallearn.utils.cit import chisq, gsq
-from tqdm.auto import tqdm
 
-def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False, show_progress=True):
+
+def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False):
     '''
     Perform skeleton discovery
 
@@ -48,14 +48,10 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
         cg.data = data
 
     depth = -1
-    pbar = tqdm(total=no_of_var) if show_progress else None
     while cg.max_degree() - 1 > depth:
         depth += 1
         edge_removal = []
-        if show_progress: pbar.reset()
         for x in range(no_of_var):
-            if show_progress: pbar.update()
-            if show_progress: pbar.set_description(f'Depth={depth}, working on node {x}')
             Neigh_x = cg.neighbors(x)
             if len(Neigh_x) < depth - 1:
                 continue
@@ -98,19 +94,16 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                             break
                         else:
                             if verbose: print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
-        if show_progress: pbar.refresh()
 
         for (x, y) in list(set(edge_removal)):
             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
             if edge1 is not None:
                 cg.G.remove_edge(edge1)
 
-    if show_progress: pbar.close()
-
     return cg
 
 
-def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False, show_progress=True):
+def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False):
     '''
     Perform skeleton discovery
 
@@ -135,26 +128,11 @@ def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, backgroun
 
     no_of_var = data.shape[1]
     cg = CausalGraph(no_of_var)
+    cg.data = data
     cg.set_ind_test(indep_test)
-    if indep_test == chisq or indep_test == gsq:
-        # if dealing with discrete data, data is numpy.ndarray with n rows m columns,
-        # for each column, translate the discrete values to int indexs starting from 0,
-        #   e.g. [45, 45, 6, 7, 6, 7] -> [2, 2, 0, 1, 0, 1]
-        #        ['apple', 'apple', 'pear', 'peach', 'pear'] -> [0, 0, 2, 1, 2]
-        # in old code, its presumed that discrete `data` is already indexed,
-        # but here we make sure it's in indexed form, so allow more user input e.g. 'apple' ..
-        def _unique(column):
-            return np.unique(column, return_inverse=True)[1]
 
-        cg.is_discrete = True
-        cg.data = np.apply_along_axis(_unique, 0, data).astype(np.int64)
-        cg.cardinalities = np.max(cg.data, axis=0) + 1
-    else:
-        cg.data = data
-
-
-    graph, sep_sets = fas(cg.data, cg.G.nodes, independence_test_method=indep_test, alpha=alpha,
-                          knowledge=background_knowledge, depth=-1, verbose=verbose, stable=stable, show_progress=show_progress)
+    graph, sep_sets = fas(data, cg.G.nodes, independence_test_method=indep_test, alpha=alpha,
+                          knowledge=background_knowledge, depth=-1, verbose=verbose, stable=stable)
 
     for (x, y) in sep_sets.keys():
         edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
