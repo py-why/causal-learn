@@ -5,9 +5,10 @@ import numpy as np
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils.Helper import append_value
 from causallearn.utils.cit import chisq, gsq
+from tqdm.auto import tqdm
 
 
-def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False):
+def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False, show_progress=True):
     '''
     Perform skeleton discovery
 
@@ -49,10 +50,14 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
         cg.data = data
 
     depth = -1
+    pbar = tqdm(total=no_of_var) if show_progress else None
     while cg.max_degree() - 1 > depth:
         depth += 1
         edge_removal = []
+        if show_progress: pbar.reset()
         for x in range(no_of_var):
+            if show_progress: pbar.update()
+            if show_progress: pbar.set_description(f'Depth={depth}, working on node {x}')
             Neigh_x = cg.neighbors(x)
             if len(Neigh_x) < depth - 1:
                 continue
@@ -95,10 +100,13 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                             break
                         else:
                             if verbose: print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
+        if show_progress: pbar.refresh()
+
 
         for (x, y) in list(set(edge_removal)):
             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
             if edge1 is not None:
                 cg.G.remove_edge(edge1)
+    if show_progress: pbar.close()
 
     return cg
