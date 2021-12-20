@@ -1,14 +1,12 @@
-from itertools import permutations, combinations
-
+from itertools import combinations
+from causallearn.utils.Fas import fas
 import numpy as np
-
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils.Helper import append_value
 from causallearn.utils.cit import chisq, gsq
-from tqdm.auto import tqdm
 
 
-def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False, show_progress=True):
+def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False):
     '''
     Perform skeleton discovery
 
@@ -50,14 +48,10 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
         cg.data = data
 
     depth = -1
-    pbar = tqdm(total=no_of_var) if show_progress else None
     while cg.max_degree() - 1 > depth:
         depth += 1
         edge_removal = []
-        if show_progress: pbar.reset()
         for x in range(no_of_var):
-            if show_progress: pbar.update()
-            if show_progress: pbar.set_description(f'Depth={depth}, working on node {x}')
             Neigh_x = cg.neighbors(x)
             if len(Neigh_x) < depth - 1:
                 continue
@@ -100,13 +94,51 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                             break
                         else:
                             if verbose: print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
-        if show_progress: pbar.refresh()
-
 
         for (x, y) in list(set(edge_removal)):
             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
             if edge1 is not None:
                 cg.G.remove_edge(edge1)
-    if show_progress: pbar.close()
+
+    return cg
+
+
+def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False):
+    '''
+    Perform skeleton discovery
+
+    Parameters
+    ----------
+    data : data set (numpy ndarray)
+    alpha: desired significance level in (0, 1) (float)
+    indep_test : name of the independence test being used
+           - "Fisher_Z": Fisher's Z conditional independence test
+           - "Chi_sq": Chi-squared conditional independence test
+           - "G_sq": G-squared conditional independence test
+    stable : run stabilized skeleton discovery if True (default = True)
+
+    Returns
+    -------
+    cg : a CausalGraph object
+
+    '''
+
+    assert type(data) == np.ndarray
+    assert 0 < alpha < 1
+
+    no_of_var = data.shape[1]
+    cg = CausalGraph(no_of_var)
+    cg.data = data
+    cg.set_ind_test(indep_test)
+
+    graph, sep_sets = fas(data, cg.G.nodes, independence_test_method=indep_test, alpha=alpha,
+                          knowledge=background_knowledge, depth=-1, verbose=verbose, stable=stable)
+
+    for (x, y) in sep_sets.keys():
+        edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
+        if edge1 is not None:
+            cg.G.remove_edge(edge1)
+        append_value(cg.sepset, x, y, list(sep_sets[(x, y)]))
+        append_value(cg.sepset, y, x, list(sep_sets[(x, y)]))
 
     return cg

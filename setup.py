@@ -21,8 +21,7 @@ setuptools.setup(
         'pandas',
         'matplotlib',
         'networkx',
-        'pydot',
-        'tqdm'
+        'pydot'
     ],
     url='https://github.com/cmu-phil/causal-learn',
     packages=setuptools.find_packages(),

@@ -192,13 +192,13 @@ class SepsetsPossibleDsep():
 
                 X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
                 X, Y = (X, Y) if (X < Y) else (Y, X)
-                XYS_key = (X, Y, frozenset(condSet))
-                if XYS_key in citest_cache:
-                    p_value = citest_cache[XYS_key]
-                else:
-                    p_value = self.independence_test(self.data, X, Y, tuple(condSet))
-                    citest_cache[XYS_key] = p_value
-
+                # XYS_key = (X, Y, frozenset(condSet))
+                # if XYS_key in citest_cache:
+                #     p_value = citest_cache[XYS_key]
+                # else:
+                #     p_value = self.independence_test(self.data, X, Y, tuple(condSet))
+                #     citest_cache[XYS_key] = p_value
+                p_value = self.independence_test(self.data, X, Y, tuple(condSet))
                 independent = p_value > self.alpha
 
                 if independent and noEdgeRequired:
@@ -441,12 +441,13 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn] for nn in path])
-    XYS_key = (X, Y, frozenset(condSet))
-    if XYS_key in citest_cache:
-        p_value = citest_cache[XYS_key]
-    else:
-        p_value = independence_test_method(data, X, Y, condSet)
-        citest_cache[XYS_key] = p_value
+    # XYS_key = (X, Y, frozenset(condSet))
+    # if XYS_key in citest_cache:
+    #     p_value = citest_cache[XYS_key]
+    # else:
+    #     p_value = independence_test_method(data, X, Y, condSet)
+    #     citest_cache[XYS_key] = p_value
+    p_value = independence_test_method(data, X, Y, condSet)
     ind = p_value > alpha
 
     path2 = list(path)
@@ -455,13 +456,13 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn2] for nn2 in path2])
-    XYS_key = (X, Y, frozenset(condSet))
-    if XYS_key in citest_cache:
-        p_value2 = citest_cache[XYS_key]
-    else:
-        p_value2 = independence_test_method(data, X, Y, condSet)
-        citest_cache[XYS_key] = p_value2
-
+    # XYS_key = (X, Y, frozenset(condSet))
+    # if XYS_key in citest_cache:
+    #     p_value2 = citest_cache[XYS_key]
+    # else:
+    #     p_value2 = independence_test_method(data, X, Y, condSet)
+    #     citest_cache[XYS_key] = p_value2
+    p_value2 = independence_test_method(data, X, Y, condSet)
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:
@@ -581,7 +582,7 @@ def ruleR4B(graph, maxPathLength, data, independence_test_method, alpha, sep_set
 
 
 def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_path_length=-1,
-        verbose=False, background_knowledge=None, show_progress=True):
+        verbose=False, background_knowledge=None):
     '''
     Causal Discovery with Fast Causal Inference
 
@@ -621,7 +622,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
         node.add_attribute("id", i)
         nodes.append(node)
 
-    graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose, show_progress=show_progress)
+    graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose)
 
     # reorient all edges with CIRCLE Endpoint
     ori_edges = graph.get_graph_edges()
