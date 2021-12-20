@@ -5,7 +5,7 @@ from causallearn.graph.Edges import Edges
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 from copy import deepcopy
 from causallearn.search.ConstraintBased.FCI import citest_cache
-
+from tqdm.auto import tqdm
 
 def possible_parents(node_x, adjx, knowledge=None):
     possibleParents = []
@@ -41,9 +41,13 @@ def forbiddenEdge(node_x, node_y, knowledge):
 
 
 def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
-                   verbose=False, knowledge=None):
+                   verbose=False, knowledge=None, pbar=None):
     empty = []
+    show_progress = not pbar is None
+    if show_progress: pbar.reset()
     for i in range(len(nodes)):
+        if show_progress: pbar.update()
+        if show_progress: pbar.set_description(f'Depth=0, working on node {i}')
         if verbose and (i+1) % 100 == 0:
             print(nodes[i + 1].get_name())
 
@@ -65,11 +69,12 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
             elif not forbiddenEdge(nodes[i], nodes[j], knowledge):
                 adjacencies[nodes[i]].add(nodes[j])
                 adjacencies[nodes[j]].add(nodes[i])
+    if show_progress: pbar.refresh()
     return freeDegree(nodes, adjacencies) > 0
 
 
 def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
-                   verbose=False, knowledge=None):
+                   verbose=False, knowledge=None, pbar=None):
 
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
@@ -131,7 +136,12 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
 
     adjacencies_completed = deepcopy(adjacencies)
 
+    show_progress = not pbar is None
+    if show_progress: pbar.reset()
+
     for i in range(len(nodes)):
+        if show_progress: pbar.update()
+        if show_progress: pbar.set_description(f'Depth={depth}, working on node {i}')
         if verbose:
             count += 1
             if count % 10 == 0:
@@ -143,10 +153,11 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
             finish_flag = edge(adjx, i, adjacencies_completed)
 
             adjx = list(adjacencies[nodes[i]])
+    if show_progress: pbar.refresh()
     return freeDegree(nodes, adjacencies) > depth
 
 
-def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=None, depth=-1, verbose=False):
+def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=None, depth=-1, verbose=False, show_progress=True):
     '''
     Implements the "fast adjacency search" used in several causal algorithm in this file. In the fast adjacency
     search, at a given stage of the search, an edge X*-*Y is removed from the graph if X _||_ Y | S, where S is a subset
@@ -188,16 +199,18 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     # ------- end initial variable ---------
     print('Starting Fast Adjacency Search.')
 
+    pbar = tqdm(total=len(nodes)) if show_progress else None
     for d in range(depth):
         more = False
 
         if d == 0:
-            more = searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose, knowledge)
+            more = searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose, knowledge, pbar=pbar)
         else:
-            more = searchAtDepth(data, d, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose, knowledge)
+            more = searchAtDepth(data, d, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose, knowledge, pbar=pbar)
 
         if not more:
             break
+    if show_progress: pbar.close()
 
     graph = GeneralGraph(nodes)
     for i in range(len(nodes)):

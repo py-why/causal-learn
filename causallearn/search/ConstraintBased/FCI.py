@@ -581,7 +581,7 @@ def ruleR4B(graph, maxPathLength, data, independence_test_method, alpha, sep_set
 
 
 def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_path_length=-1,
-        verbose=False, background_knowledge=None):
+        verbose=False, background_knowledge=None, show_progress=True):
     '''
     Causal Discovery with Fast Causal Inference
 
@@ -621,7 +621,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
         node.add_attribute("id", i)
         nodes.append(node)
 
-    graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose)
+    graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose, show_progress=show_progress)
 
     # reorient all edges with CIRCLE Endpoint
     ori_edges = graph.get_graph_edges()
