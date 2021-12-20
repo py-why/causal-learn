@@ -1,11 +1,9 @@
-citest_cache = dict()  # added by haoyue@12/18/2021
-
 from queue import Queue
 from causallearn.graph.Edge import Edge
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.cit import fisherz, chisq, gsq
-from causallearn.utils.Fas import fas
+from causallearn.utils.Fas import fas, citest_cache
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 import numpy as np
