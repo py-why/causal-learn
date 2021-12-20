@@ -55,7 +55,7 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     '''
 
     start = time.time()
-    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
+    cg_1 = SkeletonDiscovery.skeleton_discovery_using_fas(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose)
 
     if background_knowledge is not None:
