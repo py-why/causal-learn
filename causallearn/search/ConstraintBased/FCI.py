@@ -1,11 +1,9 @@
-citest_cache = dict()  # added by haoyue@12/18/2021
-
 from queue import Queue
 from causallearn.graph.Edge import Edge
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.cit import fisherz, chisq, gsq
-from causallearn.utils.Fas import fas
+from causallearn.utils.Fas import fas, citest_cache
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 import numpy as np
@@ -192,13 +190,12 @@ class SepsetsPossibleDsep():
 
                 X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
                 X, Y = (X, Y) if (X < Y) else (Y, X)
-                # XYS_key = (X, Y, frozenset(condSet))
-                # if XYS_key in citest_cache:
-                #     p_value = citest_cache[XYS_key]
-                # else:
-                #     p_value = self.independence_test(self.data, X, Y, tuple(condSet))
-                #     citest_cache[XYS_key] = p_value
-                p_value = self.independence_test(self.data, X, Y, tuple(condSet))
+                XYS_key = (X, Y, frozenset(condSet))
+                if XYS_key in citest_cache:
+                    p_value = citest_cache[XYS_key]
+                else:
+                    p_value = self.independence_test(self.data, X, Y, tuple(condSet))
+                    citest_cache[XYS_key] = p_value
                 independent = p_value > self.alpha
 
                 if independent and noEdgeRequired:
@@ -441,13 +438,12 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn] for nn in path])
-    # XYS_key = (X, Y, frozenset(condSet))
-    # if XYS_key in citest_cache:
-    #     p_value = citest_cache[XYS_key]
-    # else:
-    #     p_value = independence_test_method(data, X, Y, condSet)
-    #     citest_cache[XYS_key] = p_value
-    p_value = independence_test_method(data, X, Y, condSet)
+    XYS_key = (X, Y, frozenset(condSet))
+    if XYS_key in citest_cache:
+        p_value = citest_cache[XYS_key]
+    else:
+        p_value = independence_test_method(data, X, Y, condSet)
+        citest_cache[XYS_key] = p_value
     ind = p_value > alpha
 
     path2 = list(path)
@@ -456,13 +452,12 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn2] for nn2 in path2])
-    # XYS_key = (X, Y, frozenset(condSet))
-    # if XYS_key in citest_cache:
-    #     p_value2 = citest_cache[XYS_key]
-    # else:
-    #     p_value2 = independence_test_method(data, X, Y, condSet)
-    #     citest_cache[XYS_key] = p_value2
-    p_value2 = independence_test_method(data, X, Y, condSet)
+    XYS_key = (X, Y, frozenset(condSet))
+    if XYS_key in citest_cache:
+        p_value2 = citest_cache[XYS_key]
+    else:
+        p_value2 = independence_test_method(data, X, Y, condSet)
+        citest_cache[XYS_key] = p_value2
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:
