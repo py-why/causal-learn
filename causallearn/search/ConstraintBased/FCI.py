@@ -617,6 +617,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
         node.add_attribute("id", i)
         nodes.append(node)
 
+    # FAS (“Fast Adjacency Search”) is the adjacency search of the PC algorithm, used as a first step for the FCI algorithm.
     graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose)
 
     # reorient all edges with CIRCLE Endpoint
