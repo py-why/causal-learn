@@ -258,7 +258,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     depth: The depth for the fast adjacency search, or -1 if unlimited
     verbose: True is verbose output should be printed or logged
     stable: run stabilized skeleton discovery if True (default = True)
-    show_progress: whether to use tqdm to show progress
+    show_progress: whether to use tqdm to show progress bar
     Returns
     -------
     graph: Causal graph skeleton
@@ -281,6 +281,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     # ------- end initial variable ---------
     print('Starting Fast Adjacency Search.')
 
+    # use tqdm to show progress bar
     pbar = tqdm(total=len(nodes)) if show_progress else None
     for d in range(depth):
         more = False
