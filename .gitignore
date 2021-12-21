@@ -138,3 +138,6 @@ dmypy.json
 # IDE related configs
 .idea
 
+# Developer's local tests
+*localtest.py
+
