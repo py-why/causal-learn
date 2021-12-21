@@ -55,8 +55,8 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     '''
 
     start = time.time()
-    ## TODO: or use cg_1 = SkeletonDiscovery.skeleton_discovery(data, ... ? : test speed and accuracy @12/20
-    cg_1 = SkeletonDiscovery.skeleton_discovery_using_fas(data, alpha, indep_test, stable,
+    ## TODO: or use cg_1 = SkeletonDiscovery.skeleton_discovery_using_fas(data, ... ? : test speed and accuracy @12/20
+    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose,
                                                 show_progress=show_progress)
 
