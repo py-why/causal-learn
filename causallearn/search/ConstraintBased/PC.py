@@ -22,11 +22,11 @@ def pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False, correc
 
 def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False, show_progress=True):
     '''
-    Perform Peter-Clark algorithm for causal discovery
+    Perform Peter-Clark (PC) algorithm for causal discovery
 
     Parameters
     ----------
-    data : data set (numpy ndarray)
+    data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     alpha : desired significance level (float) in (0, 1)
     indep_test : name of the independence test being used
             [fisherz, chisq, gsq, mv_fisherz, kci]
@@ -34,7 +34,7 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
            - "Chi_sq": Chi-squared conditional independence test
            - "G_sq": G-squared conditional independence test
            - "MV_Fisher_Z": Missing-value Fishers'Z conditional independence test
-           - "kci": kernel-based conditional independence test
+           - "kci": Kernel-based conditional independence test
     stable : run stabilized skeleton discovery if True (default = True)
     uc_rule : how unshielded colliders are oriented
            0: run uc_sepset
