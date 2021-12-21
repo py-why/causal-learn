@@ -585,7 +585,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
     ----------
     dataset: data set (sample number, feature number) numpy ndarray
     independence_test_method: the independence test method, which should be in causallearn.utils.cit
-    alpha: Significance level of independence tests(p_value)(min = 0.00)
+    alpha: Significance level of independence tests(p_value)([0,1])
     depth: The depth for the fast adjacency search, or -1 if unlimited
     max_path_length: the maximum length of any discriminating path, or -1 if unlimited.
     verbose: True is verbose output should be printed or logged
