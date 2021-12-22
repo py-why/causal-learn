@@ -1,8 +1,9 @@
+import warnings
 from queue import Queue
 from causallearn.graph.Edge import Edge
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.cit import fisherz, chisq, gsq
+from causallearn.utils.cit import *
 from causallearn.utils.Fas import fas, citest_cache
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
@@ -583,8 +584,13 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
 
     Parameters
     ----------
-    dataset: data set (sample number, feature number) numpy ndarray
-    independence_test_method: the independence test method, which should be in causallearn.utils.cit
+    dataset: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    independence_test_method: the function of the independence test being used
+            [fisherz, chisq, gsq, kci]
+           - fisherz: Fisher's Z conditional independence test
+           - chisq: Chi-squared conditional independence test
+           - gsq: G-squared conditional independence test
+           - kci: Kernel-based conditional independence test
     alpha: Significance level of independence tests(p_value)([0,1])
     depth: The depth for the fast adjacency search, or -1 if unlimited
     max_path_length: the maximum length of any discriminating path, or -1 if unlimited.
@@ -593,8 +599,15 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
 
     Returns
     -------
-    graph : Causal graph
+    graph : a CausalGraph object, where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j,
+                    cg.G.graph[j,i]=2 and cg.G.graph[i,j]=1 indicates  i o-> j.
     '''
+
+    if dataset.shape[0] < dataset.shape[1]:
+        warnings.warn("The number of features is much larger than the sample size!")
+
     def _unique(column):
         return np.unique(column, return_inverse=True)[1]
 

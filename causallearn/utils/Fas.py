@@ -1,11 +1,13 @@
-citest_cache = dict()  # added by haoyue@12/18/2021
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.cit import fisherz
+from causallearn.utils.cit import *
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.Edges import Edges
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 from copy import deepcopy
 from tqdm.auto import tqdm
+
+citest_cache = dict()
+
 
 def possible_parents(node_x, adjx, knowledge=None):
     possibleParents = []
@@ -250,9 +252,14 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
 
     Parameters
     ----------
-    data: data set (sample number, feature number) numpy ndarray
-    node: The search nodes.
-    independence_test_method: the independence test method, which should be in causallearn.utils.cit
+    data: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    nodes: The search nodes.
+    independence_test_method: the function of the independence test being used
+            [fisherz, chisq, gsq, kci]
+           - fisherz: Fisher's Z conditional independence test
+           - chisq: Chi-squared conditional independence test
+           - gsq: G-squared conditional independence test
+           - kci: Kernel-based conditional independence test
     alpha: Significance level of independence tests(p_value)(min = 0.00)
     knowledge: background background_knowledge
     depth: The depth for the fast adjacency search, or -1 if unlimited
@@ -261,7 +268,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     show_progress: whether to use tqdm to show progress bar
     Returns
     -------
-    graph: Causal graph skeleton
+    graph: Causal graph skeleton, where cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j.
     sep_sets: separated sets of graph
     '''
 

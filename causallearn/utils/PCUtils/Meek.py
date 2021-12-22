@@ -10,11 +10,16 @@ def meek(cg, background_knowledge=None):
 
     Parameters
     ----------
-    cg : a CausalGraph object
+    cg : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
+    background_knowledge : artificial background background_knowledge
 
     Returns
     -------
-    cg_new : a CausalGraph object
+    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     '''
 
     cg_new = deepcopy(cg)
@@ -77,10 +82,13 @@ def definite_meek(cg, background_knowledge=None):
     Parameters
     ----------
     cg : a CausalGraph object
+    background_knowledge : artificial background background_knowledge
 
     Returns
     -------
-    cg_new : a CausalGraph object
+    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     '''
 
     cg_new = deepcopy(cg)

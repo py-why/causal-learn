@@ -6,14 +6,15 @@ from causallearn.utils.GESUtils import *
 from causallearn.utils.PDAG2DAG import pdag2dag
 
 
-def ges(X, score_func, maxP=None, parameters=None):
+def ges(X, score_func='local_score_bic', maxP=None, parameters=None):
     '''
     Greedy equivalence search algorithm
 
     Parameters
     ----------
-    X : Data with T*D dimensions
-    score_func : the score function you want to use
+    X : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    score_func : the string name of score function. (str(one of 'local_score_CV_general', 'local_score_marginal_general',
+                    'local_score_CV_multi', 'local_score_marginal_multi', 'local_score_BIC', 'local_score_BDeu')).
     maxP : allowed maximum number of parents when searching the graph
     parameters : when using CV likelihood,
                   parameters['kfold']: k-fold cross validation
@@ -23,13 +24,17 @@ def ges(X, score_func, maxP=None, parameters=None):
 
     Returns
     -------
-    Record['G']: learned causal graph
+    Record['G']: learned causal graph, where Record['G'].graph[j,i]=0 and Record['G'].graph[i,j]=1 indicates  i -> j ,
+                    Record['G'].graph[i,j] = Record['G'].graph[j,i] = -1 indicates i -- j.
     Record['update1']: each update (Insert operator) in the forward step
     Record['update2']: each update (Delete operator) in the backward step
     Record['G_step1']: learned graph at each step in the forward step
     Record['G_step2']: learned graph at each step in the backward step
     Record['score']: the score of the learned graph
     '''
+
+    if X.shape[0] < X.shape[1]:
+        warnings.warn("The number of features is much larger than the sample size!")
 
     X = np.mat(X)
     if score_func == 'local_score_CV_general':  # % k-fold negative cross validated likelihood based on regression in RKHS

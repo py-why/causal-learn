@@ -12,17 +12,22 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
 
     Parameters
     ----------
-    data : data set (numpy ndarray)
+    data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     alpha: desired significance level in (0, 1) (float)
-    indep_test : name of the independence test being used
-           - "Fisher_Z": Fisher's Z conditional independence test
-           - "Chi_sq": Chi-squared conditional independence test
-           - "G_sq": G-squared conditional independence test
+    indep_test : the function of the independence test being used
+            [fisherz, chisq, gsq, mv_fisherz, kci]
+           - fisherz: Fisher's Z conditional independence test
+           - chisq: Chi-squared conditional independence test
+           - gsq: G-squared conditional independence test
+           - mv_fisherz: Missing-value Fishers'Z conditional independence test
+           - kci: Kernel-based conditional independence test
     stable : run stabilized skeleton discovery if True (default = True)
 
     Returns
     -------
-    cg : a CausalGraph object
+    cg : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
     '''
 
@@ -116,17 +121,22 @@ def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, backgroun
 
     Parameters
     ----------
-    data : data set (numpy ndarray)
+    data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     alpha: desired significance level in (0, 1) (float)
-    indep_test : name of the independence test being used
-           - "Fisher_Z": Fisher's Z conditional independence test
-           - "Chi_sq": Chi-squared conditional independence test
-           - "G_sq": G-squared conditional independence test
+    indep_test : the function of the independence test being used
+            [fisherz, chisq, gsq, mv_fisherz, kci]
+           - fisherz: Fisher's Z conditional independence test
+           - chisq: Chi-squared conditional independence test
+           - gsq: G-squared conditional independence test
+           - mv_fisherz: Missing-value Fishers'Z conditional independence test
+           - kci: Kernel-based conditional independence test
     stable : run stabilized skeleton discovery if True (default = True)
 
     Returns
     -------
-    cg : a CausalGraph object
+    cg : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
     '''
 
