@@ -6,7 +6,7 @@ from causallearn.utils.GESUtils import *
 from causallearn.utils.PDAG2DAG import pdag2dag
 
 
-def ges(X, score_func='local_score_bic', maxP=None, parameters=None):
+def ges(X, score_func='local_score_BIC', maxP=None, parameters=None):
     '''
     Greedy equivalence search algorithm
 

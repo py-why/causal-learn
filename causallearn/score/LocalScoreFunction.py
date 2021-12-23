@@ -5,21 +5,26 @@ import pandas as pd
 from causallearn.utils.ScoreUtils import *
 
 
-def local_score_bic(Data, i, PAi, parameters=None):
+def local_score_BIC(Data, i, PAi, parameters=None):
     '''
-    Calculate the local score with BIC for the linear Gaussian case
+    Calculate the *negative* local score with BIC for the linear Gaussian case
 
     Parameters
     ----------
-    Data: (sample, features)
+    Data: ndarray, (sample, features)
     i: current index
     PAi: parent indexes
-    parameters: None
+    parameters: lambda_value, the penalty discount of bic
 
     Returns
     -------
     score: local BIC score
     '''
+
+    if parameters is None:
+        lambda_value = 1
+    else:
+        lambda_value = parameters['lambda_value']
 
     Data = np.mat(Data)
     T = Data.shape[0]
@@ -33,7 +38,7 @@ def local_score_bic(Data, i, PAi, parameters=None):
         E = X - H * X
         sigma2 = np.sum(np.power(E, 2)) / T
         # BIC
-        score = T * np.log(sigma2) + D * np.log(T)
+        score = T * np.log(sigma2) + lambda_value * D * np.log(T)
     else:
         sigma2 = np.sum(np.power(X, 2)) / T
         # BIC
@@ -42,9 +47,9 @@ def local_score_bic(Data, i, PAi, parameters=None):
     return score
 
 
-def local_score_bdeu(Data, i, PAi, parameters=None):
+def local_score_BDeu(Data, i, PAi, parameters=None):
     '''
-    Calculate the local score with BDeu for the discrete case
+    Calculate the *negative* local score with BDeu for the discrete case
 
     Parameters
     ----------
@@ -74,19 +79,33 @@ def local_score_bdeu(Data, i, PAi, parameters=None):
     for pa in PAi:
         q_i *= r_i_map[pa]
 
-    # calculate N_{ij}
-    names = ['x{}'.format(i) for i in range(Data.shape[1])]
-    Data_pd = pd.DataFrame(Data, columns=names)
-    parant_names = ['x{}'.format(i) for i in PAi]
-    Data_pd_group_Nij = Data_pd.groupby(parant_names)
-    Nij_map = {key: len(Data_pd_group_Nij.indices.get(key)) for key in Data_pd_group_Nij.indices.keys()}
-    Nij_map_keys_list = list(Nij_map.keys())
 
-    # calculate N_{ijk}
-    Nijk_map = {ij: Data_pd_group_Nij.get_group(ij).groupby('x{}'.format(i)).apply(len).reset_index() for ij in
-                Nij_map.keys()}
-    for v in Nijk_map.values():
-        v.columns = ['x{}'.format(i), 'times']
+    if len(PAi) != 0:
+        # calculate N_{ij}
+        names = ['x{}'.format(i) for i in range(Data.shape[1])]
+        Data_pd = pd.DataFrame(Data, columns=names)
+        parant_names = ['x{}'.format(i) for i in PAi]
+        Data_pd_group_Nij = Data_pd.groupby(parant_names)
+        Nij_map = {key: len(Data_pd_group_Nij.indices.get(key)) for key in Data_pd_group_Nij.indices.keys()}
+        Nij_map_keys_list = list(Nij_map.keys())
+
+        # calculate N_{ijk}
+        Nijk_map = {ij: Data_pd_group_Nij.get_group(ij).groupby('x{}'.format(i)).apply(len).reset_index() for ij in
+                    Nij_map.keys()}
+        for v in Nijk_map.values():
+            v.columns = ['x{}'.format(i), 'times']
+    else:
+        # calculate N_{ij}
+        names = ['x{}'.format(i) for i in range(Data.shape[1])]
+        Nij_map = {'': len(Data[:, i])}
+        Nij_map_keys_list = ['']
+        Data_pd = pd.DataFrame(Data, columns=names)
+
+        # calculate N_{ijk}
+        Nijk_map = {ij: Data_pd.groupby('x{}'.format(i)).apply(len).reset_index() for ij in Nij_map_keys_list}
+        for v in Nijk_map.values():
+            v.columns = ['x{}'.format(i), 'times']
+
 
     BDeu_score = 0
     # first term
@@ -106,7 +125,7 @@ def local_score_bdeu(Data, i, PAi, parameters=None):
 
         BDeu_score += first_term + second_term
 
-    return BDeu_score
+    return -BDeu_score
 
 
 def local_score_cv_general(Data, Xi, PAi, parameters):
