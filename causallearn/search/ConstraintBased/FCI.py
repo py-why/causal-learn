@@ -4,7 +4,7 @@ from causallearn.graph.Edge import Edge
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.cit import *
-from causallearn.utils.Fas import fas, citest_cache
+from causallearn.utils import Fas
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 import numpy as np
@@ -20,8 +20,6 @@ class SepsetsPossibleDsep():
         self.depth = depth
         self.maxPathLength = maxPathLength
         self.verbose = verbose
-        self.data_hash_key = hash(self.data.tobytes())
-        self.ci_test_hash_key = hash(self.independence_test)
 
 
     def traverseSemiDirected(self, node, edge):
@@ -194,12 +192,13 @@ class SepsetsPossibleDsep():
 
                 X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
                 X, Y = (X, Y) if (X < Y) else (Y, X)
-                XYS_key = (X, Y, frozenset(condSet), self.data_hash_key, self.ci_test_hash_key)
-                if XYS_key in citest_cache:
-                    p_value = citest_cache[XYS_key]
+                XYS_key = (X, Y, frozenset(condSet))
+                if XYS_key in Fas.citest_cache:
+                    p_value = Fas.citest_cache[XYS_key]
                 else:
-                    p_value = self.independence_test(self.data, X, Y, tuple(condSet))
-                    citest_cache[XYS_key] = p_value
+                    p_value = self.independence_test(self.data, X, Y, tuple(condSet), Fas.cardinalities) if Fas.is_discrete \
+                            else self.independence_test(self.data, X, Y, tuple(condSet))
+                    Fas.citest_cache[XYS_key] = p_value
                 independent = p_value > self.alpha
 
                 if independent and noEdgeRequired:
@@ -442,14 +441,13 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn] for nn in path])
-    data_hash_key = hash(data.tobytes())
-    ci_test_hash_key = hash(independence_test_method)
-    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
-    if XYS_key in citest_cache:
-        p_value = citest_cache[XYS_key]
+    XYS_key = (X, Y, frozenset(condSet))
+    if XYS_key in Fas.citest_cache:
+        p_value = Fas.citest_cache[XYS_key]
     else:
-        p_value = independence_test_method(data, X, Y, condSet)
-        citest_cache[XYS_key] = p_value
+        p_value = independence_test_method(data, X, Y, condSet, Fas.cardinalities) if Fas.is_discrete \
+                    else independence_test_method(data, X, Y, condSet)
+        Fas.citest_cache[XYS_key] = p_value
     ind = p_value > alpha
 
     path2 = list(path)
@@ -458,12 +456,13 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn2] for nn2 in path2])
-    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
-    if XYS_key in citest_cache:
-        p_value2 = citest_cache[XYS_key]
+    XYS_key = (X, Y, frozenset(condSet))
+    if XYS_key in Fas.citest_cache:
+        p_value2 = Fas.citest_cache[XYS_key]
     else:
-        p_value2 = independence_test_method(data, X, Y, condSet)
-        citest_cache[XYS_key] = p_value2
+        p_value2 = independence_test_method(data, X, Y, condSet, Fas.cardinalities) if Fas.is_discrete \
+                    else independence_test_method(data, X, Y, condSet)
+        Fas.citest_cache[XYS_key] = p_value2
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:
@@ -613,11 +612,17 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
     if dataset.shape[0] < dataset.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
 
+    Fas.citest_cache = dict()  # DEBUG@2021/12/23, must refresh cache every time at initialization
+    Fas.cardinalities = None
+    Fas.is_discrete = False
+
     def _unique(column):
         return np.unique(column, return_inverse=True)[1]
 
     if independence_test_method == chisq or independence_test_method == gsq:
         dataset = np.apply_along_axis(_unique, 0, dataset).astype(np.int64)
+        Fas.is_discrete = True
+        Fas.cardinalities = np.max(dataset, axis=0) + 1
 
 
     ## ------- check parameters ------------
@@ -636,7 +641,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
         nodes.append(node)
 
     # FAS (“Fast Adjacency Search”) is the adjacency search of the PC algorithm, used as a first step for the FCI algorithm.
-    graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose)
+    graph, sep_sets = Fas.fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose)
 
     # reorient all edges with CIRCLE Endpoint
     ori_edges = graph.get_graph_edges()

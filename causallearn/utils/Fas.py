@@ -7,6 +7,8 @@ from copy import deepcopy
 from tqdm.auto import tqdm
 
 citest_cache = dict()
+cardinalities = None # only works for discrete data
+is_discrete = False
 
 
 def possible_parents(node_x, adjx, knowledge=None):
@@ -45,8 +47,6 @@ def forbiddenEdge(node_x, node_y, knowledge):
 def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
                    verbose=False, knowledge=None, pbar=None):
     empty = []
-    data_hash_key = hash(data.tobytes())
-    ci_test_hash_key = hash(independence_test_method)
     show_progress = not pbar is None
     if show_progress: pbar.reset()
     for i in range(len(nodes)):
@@ -56,11 +56,12 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
             print(nodes[i + 1].get_name())
 
         for j in range(i+1, len(nodes)):
-            ijS_key = (i, j, frozenset(), data_hash_key, ci_test_hash_key)
+            ijS_key = (i, j, frozenset())
             if ijS_key in citest_cache:
                 p_value = citest_cache[ijS_key]
             else:
-                p_value = independence_test_method(data, i, j, tuple(empty))
+                p_value = independence_test_method(data, i, j, tuple(empty), cardinalities) if is_discrete \
+                            else independence_test_method(data, i, j, tuple(empty))
                 citest_cache[ijS_key] = p_value
             independent = p_value > alpha
             no_edge_required = True if knowledge is None else \
@@ -80,9 +81,6 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
 def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
                    verbose=False, knowledge=None, pbar=None):
 
-    data_hash_key = hash(data.tobytes())
-    ci_test_hash_key = hash(independence_test_method)
-
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -100,11 +98,12 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
 
                     Y = nodes.index(adjx[j])
                     X, Y = (i, Y) if (i < Y) else (Y, i)
-                    XYS_key = (X, Y, frozenset(cond_set), data_hash_key, ci_test_hash_key)
+                    XYS_key = (X, Y, frozenset(cond_set))
                     if XYS_key in citest_cache:
                         p_value = citest_cache[XYS_key]
                     else:
-                        p_value = independence_test_method(data, X, Y, tuple(cond_set))
+                        p_value = independence_test_method(data, X, Y, tuple(cond_set), cardinalities) if is_discrete \
+                                    else independence_test_method(data, X, Y, tuple(cond_set))
                         citest_cache[XYS_key] = p_value
 
                     independent = p_value > alpha
@@ -166,10 +165,6 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
 
 def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
                    verbose=False, knowledge=None, pbar=None):
-
-    data_hash_key = hash(data.tobytes())
-    ci_test_hash_key = hash(independence_test_method)
-
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -187,11 +182,12 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
 
                     Y = nodes.index(adjx[j])
                     X, Y = (i, Y) if (i < Y) else (Y, i)
-                    XYS_key = (X, Y, frozenset(cond_set), data_hash_key, ci_test_hash_key)
+                    XYS_key = (X, Y, frozenset(cond_set))
                     if XYS_key in citest_cache:
                         p_value = citest_cache[XYS_key]
                     else:
-                        p_value = independence_test_method(data, X, Y, tuple(cond_set))
+                        p_value = independence_test_method(data, X, Y, tuple(cond_set), cardinalities) if is_discrete \
+                                    else independence_test_method(data, X, Y, tuple(cond_set))
                         citest_cache[XYS_key] = p_value
 
                     independent = p_value > alpha

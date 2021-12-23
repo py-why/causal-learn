@@ -140,4 +140,5 @@ dmypy.json
 
 # Developer's local tests
 *localtest.py
+data-localtest/
 

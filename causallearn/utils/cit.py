@@ -176,15 +176,13 @@ def fisherz(data, X, Y, condition_set, correlation_matrix=None):
     return p
 
 
-def chisq(data, X, Y, conditioning_set, cardinalities=None):
+def chisq(data, X, Y, conditioning_set, cardinalities):
     # though cardinalities can be computed from data, here we pass it as argument,
     # to prevent from repeated computation on each variable's vardinality
-    if cardinalities is None: cardinalities = np.max(data, axis=0) + 1
     indexs = list(conditioning_set) + [X, Y]
     return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs])
 
-def gsq(data, X, Y, conditioning_set, cardinalities=None):
-    if cardinalities is None: cardinalities = np.max(data, axis=0) + 1
+def gsq(data, X, Y, conditioning_set, cardinalities):
     indexs = list(conditioning_set) + [X, Y]
     return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs], G_sq=True)
 

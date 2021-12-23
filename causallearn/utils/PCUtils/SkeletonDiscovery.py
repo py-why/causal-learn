@@ -1,5 +1,5 @@
 from itertools import combinations
-from causallearn.utils.Fas import fas
+from causallearn.utils import Fas
 import numpy as np
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils.Helper import append_value
@@ -51,7 +51,6 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
         cg.cardinalities = np.max(cg.data, axis=0) + 1
     else:
         cg.data = data
-        cg.data_hash_key = hash(data.tobytes())
 
     depth = -1
     pbar = tqdm(total=no_of_var) if show_progress else None
@@ -143,6 +142,9 @@ def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, backgroun
 
     assert type(data) == np.ndarray
     assert 0 < alpha < 1
+    Fas.citest_cache = dict() # DEBUG@2021/12/23, must refresh cache every time at initialization
+    Fas.cardinalities = None
+    Fas.is_discrete = False
 
     no_of_var = data.shape[1]
     cg = CausalGraph(no_of_var)
@@ -160,11 +162,13 @@ def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, backgroun
         cg.is_discrete = True
         cg.data = np.apply_along_axis(_unique, 0, data).astype(np.int64)
         cg.cardinalities = np.max(cg.data, axis=0) + 1
+        Fas.cardinalities = cg.cardinalities # DEBUG@2021/12/23, no repeat calculating cardinalities at every chisq/gsq.
+        Fas.is_discrete = True
     else:
         cg.data = data
 
 
-    graph, sep_sets = fas(cg.data, cg.G.nodes, independence_test_method=indep_test, alpha=alpha,
+    graph, sep_sets = Fas.fas(cg.data, cg.G.nodes, independence_test_method=indep_test, alpha=alpha,
                           knowledge=background_knowledge, depth=-1, verbose=verbose, stable=stable, show_progress=show_progress)
 
     for (x, y) in sep_sets.keys():
