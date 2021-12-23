@@ -191,14 +191,8 @@ class SepsetsPossibleDsep():
                 choice = cg.next()
 
                 X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
-                X, Y = (X, Y) if (X < Y) else (Y, X)
-                XYS_key = (X, Y, frozenset(condSet))
-                if XYS_key in Fas.citest_cache:
-                    p_value = Fas.citest_cache[XYS_key]
-                else:
-                    p_value = self.independence_test(self.data, X, Y, tuple(condSet), Fas.cardinalities) if Fas.is_discrete \
-                            else self.independence_test(self.data, X, Y, tuple(condSet))
-                    Fas.citest_cache[XYS_key] = p_value
+                p_value = Fas.ci_test(self.independence_test, self.data,
+                                        X, Y, tuple(condSet))
                 independent = p_value > self.alpha
 
                 if independent and noEdgeRequired:
@@ -439,30 +433,18 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     path = getPath(node_d, previous)
 
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
-    X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn] for nn in path])
-    XYS_key = (X, Y, frozenset(condSet))
-    if XYS_key in Fas.citest_cache:
-        p_value = Fas.citest_cache[XYS_key]
-    else:
-        p_value = independence_test_method(data, X, Y, condSet, Fas.cardinalities) if Fas.is_discrete \
-                    else independence_test_method(data, X, Y, condSet)
-        Fas.citest_cache[XYS_key] = p_value
+    p_value = Fas.ci_test(independence_test_method, data,
+                      X, Y, tuple(condSet))
     ind = p_value > alpha
 
     path2 = list(path)
     path2.remove(node_b)
 
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
-    X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn2] for nn2 in path2])
-    XYS_key = (X, Y, frozenset(condSet))
-    if XYS_key in Fas.citest_cache:
-        p_value2 = Fas.citest_cache[XYS_key]
-    else:
-        p_value2 = independence_test_method(data, X, Y, condSet, Fas.cardinalities) if Fas.is_discrete \
-                    else independence_test_method(data, X, Y, condSet)
-        Fas.citest_cache[XYS_key] = p_value2
+    p_value2 = Fas.ci_test(independence_test_method, data,
+                          X, Y, condSet)
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:

@@ -11,6 +11,18 @@ cardinalities = None # only works for discrete data
 is_discrete = False
 
 
+def ci_test(independence_test, data, i, j, S):
+    i, j = (i, j) if (i < j) else (j, i)
+    ijS_key = (i, j, frozenset(S))
+    if ijS_key in citest_cache:
+        return citest_cache[ijS_key]
+    # if discrete, assert self.test is chisq or gsq, pass into cardinalities
+    pValue = independence_test(data, i, j, S, cardinalities) if is_discrete \
+        else independence_test(data, i, j, S)
+    citest_cache[ijS_key] = pValue
+    return pValue
+
+
 def possible_parents(node_x, adjx, knowledge=None):
     possibleParents = []
 
@@ -56,13 +68,7 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
             print(nodes[i + 1].get_name())
 
         for j in range(i+1, len(nodes)):
-            ijS_key = (i, j, frozenset())
-            if ijS_key in citest_cache:
-                p_value = citest_cache[ijS_key]
-            else:
-                p_value = independence_test_method(data, i, j, tuple(empty), cardinalities) if is_discrete \
-                            else independence_test_method(data, i, j, tuple(empty))
-                citest_cache[ijS_key] = p_value
+            p_value = ci_test(independence_test_method, data, i, j, tuple(empty))
             independent = p_value > alpha
             no_edge_required = True if knowledge is None else \
                 ((not knowledge.is_required(nodes[i], nodes[j])) or knowledge.is_required(nodes[j], nodes[i]))
@@ -96,15 +102,8 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
                     cond_set = [nodes.index(ppx[index]) for index in choice]
                     choice = cg.next()
 
-                    Y = nodes.index(adjx[j])
-                    X, Y = (i, Y) if (i < Y) else (Y, i)
-                    XYS_key = (X, Y, frozenset(cond_set))
-                    if XYS_key in citest_cache:
-                        p_value = citest_cache[XYS_key]
-                    else:
-                        p_value = independence_test_method(data, X, Y, tuple(cond_set), cardinalities) if is_discrete \
-                                    else independence_test_method(data, X, Y, tuple(cond_set))
-                        citest_cache[XYS_key] = p_value
+                    p_value = ci_test(independence_test_method, data,
+                                        i, nodes.index(adjx[j]), tuple(cond_set))
 
                     independent = p_value > alpha
 
@@ -180,15 +179,8 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
                     cond_set = [nodes.index(ppx[index]) for index in choice]
                     choice = cg.next()
 
-                    Y = nodes.index(adjx[j])
-                    X, Y = (i, Y) if (i < Y) else (Y, i)
-                    XYS_key = (X, Y, frozenset(cond_set))
-                    if XYS_key in citest_cache:
-                        p_value = citest_cache[XYS_key]
-                    else:
-                        p_value = independence_test_method(data, X, Y, tuple(cond_set), cardinalities) if is_discrete \
-                                    else independence_test_method(data, X, Y, tuple(cond_set))
-                        citest_cache[XYS_key] = p_value
+                    p_value = ci_test(independence_test_method, data,
+                                      i, nodes.index(adjx[j]), tuple(cond_set))
 
                     independent = p_value > alpha
 
