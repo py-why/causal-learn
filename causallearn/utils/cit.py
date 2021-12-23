@@ -184,6 +184,7 @@ def chisq(data, X, Y, conditioning_set, cardinalities=None):
     return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs])
 
 def gsq(data, X, Y, conditioning_set, cardinalities=None):
+    if cardinalities is None: cardinalities = np.max(data, axis=0) + 1
     indexs = list(conditioning_set) + [X, Y]
     return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs], G_sq=True)
 

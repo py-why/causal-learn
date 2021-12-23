@@ -44,6 +44,8 @@ class CausalGraph:
         self.cardinalities = None # only works when self.data is discrete, i.e. self.test is chisq or gsq
         self.is_discrete = False
         self.citest_cache = dict()
+        self.data_hash_key = None
+        self.ci_test_hash_key = None
 
     def set_ind_test(self, indep_test, mvpc=False):
         """Set the conditional independence test that will be used"""
@@ -51,6 +53,7 @@ class CausalGraph:
         if mvpc:
             self.mvpc = True
         self.test = indep_test
+        self.ci_test_hash_key = hash(indep_test)
 
     def ci_test(self, i, j, S):
         """Define the conditional independence test"""
@@ -59,7 +62,7 @@ class CausalGraph:
             return self.test(self.data, self.nx_skel, self.prt_m, i, j, S, self.data.shape[0])
 
         i, j = (i, j) if (i < j) else (j, i)
-        ijS_key = (i, j, frozenset(S))
+        ijS_key = (i, j, frozenset(S), self.data_hash_key, self.ci_test_hash_key)
         if ijS_key in self.citest_cache:
             return self.citest_cache[ijS_key]
         # if discrete, assert self.test is chisq or gsq, pass into cardinalities

@@ -45,6 +45,8 @@ def forbiddenEdge(node_x, node_y, knowledge):
 def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
                    verbose=False, knowledge=None, pbar=None):
     empty = []
+    data_hash_key = hash(data.tobytes())
+    ci_test_hash_key = hash(independence_test_method)
     show_progress = not pbar is None
     if show_progress: pbar.reset()
     for i in range(len(nodes)):
@@ -54,7 +56,7 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
             print(nodes[i + 1].get_name())
 
         for j in range(i+1, len(nodes)):
-            ijS_key = (i, j, frozenset())
+            ijS_key = (i, j, frozenset(), data_hash_key, ci_test_hash_key)
             if ijS_key in citest_cache:
                 p_value = citest_cache[ijS_key]
             else:
@@ -78,6 +80,9 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
 def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
                    verbose=False, knowledge=None, pbar=None):
 
+    data_hash_key = hash(data.tobytes())
+    ci_test_hash_key = hash(independence_test_method)
+
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -95,7 +100,7 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
 
                     Y = nodes.index(adjx[j])
                     X, Y = (i, Y) if (i < Y) else (Y, i)
-                    XYS_key = (X, Y, frozenset(cond_set))
+                    XYS_key = (X, Y, frozenset(cond_set), data_hash_key, ci_test_hash_key)
                     if XYS_key in citest_cache:
                         p_value = citest_cache[XYS_key]
                     else:
@@ -162,6 +167,9 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
 def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
                    verbose=False, knowledge=None, pbar=None):
 
+    data_hash_key = hash(data.tobytes())
+    ci_test_hash_key = hash(independence_test_method)
+
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -179,7 +187,7 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
 
                     Y = nodes.index(adjx[j])
                     X, Y = (i, Y) if (i < Y) else (Y, i)
-                    XYS_key = (X, Y, frozenset(cond_set))
+                    XYS_key = (X, Y, frozenset(cond_set), data_hash_key, ci_test_hash_key)
                     if XYS_key in citest_cache:
                         p_value = citest_cache[XYS_key]
                     else:

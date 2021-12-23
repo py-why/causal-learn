@@ -20,6 +20,9 @@ class SepsetsPossibleDsep():
         self.depth = depth
         self.maxPathLength = maxPathLength
         self.verbose = verbose
+        self.data_hash_key = hash(self.data.tobytes())
+        self.ci_test_hash_key = hash(self.independence_test)
+
 
     def traverseSemiDirected(self, node, edge):
         if node == edge.get_node1():
@@ -191,7 +194,7 @@ class SepsetsPossibleDsep():
 
                 X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
                 X, Y = (X, Y) if (X < Y) else (Y, X)
-                XYS_key = (X, Y, frozenset(condSet))
+                XYS_key = (X, Y, frozenset(condSet), self.data_hash_key, self.ci_test_hash_key)
                 if XYS_key in citest_cache:
                     p_value = citest_cache[XYS_key]
                 else:
@@ -439,7 +442,9 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn] for nn in path])
-    XYS_key = (X, Y, frozenset(condSet))
+    data_hash_key = hash(data.tobytes())
+    ci_test_hash_key = hash(independence_test_method)
+    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
     if XYS_key in citest_cache:
         p_value = citest_cache[XYS_key]
     else:
@@ -453,7 +458,7 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     X, Y = graph.node_map[node_d], graph.node_map[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.node_map[nn2] for nn2 in path2])
-    XYS_key = (X, Y, frozenset(condSet))
+    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
     if XYS_key in citest_cache:
         p_value2 = citest_cache[XYS_key]
     else:

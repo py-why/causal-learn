@@ -51,6 +51,7 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
         cg.cardinalities = np.max(cg.data, axis=0) + 1
     else:
         cg.data = data
+        cg.data_hash_key = hash(data.tobytes())
 
     depth = -1
     pbar = tqdm(total=no_of_var) if show_progress else None
