@@ -4,7 +4,7 @@ from itertools import permutations, combinations
 
 import networkx as nx
 import numpy as np
-
+from causallearn.utils import Fas
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
@@ -71,6 +71,7 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     cg_1 = SkeletonDiscovery.skeleton_discovery_using_fas(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose,
                                                 show_progress=show_progress)
+    cg_1.citest_cache = Fas.citest_cache # for citests in further UCSepset.uc_sepset
 
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_1, background_knowledge)
