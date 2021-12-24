@@ -27,15 +27,15 @@ class TestFCI(unittest.TestCase):
         X3 = X1 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         X4 = X2 * gen_coef() + X3 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         data = np.array([X1, X2, X3, X4]).T
-        G, edges = fci(data, fisherz, 0.05, verbose=True)
-        pdy = GraphUtils.to_pydot(G)
-        pdy.write_png('simple_test.png')
+        G, edges = fci(data, fisherz, 0.05, verbose=False)
+        #pdy = GraphUtils.to_pydot(G)
+        #pdy.write_png('simple_test.png')
 
         nodes = G.get_nodes()
         assert G.is_adjacent_to(nodes[0], nodes[1])
 
         bk = BackgroundKnowledge().add_forbidden_by_node(nodes[0], nodes[1]).add_forbidden_by_node(nodes[1], nodes[0])
-        G_with_background_knowledge = fci(data, fisherz, 0.05, verbose=True, background_knowledge=bk)
+        G_with_background_knowledge, edges = fci(data, fisherz, 0.05, verbose=True, background_knowledge=bk)
         assert not G_with_background_knowledge.is_adjacent_to(nodes[0], nodes[1])
 
 
@@ -53,8 +53,8 @@ class TestFCI(unittest.TestCase):
         E = B * gen_coef() + T2 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         data = np.array([A, B, C, D, E, F, H]).T
         G, edges = fci(data, fisherz, 0.05, verbose=True)
-        pdy = GraphUtils.to_pydot(G)
-        pdy.write_png('simple_test_2.png')
+        #pdy = GraphUtils.to_pydot(G)
+        #pdy.write_png('simple_test_2.png')
         print(G)
 
     def test_simple_test3(self):
@@ -67,8 +67,8 @@ class TestFCI(unittest.TestCase):
         X5 = X3 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         data = np.array([X1, X2, X3, X4, X5]).T
         G, edges = fci(data, fisherz, 0.05, verbose=True)
-        pdy = GraphUtils.to_pydot(G, edges)
-        pdy.write_png('simple_test3.png')
+        #pdy = GraphUtils.to_pydot(G, edges)
+        #pdy.write_png('simple_test3.png')
 
     def test_fritl(self):
         np.random.seed(0)
@@ -87,8 +87,8 @@ class TestFCI(unittest.TestCase):
         data = np.array([X1, X2, X3, X4, X5, X6, X7]).T
 
         G, edges = fci(data, fisherz, 0.05, verbose=True)
-        pdy = GraphUtils.to_pydot(G)
-        pdy.write_png('fritl.png')
+        #pdy = GraphUtils.to_pydot(G)
+        #pdy.write_png('fritl.png')
         print(G)
 
     def test_bnlearn_discrete_datasets(self):
@@ -107,7 +107,7 @@ class TestFCI(unittest.TestCase):
             end = time.time()
             print(f'{bname}, used {end - start:.5f}s\n\n\n')
 
-    def test_large_continuous_dataset(self):
+    def test_continuous_dataset(self):
         data = np.loadtxt('./data_linear_10.txt', skiprows=1)
         start = time.time()
         G, edges = fci(data, fisherz, 0.05, verbose=False)
