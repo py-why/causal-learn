@@ -57,6 +57,19 @@ class TestFCI(unittest.TestCase):
         pdy.write_png('simple_test_2.png')
         print(G)
 
+    def test_simple_test3(self):
+        np.random.seed(0)
+        sample_size, loc, scale = 2000, 0.0, 1.0
+        X1 = np.random.normal(loc=loc, scale=scale, size=sample_size)
+        X2 = np.random.normal(loc=loc, scale=scale, size=sample_size)
+        X3 = X1 * gen_coef() + X2 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
+        X4 = X3 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
+        X5 = X3 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
+        data = np.array([X1, X2, X3, X4, X5]).T
+        G, edges = fci(data, fisherz, 0.05, verbose=True)
+        pdy = GraphUtils.to_pydot(G, edges)
+        pdy.write_png('simple_test3.png')
+
     def test_fritl(self):
         np.random.seed(0)
         sample_size, loc, scale = 1000, 0.0, 1.0

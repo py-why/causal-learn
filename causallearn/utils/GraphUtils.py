@@ -542,8 +542,9 @@ class GraphUtils:
         return graphviz_g
 
     @staticmethod
-    def to_pydot(G, edges=None, title=""):
+    def to_pydot(G, edges=None, title="", dpi=200):
         pydot_g = pydot.Dot(title, graph_type="digraph", fontsize=18)
+        pydot_g.obj_dict["attributes"]["dpi"] = dpi
         nodes = G.get_nodes()
         for i, node in enumerate(nodes):
             pydot_g.add_node(pydot.Node(i, label=node.get_name()))
@@ -573,7 +574,10 @@ class GraphUtils:
                                arrowhead=get_g_arrow_type(edge.get_endpoint2()))
 
             if Edge.Property.dd in edge.properties:
-                dot_edge.obj_dict["attributes"]["color"] = "green"
+                dot_edge.obj_dict["attributes"]["color"] = "green3"
+
+            if Edge.Property.nl in edge.properties:
+                dot_edge.obj_dict["attributes"]["penwidth"] = 2.0
 
             pydot_g.add_edge(dot_edge)
 

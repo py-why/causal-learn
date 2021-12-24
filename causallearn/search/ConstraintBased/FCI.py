@@ -618,6 +618,144 @@ def ruleR4B(graph, maxPathLength, data, independence_test_method, alpha, sep_set
     return changeFlag
 
 
+def traverseSemiDirected(node, edge):
+    if node == edge.get_node1():
+        if edge.get_endpoint1() == Endpoint.TAIL or edge.get_endpoint1() == Endpoint.CIRCLE:
+            return edge.get_node2()
+    elif node == edge.get_node2():
+        if edge.get_endpoint2() == Endpoint.TAIL or edge.get_endpoint2() == Endpoint.CIRCLE:
+            return edge.get_node1()
+    return None
+
+
+def existsSemiDirectedPath(node_from, node_to, bound, graph):
+    Q = Queue()
+    V = set()
+    Q.put(node_from)
+    V.add(node_from)
+    node_e = None
+    distance = 0
+
+    while not Q.empty():
+        node_t = Q.get_nowait()
+        if node_t == node_to:
+            return True
+
+        if node_e == node_t:
+            node_e = None
+            distance += 1
+            if distance > (1000 if bound == -1 else bound):
+                return False
+
+        for node_u in graph.get_adjacent_nodes(node_t):
+            edge = graph.get_edge(node_t, node_u)
+            node_c = traverseSemiDirected(node_t, edge)
+
+            if node_c is None:
+                continue
+
+            if node_c == node_to:
+                return True
+
+            if not V.__contains__(node_c):
+                V.add(node_c)
+                Q.put(node_c)
+
+                if node_e == None:
+                    node_e = node_u
+
+    return False
+
+
+def visibleEdgeHelperVisit(graph, node_c, node_a, node_b, path):
+    if path.__contains__(node_a):
+        return False
+
+    path.append(node_a)
+
+    if node_a == node_b:
+        return True
+
+    for node_D in graph.get_nodes_into(node_a, Endpoint.ARROW):
+        if graph.is_parent_of(node_D, node_c):
+            return True
+
+        if not graph.is_def_collider(node_D, node_c, node_a):
+            continue
+        elif not graph.is_parent_of(node_c, node_b):
+            continue
+
+        if visibleEdgeHelperVisit(graph, node_D, node_c, node_b, path):
+            return True
+
+    path.pop()
+    return False
+
+
+def visibleEdgeHelper(node_A, node_B, graph):
+    path = []
+    path.append(node_A)
+
+    for node_C in graph.get_nodes_into(node_A, Endpoint.ARROW):
+        if graph.is_parent_of(node_C, node_A):
+            return True
+
+        if visibleEdgeHelperVisit(graph, node_C, node_A, node_B, path):
+            return True
+
+    return False
+
+
+def defVisible(edge, graph):
+    if graph.contains_edge(edge):
+        if edge.get_endpoint1() == Endpoint.TAIL:
+            node_A = edge.get_node1()
+            node_B = edge.get_node2()
+        else:
+            node_A = edge.get_node2()
+            node_B = edge.get_node1()
+
+        for node_C in graph.get_adjacent_nodes(node_A):
+            if node_C != node_B and not graph.is_adjacent_to(node_C, node_B):
+                e = graph.get_edge(node_C, node_A)
+
+                if e.get_proximal_endpoint(node_A) == Endpoint.ARROW:
+                    return True
+
+        return visibleEdgeHelper(node_A, node_B, graph)
+    else:
+        raise Exception("Given edge is not in the graph.")
+
+
+def get_color_edges(graph):
+    edges = graph.get_graph_edges()
+    for edge in edges:
+        if (edge.get_endpoint1() == Endpoint.TAIL and edge.get_endpoint2() == Endpoint.ARROW) or \
+                (edge.get_endpoint1() == Endpoint.ARROW and edge.get_endpoint2() == Endpoint.TAIL):
+            if edge.get_endpoint1() == Endpoint.TAIL:
+                node_x = edge.get_node1()
+                node_y = edge.get_node2()
+            else:
+                node_x = edge.get_node2()
+                node_y = edge.get_node1()
+
+            graph.remove_edge(edge)
+
+            if not existsSemiDirectedPath(node_x, node_y, -1, graph):
+                edge.properties.append(Edge.Property.dd)
+            else:
+                edge.properties.append(Edge.Property.pd)
+
+            graph.add_edge(edge)
+
+            if defVisible(edge, graph):
+                edge.properties.append(Edge.Property.nl)
+                print(edge)
+            else:
+                edge.properties.append(Edge.Property.pl)
+    return edges
+
+
 def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_path_length=-1,
         verbose=False, background_knowledge=None, cache_variables_map=None):
     '''
@@ -750,12 +888,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
 
     graph.set_pag(True)
 
-    edges = graph.get_graph_edges()
-    for edge in edges:
-        if (edge.get_endpoint1() == Endpoint.TAIL and edge.get_endpoint2() == Endpoint.ARROW) or \
-                (edge.get_endpoint1() == Endpoint.ARROW and edge.get_endpoint2() == Endpoint.TAIL):
-            edge.properties.append(Edge.Property.dd)
-            edge.properties.append(Edge.Property.nl)
+    edges = get_color_edges(graph)
 
     return graph, edges
 
