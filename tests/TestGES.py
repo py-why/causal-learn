@@ -105,7 +105,7 @@ class TestGES(unittest.TestCase):
             X = example_data['X']
             maxP = example_data['maxP']
             #X = X[:50, :]
-            Record = ges(X, 'local_score_BIC', maxP=maxP)
+            Record = ges(X, 'local_score_bic', maxP=maxP)
 
             print(Record)
 
@@ -114,7 +114,7 @@ class TestGES(unittest.TestCase):
     # and score function is BDeu score
     def test_single_BDeu(self):
         X = np.loadtxt('example_data5.txt')
-        Record = ges(X, 'local_score_BDeu', maxP=5)
+        Record = ges(X, 'local_score_bdeu', maxP=5)
         print(Record)
 
     # example7

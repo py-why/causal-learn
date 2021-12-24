@@ -1,11 +1,13 @@
+import warnings
 from queue import Queue
 from causallearn.graph.Edge import Edge
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.cit import fisherz
-from causallearn.utils.Fas import fas
+from causallearn.utils.cit import *
+from causallearn.utils.Fas import fas, citest_cache
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
+import numpy as np
 
 
 class SepsetsPossibleDsep():
@@ -18,6 +20,9 @@ class SepsetsPossibleDsep():
         self.depth = depth
         self.maxPathLength = maxPathLength
         self.verbose = verbose
+        self.data_hash_key = hash(self.data.tobytes())
+        self.ci_test_hash_key = hash(self.independence_test)
+
 
     def traverseSemiDirected(self, node, edge):
         if node == edge.get_node1():
@@ -187,7 +192,14 @@ class SepsetsPossibleDsep():
                 condSet = [self.graph.node_map[possParents[index]] for index in choice]
                 choice = cg.next()
 
-                p_value = self.independence_test(self.data, self.graph.node_map[node_1], self.graph.node_map[node_2], tuple(condSet))
+                X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
+                X, Y = (X, Y) if (X < Y) else (Y, X)
+                XYS_key = (X, Y, frozenset(condSet), self.data_hash_key, self.ci_test_hash_key)
+                if XYS_key in citest_cache:
+                    p_value = citest_cache[XYS_key]
+                else:
+                    p_value = self.independence_test(self.data, X, Y, tuple(condSet))
+                    citest_cache[XYS_key] = p_value
                 independent = p_value > self.alpha
 
                 if independent and noEdgeRequired:
@@ -427,13 +439,31 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
         raise Exception("illegal argument!")
     path = getPath(node_d, previous)
 
-    p_value = independence_test_method(data, graph.node_map[node_d], graph.node_map[node_c], tuple([graph.node_map[nn] for nn in path]))
+    X, Y = graph.node_map[node_d], graph.node_map[node_c]
+    X, Y = (X, Y) if (X < Y) else (Y, X)
+    condSet = tuple([graph.node_map[nn] for nn in path])
+    data_hash_key = hash(data.tobytes())
+    ci_test_hash_key = hash(independence_test_method)
+    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
+    if XYS_key in citest_cache:
+        p_value = citest_cache[XYS_key]
+    else:
+        p_value = independence_test_method(data, X, Y, condSet)
+        citest_cache[XYS_key] = p_value
     ind = p_value > alpha
 
     path2 = list(path)
     path2.remove(node_b)
 
-    p_value2 = independence_test_method(data, graph.node_map[node_d], graph.node_map[node_c], tuple([graph.node_map[nn2] for nn2 in path2]))
+    X, Y = graph.node_map[node_d], graph.node_map[node_c]
+    X, Y = (X, Y) if (X < Y) else (Y, X)
+    condSet = tuple([graph.node_map[nn2] for nn2 in path2])
+    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
+    if XYS_key in citest_cache:
+        p_value2 = citest_cache[XYS_key]
+    else:
+        p_value2 = independence_test_method(data, X, Y, condSet)
+        citest_cache[XYS_key] = p_value2
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:
@@ -559,9 +589,14 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
 
     Parameters
     ----------
-    dataset: data set (sample number, feature number) numpy ndarray
-    independence_test_method: the independence test method, which should be in causallearn.utils.cit
-    alpha: Significance level of independence tests(p_value)(min = 0.00)
+    dataset: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    independence_test_method: the function of the independence test being used
+            [fisherz, chisq, gsq, kci]
+           - fisherz: Fisher's Z conditional independence test
+           - chisq: Chi-squared conditional independence test
+           - gsq: G-squared conditional independence test
+           - kci: Kernel-based conditional independence test
+    alpha: Significance level of independence tests(p_value)([0,1])
     depth: The depth for the fast adjacency search, or -1 if unlimited
     max_path_length: the maximum length of any discriminating path, or -1 if unlimited.
     verbose: True is verbose output should be printed or logged
@@ -569,8 +604,20 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
 
     Returns
     -------
-    graph : Causal graph
+    graph : a CausalGraph object, where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j,
+                    cg.G.graph[j,i]=2 and cg.G.graph[i,j]=1 indicates  i o-> j.
     '''
+
+    if dataset.shape[0] < dataset.shape[1]:
+        warnings.warn("The number of features is much larger than the sample size!")
+
+    def _unique(column):
+        return np.unique(column, return_inverse=True)[1]
+
+    if independence_test_method == chisq or independence_test_method == gsq:
+        dataset = np.apply_along_axis(_unique, 0, dataset).astype(np.int64)
 
 
     ## ------- check parameters ------------
@@ -588,6 +635,7 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
         node.add_attribute("id", i)
         nodes.append(node)
 
+    # FAS (“Fast Adjacency Search”) is the adjacency search of the PC algorithm, used as a first step for the FCI algorithm.
     graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha, knowledge=background_knowledge, depth=depth, verbose=verbose)
 
     # reorient all edges with CIRCLE Endpoint

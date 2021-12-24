@@ -1,4 +1,5 @@
 import time
+import warnings
 from itertools import permutations, combinations
 
 import networkx as nx
@@ -7,34 +8,41 @@ import numpy as np
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
-from causallearn.utils.cit import fisherz, mc_fisherz
+from causallearn.utils.cit import *
 
 
-def pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False, correction_name='MV_Crtn_Fisher_Z',
-       background_knowledge=None):
+def pc(data, alpha=0.05, indep_test=fisherz, stable=True, uc_rule=0, uc_priority=2, mvpc=False, correction_name='MV_Crtn_Fisher_Z',
+       background_knowledge=None, verbose=False, show_progress=True):
+
+
+    if data.shape[0] < data.shape[1]:
+        warnings.warn("The number of features is much larger than the sample size!")
+
     if mvpc:
+        if indep_test == fisherz:
+            indep_test = mv_fisherz
         return mvpc_alg(data=data, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
-                        uc_rule=uc_rule, uc_priority=uc_priority)
+                        uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose, show_progress=show_progress)
     else:
         return pc_alg(data=data, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
-                      uc_priority=uc_priority, background_knowledge=background_knowledge)
+                      uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose, show_progress=show_progress)
 
 
-def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None):
+def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False, show_progress=True):
     '''
-    Perform Peter-Clark algorithm for causal discovery
+    Perform Peter-Clark (PC) algorithm for causal discovery
 
     Parameters
     ----------
-    data : data set (numpy ndarray)
-    alpha : desired significance level (float) in (0, 1)
-    indep_test : name of the independence test being used
+    data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    alpha :  desired significance level (float) in (0, 1)
+    indep_test : the function of the independence test being used
             [fisherz, chisq, gsq, mv_fisherz, kci]
-           - "Fisher_Z": Fisher's Z conditional independence test
-           - "Chi_sq": Chi-squared conditional independence test
-           - "G_sq": G-squared conditional independence test
-           - "MV_Fisher_Z": Missing-value Fishers'Z conditional independence test
-           - "kci": kernel-based conditional independence test
+           - fisherz: Fisher's Z conditional independence test
+           - chisq: Chi-squared conditional independence test
+           - gsq: G-squared conditional independence test
+           - mv_fisherz: Missing-value Fishers'Z conditional independence test
+           - kci: Kernel-based conditional independence test
     stable : run stabilized skeleton discovery if True (default = True)
     uc_rule : how unshielded colliders are oriented
            0: run uc_sepset
@@ -47,16 +55,22 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
            2. prioritize existing colliders
            3. prioritize stronger colliders
            4. prioritize stronger* colliers
+    background_knowledge : background knowledge
+    verbose : True iff verbose output should be printed.
+    show_progress : True iff the algorithm progress should be show in console.
 
     Returns
     -------
-    cg : a CausalGraph object
+    cg : a CausalGraph object, where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
     '''
 
     start = time.time()
-    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
-                                                background_knowledge=background_knowledge)
+    cg_1 = SkeletonDiscovery.skeleton_discovery_using_fas(data, alpha, indep_test, stable,
+                                                background_knowledge=background_knowledge, verbose=verbose,
+                                                show_progress=show_progress)
 
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_1, background_knowledge)
@@ -89,7 +103,7 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     return cg
 
 
-def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority):
+def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, verbose, show_progress):
     """
     :param data: data set (numpy ndarray)
     :param alpha: desired significance level (float) in (0, 1)
@@ -125,7 +139,7 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose, show_progress=show_progress)
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 

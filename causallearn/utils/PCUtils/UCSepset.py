@@ -18,10 +18,13 @@ def uc_sepset(cg, priority=3, background_knowledge=None):
            2. prioritize existing colliders
            3. prioritize stronger colliders
            4. prioritize stronger* colliers
+    background_knowledge : artificial background background_knowledge
 
     Returns
     -------
-    cg_new : a CausalGraph object
+    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     '''
 
     assert priority in [0, 1, 2, 3, 4]
@@ -148,10 +151,13 @@ def maxp(cg, priority=3, background_knowledge=None):
            2. prioritize existing colliders
            3. prioritize stronger colliders
            4. prioritize stronger* colliers
+    background_knowledge : artificial background background_knowledge
 
     Returns
     -------
-    cg_new : a CausalGraph object
+    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     '''
 
     assert priority in [0, 1, 2, 3, 4]
@@ -280,10 +286,13 @@ def definite_maxp(cg, alpha, priority=4, background_knowledge=None):
            2. prioritize existing colliders
            3. prioritize stronger colliders
            4. prioritize stronger* colliers
+    background_knowledge : artificial background background_knowledge
 
     Returns
     -------
-    cg_new : a CausalGraph object
+    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     '''
 
     assert 1 > alpha >= 0

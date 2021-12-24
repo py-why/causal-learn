@@ -15,7 +15,7 @@ from causallearn.utils.KCI.PolynomialKernel import PolynomialKernel
 class KCI_UInd(object):
     '''
     Python implementation of Kernel-based Conditional Independence (KCI) test. Unconditional version.
-    The official Matlab implementation can be found in http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
+    The original Matlab implementation can be found in http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
 
     References
     ----------
@@ -179,7 +179,7 @@ class KCI_UInd(object):
 class KCI_CInd(object):
     '''
     Python implementation of Kernel-based Conditional Independence (KCI) test. Conditional version.
-    The official Matlab implementation can be found in http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
+    The original Matlab implementation can be found in http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
 
     References
     ----------

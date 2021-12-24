@@ -8,7 +8,9 @@ def orient_by_background_knowledge(cg, background_knowledge):
 
     Parameters
     ----------
-    cg: CausalGraph
+    cg: a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     background_knowledge: artificial background background_knowledge
 
     Returns
