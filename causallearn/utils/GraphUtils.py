@@ -542,7 +542,7 @@ class GraphUtils:
         return graphviz_g
 
     @staticmethod
-    def to_pydot(G, title=""):
+    def to_pydot(G, edges=None, title=""):
         pydot_g = pydot.Dot(title, graph_type="digraph", fontsize=18)
         nodes = G.get_nodes()
         for i, node in enumerate(nodes):
@@ -561,17 +561,20 @@ class GraphUtils:
                 return 'odot'
             else:
                 raise NotImplementedError()
+        if edges is None:
+            edges = G.get_graph_edges()
 
-        for edge in G.get_graph_edges():
-            # if not edge:
-            #     continue
+        for edge in edges:
             node1 = edge.get_node1()
             node2 = edge.get_node2()
             node1_id = nodes.index(node1)
             node2_id = nodes.index(node2)
+            dot_edge = pydot.Edge(node1_id, node2_id, dir='both', arrowtail=get_g_arrow_type(edge.get_endpoint1()),
+                               arrowhead=get_g_arrow_type(edge.get_endpoint2()))
 
-            pydot_g.add_edge(
-                pydot.Edge(node1_id, node2_id, dir='both', arrowtail=get_g_arrow_type(edge.get_endpoint1()),
-                           arrowhead=get_g_arrow_type(edge.get_endpoint2())))
+            if Edge.Property.dd in edge.properties:
+                dot_edge.obj_dict["attributes"]["color"] = "green"
+
+            pydot_g.add_edge(dot_edge)
 
         return pydot_g
