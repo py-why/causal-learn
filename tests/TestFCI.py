@@ -27,9 +27,9 @@ class TestFCI(unittest.TestCase):
         X3 = X1 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         X4 = X2 * gen_coef() + X3 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         data = np.array([X1, X2, X3, X4]).T
-        G = fci(data, fisherz, 0.05, verbose=True)
-        pgv_g = GraphUtils.to_pgv(G)
-        pgv_g.draw('simple_test.png', prog='dot', format='png')
+        G, edges = fci(data, fisherz, 0.05, verbose=True)
+        pdy = GraphUtils.to_pydot(G)
+        pdy.write_png('simple_test.png')
 
         nodes = G.get_nodes()
         assert G.is_adjacent_to(nodes[0], nodes[1])
@@ -52,9 +52,9 @@ class TestFCI(unittest.TestCase):
         A = D * gen_coef() + T1 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         E = B * gen_coef() + T2 * gen_coef() + np.random.normal(loc=loc, scale=scale, size=sample_size)
         data = np.array([A, B, C, D, E, F, H]).T
-        G = fci(data, fisherz, 0.05, verbose=True)
-        pgv_g = GraphUtils.to_pgv(G)
-        pgv_g.draw('simple_test_2.png', prog='dot', format='png')
+        G, edges = fci(data, fisherz, 0.05, verbose=True)
+        pdy = GraphUtils.to_pydot(G)
+        pdy.write_png('simple_test_2.png')
         print(G)
 
     def test_fritl(self):
@@ -73,9 +73,9 @@ class TestFCI(unittest.TestCase):
                                                                                     size=sample_size)
         data = np.array([X1, X2, X3, X4, X5, X6, X7]).T
 
-        G = fci(data, fisherz, 0.05, verbose=True)
-        pgv_g = GraphUtils.to_pgv(G)
-        pgv_g.draw('fritl.png', prog='dot', format='png')
+        G, edges = fci(data, fisherz, 0.05, verbose=True)
+        pdy = GraphUtils.to_pydot(G)
+        pdy.write_png('fritl.png')
         print(G)
 
     def test_bnlearn_discrete_datasets(self):
@@ -90,13 +90,13 @@ class TestFCI(unittest.TestCase):
         for bname in benchmark_names:
             data = np.loadtxt(os.path.join(bnlearn_path, f'{bname}.txt'), skiprows=1)
             start = time.time()
-            G = fci(data, chisq, 0.05, verbose=False)
+            G, edges = fci(data, chisq, 0.05, verbose=False)
             end = time.time()
             print(f'{bname}, used {end - start:.5f}s\n\n\n')
 
     def test_large_continuous_dataset(self):
         data = np.loadtxt('./data_linear_10.txt', skiprows=1)
         start = time.time()
-        G = fci(data, fisherz, 0.05, verbose=False)
+        G, edges = fci(data, fisherz, 0.05, verbose=False)
         end = time.time()
         print(f'./data_linear_10, used {end - start:.5f}s\n\n\n')

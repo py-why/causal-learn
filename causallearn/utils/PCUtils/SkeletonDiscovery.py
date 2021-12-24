@@ -37,6 +37,7 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
     no_of_var = data.shape[1]
     cg = CausalGraph(no_of_var)
     cg.set_ind_test(indep_test)
+    cg.data_hash_key = hash(str(data))
     if indep_test == chisq or indep_test == gsq:
         # if dealing with discrete data, data is numpy.ndarray with n rows m columns,
         # for each column, translate the discrete values to int indexs starting from 0,
@@ -51,7 +52,6 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
         cg.cardinalities = np.max(cg.data, axis=0) + 1
     else:
         cg.data = data
-        cg.data_hash_key = hash(data.tobytes())
 
     depth = -1
     pbar = tqdm(total=no_of_var) if show_progress else None
@@ -147,6 +147,7 @@ def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, backgroun
     no_of_var = data.shape[1]
     cg = CausalGraph(no_of_var)
     cg.set_ind_test(indep_test)
+    cg.data_hash_key = hash(str(data))
     if indep_test == chisq or indep_test == gsq:
         # if dealing with discrete data, data is numpy.ndarray with n rows m columns,
         # for each column, translate the discrete values to int indexs starting from 0,
@@ -162,10 +163,14 @@ def skeleton_discovery_using_fas(data, alpha, indep_test, stable=True, backgroun
         cg.cardinalities = np.max(cg.data, axis=0) + 1
     else:
         cg.data = data
+        cg.cardinalities = None
 
-
+    cache_variables_map = {"data_hash_key": cg.data_hash_key,
+                          "ci_test_hash_key": cg.ci_test_hash_key,
+                          "cardinalities": cg.cardinalities}
     graph, sep_sets = fas(cg.data, cg.G.nodes, independence_test_method=indep_test, alpha=alpha,
-                          knowledge=background_knowledge, depth=-1, verbose=verbose, stable=stable, show_progress=show_progress)
+                          knowledge=background_knowledge, depth=-1, verbose=verbose, stable=stable,
+                          show_progress=show_progress, cache_variables_map=cache_variables_map)
 
     for (x, y) in sep_sets.keys():
         edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])

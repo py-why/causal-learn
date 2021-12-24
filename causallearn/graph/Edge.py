@@ -20,6 +20,7 @@ class Edge:
         pl = 4
 
     def __init__(self, node1, node2, end1, end2):
+        self.properties = []
 
         if node1 is None or node2 is None:
             raise TypeError('Nodes must not be of NoneType. node1 = ' + str(node1) + ' node2 = ' + str(node2))

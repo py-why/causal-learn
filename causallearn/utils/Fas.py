@@ -43,10 +43,20 @@ def forbiddenEdge(node_x, node_y, knowledge):
 
 
 def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
-                   verbose=False, knowledge=None, pbar=None):
+                   verbose=False, knowledge=None, pbar=None, cache_variables_map=None):
     empty = []
-    data_hash_key = hash(data.tobytes())
-    ci_test_hash_key = hash(independence_test_method)
+    if cache_variables_map is None:
+        data_hash_key = hash(str(data))
+        ci_test_hash_key = hash(independence_test_method)
+        if independence_test_method == chisq or independence_test_method == gsq:
+            cardinalities = np.max(data, axis=0) + 1
+        else:
+            cardinalities = None
+    else:
+        data_hash_key = cache_variables_map["data_hash_key"]
+        ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
+        cardinalities = cache_variables_map["cardinalities"]
+
     show_progress = not pbar is None
     if show_progress: pbar.reset()
     for i in range(len(nodes)):
@@ -60,7 +70,8 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
             if ijS_key in citest_cache:
                 p_value = citest_cache[ijS_key]
             else:
-                p_value = independence_test_method(data, i, j, tuple(empty))
+                p_value = independence_test_method(data, i, j, tuple(empty)) if cardinalities is None \
+                    else independence_test_method(data, i, j, tuple(empty), cardinalities)
                 citest_cache[ijS_key] = p_value
             independent = p_value > alpha
             no_edge_required = True if knowledge is None else \
@@ -78,11 +89,7 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
 
 
 def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
-                   verbose=False, knowledge=None, pbar=None):
-
-    data_hash_key = hash(data.tobytes())
-    ci_test_hash_key = hash(independence_test_method)
-
+                   verbose=False, knowledge=None, pbar=None, cache_variables_map=None):
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -104,7 +111,9 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
                     if XYS_key in citest_cache:
                         p_value = citest_cache[XYS_key]
                     else:
-                        p_value = independence_test_method(data, X, Y, tuple(cond_set))
+                        p_value = independence_test_method(data, X, Y, tuple(cond_set)) if cardinalities is None \
+                            else independence_test_method(data, X, Y, tuple(cond_set), cardinalities)
+
                         citest_cache[XYS_key] = p_value
 
                     independent = p_value > alpha
@@ -139,6 +148,18 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
                     return False
         return True
 
+    if cache_variables_map is None:
+        data_hash_key = hash(str(data))
+        ci_test_hash_key = hash(independence_test_method)
+        if independence_test_method == chisq or independence_test_method == gsq:
+            cardinalities = np.max(data, axis=0) + 1
+        else:
+            cardinalities = None
+    else:
+        data_hash_key = cache_variables_map["data_hash_key"]
+        ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
+        cardinalities = cache_variables_map["cardinalities"]
+
     count = 0
 
     adjacencies_completed = deepcopy(adjacencies)
@@ -165,11 +186,7 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
 
 
 def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
-                   verbose=False, knowledge=None, pbar=None):
-
-    data_hash_key = hash(data.tobytes())
-    ci_test_hash_key = hash(independence_test_method)
-
+                   verbose=False, knowledge=None, pbar=None, cache_variables_map=None):
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -191,7 +208,9 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
                     if XYS_key in citest_cache:
                         p_value = citest_cache[XYS_key]
                     else:
-                        p_value = independence_test_method(data, X, Y, tuple(cond_set))
+                        p_value = independence_test_method(data, X, Y, tuple(cond_set)) if cardinalities is None \
+                            else independence_test_method(data, X, Y, tuple(cond_set), cardinalities)
+
                         citest_cache[XYS_key] = p_value
 
                     independent = p_value > alpha
@@ -224,6 +243,18 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
                         return False
         return True
 
+    if cache_variables_map is None:
+        data_hash_key = hash(str(data))
+        ci_test_hash_key = hash(independence_test_method)
+        if independence_test_method == chisq or independence_test_method == gsq:
+            cardinalities = np.max(data, axis=0) + 1
+        else:
+            cardinalities = None
+    else:
+        data_hash_key = cache_variables_map["data_hash_key"]
+        ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
+        cardinalities = cache_variables_map["cardinalities"]
+
     count = 0
 
     show_progress = not pbar is None
@@ -248,7 +279,7 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
 
 
 def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=None, depth=-1,
-                verbose=False, stable=True, show_progress=True):
+                verbose=False, stable=True, show_progress=True, cache_variables_map=None):
     '''
     Implements the "fast adjacency search" used in several causal algorithm in this file. In the fast adjacency
     search, at a given stage of the search, an edge X*-*Y is removed from the graph if X _||_ Y | S, where S is a subset
@@ -274,6 +305,9 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     verbose: True is verbose output should be printed or logged
     stable: run stabilized skeleton discovery if True (default = True)
     show_progress: whether to use tqdm to show progress bar
+    cache_variables_map: This variable a map which contains the variables relate with cache. If it is not None,
+                            it should contain 'data_hash_key' 、'ci_test_hash_key' and 'cardinalities'.
+
     Returns
     -------
     graph: Causal graph skeleton, where cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j.
@@ -293,6 +327,21 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
     adjacencies = {node: set() for node in nodes}
     if depth is None or depth < 0:
         depth = 1000
+
+    def _unique(column):
+        return np.unique(column, return_inverse=True)[1]
+
+    if independence_test_method == chisq or independence_test_method == gsq:
+        data = np.apply_along_axis(_unique, 0, data).astype(np.int64)
+
+    if cache_variables_map is None:
+        if independence_test_method == chisq or independence_test_method == gsq:
+            cardinalities = np.max(data, axis=0) + 1
+        else:
+            cardinalities = None
+        cache_variables_map = {"data_hash_key": hash(str(data)),
+                               "ci_test_hash_key": hash(independence_test_method),
+                               "cardinalities": cardinalities}
     # ------- end initial variable ---------
     print('Starting Fast Adjacency Search.')
 
@@ -302,13 +351,15 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
         more = False
 
         if d == 0:
-            more = searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose, knowledge, pbar=pbar)
+            more = searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose,
+                                  knowledge, pbar=pbar, cache_variables_map=cache_variables_map)
         else:
             if stable:
-                more = searchAtDepth(data, d, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose, knowledge, pbar=pbar)
+                more = searchAtDepth(data, d, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose,
+                                     knowledge, pbar=pbar, cache_variables_map=cache_variables_map)
             else:
                 more = searchAtDepth_not_stable(data, d, nodes, adjacencies, sep_sets, independence_test_method, alpha,
-                                                verbose, knowledge, pbar=pbar)
+                                                verbose, knowledge, pbar=pbar, cache_variables_map=cache_variables_map)
         if not more:
             break
     if show_progress: pbar.close()
