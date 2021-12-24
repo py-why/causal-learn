@@ -69,9 +69,10 @@ class KCI_UInd(object):
 
         Returns
         _________
-        pvalue: p value
-        test_stat: test statistic
+        pvalue: p value (scalar)
+        test_stat: test statistic (scalar)
         '''
+        
         Kx, Ky = self.kernel_matrix(data_x, data_y)
         test_stat, Kxc, Kyc = self.HSIC_V_statistic(Kx, Ky)
         if self.approx:
