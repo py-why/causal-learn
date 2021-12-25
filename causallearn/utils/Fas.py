@@ -310,7 +310,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
 
     Returns
     -------
-    graph: Causal graph skeleton, where cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j.
+    graph: Causal graph skeleton, where cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j.
     sep_sets: separated sets of graph
     '''
 

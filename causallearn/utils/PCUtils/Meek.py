@@ -10,15 +10,15 @@ def meek(cg, background_knowledge=None):
 
     Parameters
     ----------
-    cg : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
-                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+    cg : a CausalGraph object. Where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     background_knowledge : artificial background background_knowledge
 
     Returns
     -------
-    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
-                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     '''
 
@@ -86,8 +86,8 @@ def definite_meek(cg, background_knowledge=None):
 
     Returns
     -------
-    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
-                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+    cg_new : a CausalGraph object. Where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
     '''
 

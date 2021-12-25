@@ -61,14 +61,14 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
 
     Returns
     -------
-    cg : a CausalGraph object, where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
-                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+    cg : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
     '''
 
     start = time.time()
-    cg_1 = SkeletonDiscovery.skeleton_discovery_using_fas(data, alpha, indep_test, stable,
+    cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose,
                                                 show_progress=show_progress)
 

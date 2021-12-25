@@ -3,9 +3,23 @@ from causallearn.graph.Graph import Graph
 
 
 class SHD:
+    '''
+    Compute the Structural Hamming Distance (SHD) between two graphs. In simple terms, this is the number of edge
+    insertions, deletions or flips in order to transform one graph to another graph.
+    '''
     __SHD = 0
 
     def __init__(self, truth: Graph, est: Graph):
+        '''
+        Compute and store the Structural Hamming Distance (SHD) between two graphs.
+
+        Parameters
+        ----------
+        truth : Graph
+            Truth graph.
+        est :
+            Estimated graph.
+        '''
         nodes = truth.get_nodes()
         nodes_name = [node.get_name() for node in nodes]
         self.__SHD = 0

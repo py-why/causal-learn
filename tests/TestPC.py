@@ -1,4 +1,5 @@
 import sys
+import time
 
 sys.path.append("")
 import unittest
@@ -7,13 +8,22 @@ from causallearn.search.ConstraintBased.PC import pc
 from causallearn.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
 
 
+def cal_SHD(targ_adj, pred_adj):
+    diff = np.abs(targ_adj - pred_adj)
+    diff = diff + diff.transpose()
+    diff[diff > 1] = 1
+    # Ignoring the double edges, only count them as one mistake.
+    # eg1. truth i->j, pred j->i
+    # eg2: truth i-x-j, pred i--j
+    return int(np.sum(diff) / 2)  # it must be int itself
+
 class TestPC(unittest.TestCase):
 
     # example1
     def test_pc_with_fisher_z(self):
         data_path = "data_linear_10.txt"
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
-        cg = pc(data, 0.05, fisherz, True, 0,
+        cg = pc(data, 0.05, fisherz, False, 0,
                 -1)  # Run PC and obtain the estimated graph (CausalGraph object)
 
         # visualization using pydot

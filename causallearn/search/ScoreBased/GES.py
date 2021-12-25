@@ -24,8 +24,8 @@ def ges(X, score_func='local_score_BIC', maxP=None, parameters=None):
 
     Returns
     -------
-    Record['G']: learned causal graph, where Record['G'].graph[j,i]=0 and Record['G'].graph[i,j]=1 indicates  i -> j ,
-                    Record['G'].graph[i,j] = Record['G'].graph[j,i] = -1 indicates i -- j.
+    Record['G']: learned causal graph, where Record['G'].graph[j,i]=1 and Record['G'].graph[i,j]=-1 indicates  i --> j ,
+                    Record['G'].graph[i,j] = Record['G'].graph[j,i] = -1 indicates i --- j.
     Record['update1']: each update (Insert operator) in the forward step
     Record['update2']: each update (Delete operator) in the backward step
     Record['G_step1']: learned graph at each step in the forward step

@@ -780,10 +780,10 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
 
     Returns
     -------
-    graph : a CausalGraph object, where cg.G.graph[j,i]=0 and cg.G.graph[i,j]=1 indicates  i -> j ,
-                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
+    graph : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j,
-                    cg.G.graph[j,i]=2 and cg.G.graph[i,j]=1 indicates  i o-> j.
+                    cg.G.graph[j,i]=1 and cg.G.graph[i,j]=2 indicates  i o-> j.
     edges : list
         Contains graph's edges information.
     '''
