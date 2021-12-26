@@ -1,9 +1,9 @@
-from math import sqrt, log
+from math import log, sqrt
 
 import numpy as np
-from scipy.stats import norm, chi2
+from scipy.stats import chi2, norm
 
-from causallearn.utils.KCI.KCI import KCI_UInd, KCI_CInd
+from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
 from causallearn.utils.PCUtils import Helper
 
 
@@ -183,10 +183,12 @@ def chisq(data, X, Y, conditioning_set, cardinalities=None):
     indexs = list(conditioning_set) + [X, Y]
     return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs])
 
+
 def gsq(data, X, Y, conditioning_set, cardinalities=None):
     if cardinalities is None: cardinalities = np.max(data, axis=0) + 1
     indexs = list(conditioning_set) + [X, Y]
     return chisq_or_gsq_test(data[:, indexs].T, cardinalities[indexs], G_sq=True)
+
 
 def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
     '''by Haoyue@12/18/2021
@@ -197,6 +199,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
     cardSXY: cardinalities of each row (each variable)
     G_sq: True if use G-sq, otherwise (False by default), use Chi_sq
     '''
+
     def _Fill2DCountTable(dataXY, cardXY):
         '''
         e.g. dataXY: the observed dataset contains 5 samples, on variable x and y they're
@@ -218,7 +221,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
         '''
         cardX, cardY = cardXY
         xyIndexed = dataXY[0] * cardY + dataXY[1]
-        xyJointCounts = np.bincount(xyIndexed, minlength=cardX*cardY).reshape(cardXY)
+        xyJointCounts = np.bincount(xyIndexed, minlength=cardX * cardY).reshape(cardXY)
         xMarginalCounts = np.sum(xyJointCounts, axis=1)
         yMarginalCounts = np.sum(xyJointCounts, axis=0)
         return xyJointCounts, xMarginalCounts, yMarginalCounts
@@ -231,7 +234,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
         cardCumProd[:-1] = np.cumprod(cardSXY[1:][::-1])[::-1]
         SxyIndexed = np.dot(cardCumProd[None], dataSXY)[0]
 
-        SxyJointCounts = np.bincount(SxyIndexed, minlength=cardS*cardX*cardY).reshape((cardS, cardX, cardY))
+        SxyJointCounts = np.bincount(SxyIndexed, minlength=cardS * cardX * cardY).reshape((cardS, cardX, cardY))
 
         SMarginalCounts = np.sum(SxyJointCounts, axis=(1, 2))
         SMarginalCountsNonZero = SMarginalCounts != 0
@@ -260,7 +263,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
         '''
         eTables_zero_inds = eTables == 0
         eTables_zero_to_one = np.copy(eTables)
-        eTables_zero_to_one[eTables_zero_inds] = 1 # for legal division
+        eTables_zero_to_one[eTables_zero_inds] = 1  # for legal division
 
         if G_sq == False:
             sum_of_chi_square = np.sum(((cTables - eTables) ** 2) / eTables_zero_to_one)
@@ -275,9 +278,9 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
         sum_of_df = np.sum((cTables.shape[1] - 1 - zero_counts_rows) * (cTables.shape[2] - 1 - zero_counts_cols))
         return 1 if sum_of_df == 0 else chi2.sf(sum_of_chi_square, sum_of_df)
 
-    if len(cardSXY) == 2: # S is empty
+    if len(cardSXY) == 2:  # S is empty
         xyJointCounts, xMarginalCounts, yMarginalCounts = _Fill2DCountTable(dataSXY, cardSXY)
-        xyExpectedCounts = np.outer(xMarginalCounts, yMarginalCounts) / dataSXY.shape[1] # divide by sample size
+        xyExpectedCounts = np.outer(xMarginalCounts, yMarginalCounts) / dataSXY.shape[1]  # divide by sample size
         return _CalculatePValue(xyJointCounts[None], xyExpectedCounts[None])
     # else, S is not empty: conditioning
     SxyJointCounts, SMarginalCounts, SxJointCounts, SyJointCounts = _Fill3DCountTable(dataSXY, cardSXY)
@@ -347,7 +350,8 @@ def chisq_or_gsq_test_notoptimized(data, X, Y, conditioning_set, G_sq=False):
         # e.g. S=(S0,S1), where S0 has categories {0,1}, S1 has {2,3}. But in combination,#
         ##### (S0,S1) only shows up with value pair (0,2), (0,3), (1,2) -> no (1,3). ######
         ########### otherwise #degree_of_freedom will add a spurious 1: (0-1)*(0-1) #######
-        if len(sub_data) == 0: continue   #################################################
+        if len(sub_data) == 0: continue  #################################################
+
         ###################################################################################
 
         # Step 2: Generate contingency table (applying Fienberg's method)
@@ -395,7 +399,6 @@ def cartesian_product(lists):
     for pool in lists:
         result = [x + [y] for x in result for y in pool]
     return result
-
 
 
 def get_index_mv_rows(mvdata):

@@ -1,20 +1,20 @@
 import time
 import warnings
-from itertools import permutations, combinations
+from itertools import combinations, permutations
 
 import networkx as nx
 import numpy as np
 
 from causallearn.graph.GraphClass import CausalGraph
-from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
-from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
 from causallearn.utils.cit import *
+from causallearn.utils.PCUtils import Helper, Meek, SkeletonDiscovery, UCSepset
+from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
+    orient_by_background_knowledge
 
 
-def pc(data, alpha=0.05, indep_test=fisherz, stable=True, uc_rule=0, uc_priority=2, mvpc=False, correction_name='MV_Crtn_Fisher_Z',
+def pc(data, alpha=0.05, indep_test=fisherz, stable=True, uc_rule=0, uc_priority=2, mvpc=False,
+       correction_name='MV_Crtn_Fisher_Z',
        background_knowledge=None, verbose=False, show_progress=True):
-
-
     if data.shape[0] < data.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
 
@@ -25,10 +25,12 @@ def pc(data, alpha=0.05, indep_test=fisherz, stable=True, uc_rule=0, uc_priority
                         uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose, show_progress=show_progress)
     else:
         return pc_alg(data=data, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
-                      uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose, show_progress=show_progress)
+                      uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose,
+                      show_progress=show_progress)
 
 
-def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False, show_progress=True):
+def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False,
+           show_progress=True):
     '''
     Perform Peter-Clark (PC) algorithm for causal discovery
 
@@ -139,7 +141,8 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose, show_progress=show_progress)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose,
+                                                  show_progress=show_progress)
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 

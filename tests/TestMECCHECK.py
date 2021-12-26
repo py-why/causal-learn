@@ -2,9 +2,11 @@ import sys
 
 sys.path.append("")
 import unittest
+
 from causallearn.graph.Dag import Dag
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.MECCheck import mec_check
+
 
 class TestMECCHECK(unittest.TestCase):
 

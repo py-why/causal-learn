@@ -562,6 +562,7 @@ class GraphUtils:
                 return 'odot'
             else:
                 raise NotImplementedError()
+
         if edges is None:
             edges = G.get_graph_edges()
 
@@ -571,7 +572,7 @@ class GraphUtils:
             node1_id = nodes.index(node1)
             node2_id = nodes.index(node2)
             dot_edge = pydot.Edge(node1_id, node2_id, dir='both', arrowtail=get_g_arrow_type(edge.get_endpoint1()),
-                               arrowhead=get_g_arrow_type(edge.get_endpoint2()))
+                                  arrowhead=get_g_arrow_type(edge.get_endpoint2()))
 
             if Edge.Property.dd in edge.properties:
                 dot_edge.obj_dict["attributes"]["color"] = "green3"

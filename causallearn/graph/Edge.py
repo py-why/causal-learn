@@ -4,7 +4,6 @@ from enum import Enum
 
 from causallearn.graph.Endpoint import Endpoint
 
-
 # Represents an edge node1 *-# node2 where * and # are endpoints of type
 # Endpoint--that is, Endpoint.TAIL, Endpoint.ARROW, or Endpoint.CIRCLE.
 #

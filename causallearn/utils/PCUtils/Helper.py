@@ -1,6 +1,6 @@
 import warnings
 from copy import deepcopy
-from itertools import combinations, chain, permutations
+from itertools import chain, combinations, permutations
 
 import matplotlib.pyplot as plt
 import networkx as nx

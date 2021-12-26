@@ -1,10 +1,13 @@
-import sys, os
+import os
+import sys
 # BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 # sys.path.append(BASE_DIR)
 import unittest
-from causallearn.utils.KCI.KCI import KCI_UInd, KCI_CInd
+
 import numpy as np
+
 import causallearn.utils.cit as cit
+from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
 
 
 class TestKCI(unittest.TestCase):
@@ -70,10 +73,10 @@ class TestCIT_KCI(unittest.TestCase):
         pvalue = cit.kci_ui(X, X1)
         print('X and X1 are independent, pvalue is {:.2f}'.format(pvalue))
 
-        pvalue= cit.kci_ui(X, Z)
+        pvalue = cit.kci_ui(X, Z)
         print('X and Z are dependent, pvalue is {:.2f}'.format(pvalue))
 
-        pvalue= cit.kci_ci(X, Z, Y)
+        pvalue = cit.kci_ci(X, Z, Y)
         print('X and Z are independent conditional on Y, pvalue is {:.2f}'.format(pvalue))
 
     def test_Polynomial(self):

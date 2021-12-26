@@ -1,7 +1,7 @@
+import io
 import warnings
 from itertools import permutations
 
-import io
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -41,7 +41,7 @@ class CausalGraph:
         self.labels = {}
         self.prt_m = {}  # store the parents of missingness indicators
         self.mvpc = None
-        self.cardinalities = None # only works when self.data is discrete, i.e. self.test is chisq or gsq
+        self.cardinalities = None  # only works when self.data is discrete, i.e. self.test is chisq or gsq
         self.is_discrete = False
         self.citest_cache = dict()
         self.data_hash_key = None
@@ -67,10 +67,9 @@ class CausalGraph:
             return self.citest_cache[ijS_key]
         # if discrete, assert self.test is chisq or gsq, pass into cardinalities
         pValue = self.test(self.data, i, j, S, self.cardinalities) if self.is_discrete \
-                    else self.test(self.data, i, j, S)
+            else self.test(self.data, i, j, S)
         self.citest_cache[ijS_key] = pValue
         return pValue
-
 
     def neighbors(self, i):
         """Find the neighbors of node i in adjmat"""
@@ -101,8 +100,8 @@ class CausalGraph:
     def find_bi_directed(self):
         """Return the list of bidirected edges i <-> j in adjmat as (i, j) [with symmetry]"""
         return [(edge[1], edge[0]) for edge in self.find_arrow_heads() if (
-                    self.G.graph[edge[1], edge[0]] == Endpoint.ARROW.value and self.G.graph[
-                edge[0], edge[1]] == Endpoint.ARROW.value)]
+                self.G.graph[edge[1], edge[0]] == Endpoint.ARROW.value and self.G.graph[
+            edge[0], edge[1]] == Endpoint.ARROW.value)]
 
     def find_adj(self):
         """Return the list of adjacencies i --- j in adjmat as (i, j) [with symmetry]"""
@@ -166,7 +165,7 @@ class CausalGraph:
     def to_nx_graph(self):
         """Convert adjmat into a networkx.Digraph object named nx_graph"""
         nodes = range(len(self.G.graph))
-        self.labels = {i:self.G.nodes[i].get_name() for i in nodes}
+        self.labels = {i: self.G.nodes[i].get_name() for i in nodes}
         self.nx_graph.add_nodes_from(nodes)
         undirected = self.find_undirected()
         directed = self.find_fully_directed()

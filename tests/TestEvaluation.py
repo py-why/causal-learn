@@ -2,15 +2,17 @@ import sys
 
 sys.path.append("")
 import unittest
+
 import numpy as np
 
 from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
 from causallearn.graph.ArrowConfusion import ArrowConfusion
 from causallearn.graph.SHD import SHD
-from causallearn.utils.cit import fisherz
-from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
-from causallearn.utils.DAG2CPDAG import dag2cpdag
 from causallearn.search.ConstraintBased.PC import pc
+from causallearn.utils.cit import fisherz
+from causallearn.utils.DAG2CPDAG import dag2cpdag
+from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
+
 
 class TestConfusion(unittest.TestCase):
     def test_confusion_case1(self):

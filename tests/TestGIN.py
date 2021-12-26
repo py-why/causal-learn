@@ -2,6 +2,7 @@ import sys
 
 sys.path.append("")
 import unittest
+
 import numpy as np
 
 from causallearn.search.HiddenCausal.GIN.GIN import GIN

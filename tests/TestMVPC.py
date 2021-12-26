@@ -2,16 +2,20 @@ import sys
 
 sys.path.append("")
 
-import pandas as pd
-import matplotlib.pyplot as plt
 import unittest
+
+import matplotlib.pyplot as plt
 import numpy as np
-from causallearn.search.ConstraintBased.PC import pc, pc_alg, mvpc_alg, get_adjacancy_matrix
-from causallearn.utils.cit import fisherz, chisq, gsq, mv_fisherz, kci
+import pandas as pd
+
+from causallearn.search.ConstraintBased.PC import (get_adjacancy_matrix,
+                                                   mvpc_alg, pc, pc_alg)
+from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz
 
 
 def load(filename):
     return pd.read_csv(filename, index_col=0).to_numpy()
+
 
 def matrix_diff(adj1, cg2):
     adj2 = get_adjacancy_matrix(cg2)
@@ -23,6 +27,7 @@ def matrix_diff(adj1, cg2):
                 diff_ls.append((i, j))
                 count += 1
     return count
+
 
 class TestMVPC(unittest.TestCase):
     def test_mar_syn(self):
@@ -119,17 +124,17 @@ class TestMVPC(unittest.TestCase):
         mdata[U > 0, 3] = np.nan
 
         cg_full = pc(data, 0.05, fisherz, True, 0,
-                              -1)  # Run PC and obtain the estimated graph (CausalGraph object)
+                     -1)  # Run PC and obtain the estimated graph (CausalGraph object)
         cg_full.to_nx_graph()
         cg_full.to_nx_skeleton()
 
         cg_mar = pc(mdata, 0.05, mv_fisherz, True, 0,
-                             -1)  # Run PC and obtain the estimated graph (CausalGraph object)
+                    -1)  # Run PC and obtain the estimated graph (CausalGraph object)
         cg_mar.to_nx_graph()
         cg_mar.to_nx_skeleton()
 
         mvpc_cg_mar = pc(mdata, 0.05, mv_fisherz, True, 0,
-                                    -1, True)  # Run PC and obtain the estimated graph (CausalGraph object)
+                         -1, True)  # Run PC and obtain the estimated graph (CausalGraph object)
         mvpc_cg_mar.to_nx_graph()
         mvpc_cg_mar.to_nx_skeleton()
         plt.subplot(1, 3, 1)
@@ -142,5 +147,3 @@ class TestMVPC(unittest.TestCase):
         plt.title('test-wise MVPC')
         mvpc_cg_mar.draw_nx_graph(skel=False)  # Draw the estimated graph (or its skeleton)
         plt.show()
-
-

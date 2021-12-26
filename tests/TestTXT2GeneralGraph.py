@@ -2,8 +2,8 @@ import sys
 
 sys.path.append("")
 import unittest
-from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
 
+from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
 
 
 class TestTXT2GeneralGraph(unittest.TestCase):

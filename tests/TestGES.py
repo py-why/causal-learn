@@ -1,11 +1,15 @@
 import sys
+
 from causallearn.score.LocalScoreFunction import local_score_bdeu
+
 sys.path.append("")
 import unittest
-from pickle import load
-import numpy as np
-from causallearn.search.ScoreBased.GES import ges
 import warnings
+from pickle import load
+
+import numpy as np
+
+from causallearn.search.ScoreBased.GES import ges
 
 
 class TestGES(unittest.TestCase):
@@ -104,7 +108,7 @@ class TestGES(unittest.TestCase):
             example_data = load(example_data)
             X = example_data['X']
             maxP = example_data['maxP']
-            #X = X[:50, :]
+            # X = X[:50, :]
             Record = ges(X, 'local_score_bic', maxP=maxP)
 
             print(Record)
@@ -122,7 +126,7 @@ class TestGES(unittest.TestCase):
         X = np.loadtxt('example_data6.txt').T
         X = np.mat(X)
         parameters = {'sample_prior': 1,  # default ess = 1
-                      'structure_prior':1,
+                      'structure_prior': 1,
                       'r_i_map': {i: len(np.unique(np.asarray(X[:, i]))) for i in range(X.shape[1])}}
 
         score = local_score_bdeu(X, 20, [24], parameters)

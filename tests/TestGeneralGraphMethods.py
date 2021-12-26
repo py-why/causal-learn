@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import unittest
-from causallearn.graph.GeneralGraph import GeneralGraph
-from causallearn.graph.GraphNode import GraphNode
+
+import numpy as np
+
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
-import numpy as np
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
+
 
 class TestGeneralGraphMethods(unittest.TestCase):
 

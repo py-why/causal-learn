@@ -1,12 +1,15 @@
 import unittest
+
 import numpy as np
+
 from causallearn.graph.GraphClass import CausalGraph
+from causallearn.graph.GraphNode import GraphNode
 from causallearn.search.ConstraintBased.PC import pc
+from causallearn.utils.cit import fisherz
 from causallearn.utils.PCUtils import SkeletonDiscovery
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
-from causallearn.graph.GraphNode import GraphNode
-from causallearn.utils.cit import fisherz
+from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
+    orient_by_background_knowledge
 
 
 class TestPC(unittest.TestCase):
@@ -98,10 +101,10 @@ class TestPC(unittest.TestCase):
         assert cg.G.is_undirected_from_to(nodes[1], nodes[2])
         assert cg.G.is_undirected_from_to(nodes[3], nodes[1])
 
-        bk = BackgroundKnowledge()\
-            .add_forbidden_by_node(nodes[0], nodes[1])\
-            .add_forbidden_by_node(nodes[2], nodes[0])\
-            .add_required_by_node(nodes[1], nodes[2])\
+        bk = BackgroundKnowledge() \
+            .add_forbidden_by_node(nodes[0], nodes[1]) \
+            .add_forbidden_by_node(nodes[2], nodes[0]) \
+            .add_required_by_node(nodes[1], nodes[2]) \
             .add_required_by_node(nodes[3], nodes[1])
 
         orient_by_background_knowledge(cg, bk)
@@ -117,8 +120,8 @@ class TestPC(unittest.TestCase):
         cg_1 = SkeletonDiscovery.skeleton_discovery(data, 0.05, fisherz, True, background_knowledge=None)
         assert cg_1.G.is_undirected_from_to(cg_1.G.nodes[0], cg_1.G.nodes[3])
 
-        bk = BackgroundKnowledge()\
-            .add_forbidden_by_node(cg_1.G.nodes[0], cg_1.G.nodes[3])\
+        bk = BackgroundKnowledge() \
+            .add_forbidden_by_node(cg_1.G.nodes[0], cg_1.G.nodes[3]) \
             .add_forbidden_by_node(cg_1.G.nodes[3], cg_1.G.nodes[0])
         cg_1 = SkeletonDiscovery.skeleton_discovery(data, 0.05, fisherz, True, background_knowledge=bk)
         assert cg_1.G.get_edge(cg_1.G.nodes[0], cg_1.G.nodes[3]) is None
@@ -126,18 +129,18 @@ class TestPC(unittest.TestCase):
     def test_pc_with_background_knowledge(self):
         data_path = "data_linear_10.txt"
         data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
-        cg_without_background_knowledge = pc(data, 0.05, fisherz, True, 0, 0)  # Run PC and obtain the estimated graph (CausalGraph object)
+        cg_without_background_knowledge = pc(data, 0.05, fisherz, True, 0,
+                                             0)  # Run PC and obtain the estimated graph (CausalGraph object)
         nodes = cg_without_background_knowledge.G.get_nodes()
 
         assert cg_without_background_knowledge.G.is_directed_from_to(nodes[2], nodes[8])
         assert cg_without_background_knowledge.G.is_undirected_from_to(nodes[7], nodes[17])
 
-        bk = BackgroundKnowledge()\
-            .add_forbidden_by_node(nodes[2], nodes[8])\
-            .add_forbidden_by_node(nodes[8], nodes[2])\
+        bk = BackgroundKnowledge() \
+            .add_forbidden_by_node(nodes[2], nodes[8]) \
+            .add_forbidden_by_node(nodes[8], nodes[2]) \
             .add_required_by_node(nodes[7], nodes[17])
         cg_with_background_knowledge = pc(data, 0.05, fisherz, True, 0, 0, background_knowledge=bk)
 
         assert cg_with_background_knowledge.G.get_edge(nodes[2], nodes[8]) is None
         assert cg_with_background_knowledge.G.is_directed_from_to(nodes[7], nodes[17])
-
