@@ -18,7 +18,7 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
     ----------
     data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of
             samples and n_features is the number of features.
-    alpha: desired significance level in (0, 1) (float)
+    alpha: float, desired significance level of independence tests (p_value) in (0,1)
     indep_test : the function of the independence test being used
             [fisherz, chisq, gsq, mv_fisherz, kci]
            - fisherz: Fisher's Z conditional independence test
@@ -27,6 +27,9 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
            - mv_fisherz: Missing-value Fishers'Z conditional independence test
            - kci: Kernel-based conditional independence test
     stable : run stabilized skeleton discovery if True (default = True)
+    background_knowledge : background knowledge
+    verbose : True iff verbose output should be printed.
+    show_progress : True iff the algorithm progress should be show in console.
 
     Returns
     -------

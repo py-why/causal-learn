@@ -7,7 +7,7 @@ from causallearn.utils.ScoreUtils import *
 
 def local_score_BIC(Data, i, PAi, parameters=None):
     '''
-    Calculate the *negative* local score with BIC for the linear Gaussian case
+    Calculate the *negative* local score with BIC for the linear Gaussian continue data case
 
     Parameters
     ----------

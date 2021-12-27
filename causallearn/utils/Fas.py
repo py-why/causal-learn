@@ -294,7 +294,8 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
 
     Parameters
     ----------
-    data: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    data: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of
+            samples and n_features is the number of features.
     nodes: The search nodes.
     independence_test_method: the function of the independence test being used
             [fisherz, chisq, gsq, kci]
@@ -302,9 +303,9 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
            - chisq: Chi-squared conditional independence test
            - gsq: G-squared conditional independence test
            - kci: Kernel-based conditional independence test
-    alpha: Significance level of independence tests(p_value)(min = 0.00)
+    alpha: float, desired significance level of independence tests (p_value) in (0,1)
     knowledge: background background_knowledge
-    depth: The depth for the fast adjacency search, or -1 if unlimited
+    depth: the depth for the fast adjacency search, or -1 if unlimited
     verbose: True is verbose output should be printed or logged
     stable: run stabilized skeleton discovery if True (default = True)
     show_progress: whether to use tqdm to show progress bar
@@ -313,7 +314,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
 
     Returns
     -------
-    graph: Causal graph skeleton, where cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j.
+    graph: Causal graph skeleton, where graph.graph[i,j] = graph.graph[j,i] = -1 indicates i --- j.
     sep_sets: separated sets of graph
     '''
 

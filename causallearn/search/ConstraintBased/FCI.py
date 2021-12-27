@@ -742,14 +742,14 @@ def get_color_edges(graph):
             graph.remove_edge(edge)
 
             if not existsSemiDirectedPath(node_x, node_y, -1, graph):
-                edge.properties.append(Edge.Property.dd)
+                edge.properties.append(Edge.Property.dd)  # green
             else:
                 edge.properties.append(Edge.Property.pd)
 
             graph.add_edge(edge)
 
             if defVisible(edge, graph):
-                edge.properties.append(Edge.Property.nl)
+                edge.properties.append(Edge.Property.nl)  # bold
                 print(edge)
             else:
                 edge.properties.append(Edge.Property.pl)
@@ -759,18 +759,19 @@ def get_color_edges(graph):
 def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_path_length=-1,
         verbose=False, background_knowledge=None, cache_variables_map=None):
     '''
-    Causal Discovery with Fast Causal Inference
+    Perform Fast Causal Inference (FCI) algorithm for causal discovery
 
     Parameters
     ----------
-    dataset: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    dataset: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of
+            samples and n_features is the number of features.
     independence_test_method: the function of the independence test being used
             [fisherz, chisq, gsq, kci]
            - fisherz: Fisher's Z conditional independence test
            - chisq: Chi-squared conditional independence test
            - gsq: G-squared conditional independence test
            - kci: Kernel-based conditional independence test
-    alpha: Significance level of independence tests(p_value)([0,1])
+    alpha: float, desired significance level of independence tests (p_value) in (0,1)
     depth: The depth for the fast adjacency search, or -1 if unlimited
     max_path_length: the maximum length of any discriminating path, or -1 if unlimited.
     verbose: True is verbose output should be printed or logged
@@ -780,12 +781,16 @@ def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_pat
 
     Returns
     -------
-    graph : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j ,
-                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
-                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j,
-                    cg.G.graph[j,i]=1 and cg.G.graph[i,j]=2 indicates  i o-> j.
+    graph : a CausalGraph object, where graph.graph[j,i]=1 and graph.graph[i,j]=-1 indicates  i --> j ,
+                    graph.graph[i,j] = graph.graph[j,i] = -1 indicates i --- j,
+                    graph.graph[i,j] = graph.graph[j,i] = 1 indicates i <-> j,
+                    graph.graph[j,i]=1 and graph.graph[i,j]=2 indicates  i o-> j.
     edges : list
-        Contains graph's edges information.
+        Contains graph's edges properties.
+        If an edge.properties have the Property dd, then it means there is no latent confounder. Otherwise,
+            there is possibly latent confounder.
+        If an edge.properties have the Property nl, then it is definitely direct. Otherwise,
+            it is possibly direct.
     '''
 
     if dataset.shape[0] < dataset.shape[1]:

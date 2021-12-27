@@ -102,14 +102,10 @@ class TestFCI(unittest.TestCase):
         bnlearn_path = './TestData/bnlearn_discrete_10000'
         for bname in benchmark_names:
             data = np.loadtxt(os.path.join(bnlearn_path, f'{bname}.txt'), skiprows=1)
-            start = time.time()
             G, edges = fci(data, chisq, 0.05, verbose=False)
-            end = time.time()
-            print(f'{bname}, used {end - start:.5f}s\n\n\n')
+            print('finish')
 
     def test_continuous_dataset(self):
         data = np.loadtxt('./data_linear_10.txt', skiprows=1)
-        start = time.time()
         G, edges = fci(data, fisherz, 0.05, verbose=False)
-        end = time.time()
-        print(f'./data_linear_10, used {end - start:.5f}s\n\n\n')
+        print('finish')
