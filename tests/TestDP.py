@@ -1,9 +1,13 @@
-from causallearn.search.ScoreBased.ExactSearch import bic_exact_search
 import sys
+
+from causallearn.search.ScoreBased.ExactSearch import bic_exact_search
+
 sys.path.append("")
 import unittest
 from pickle import load
+
 import numpy as np
+
 
 class TestDP(unittest.TestCase):
     # example3
@@ -19,7 +23,6 @@ class TestDP(unittest.TestCase):
             dag_est, search_stats = bic_exact_search(X, search_method='dp')
             print(dag_est)
             print(search_stats)
-
 
     # example4
     # for data with multi-variate dimensions, dp.

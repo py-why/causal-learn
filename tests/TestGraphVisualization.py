@@ -2,25 +2,26 @@ import sys
 
 sys.path.append("")
 
+import io
 import unittest
+from itertools import product
+
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import io
-from itertools import product
 
 from causallearn.graph.Dag import Dag
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
-from causallearn.utils.GraphUtils import GraphUtils
-from causallearn.utils.DAG2PAG import dag2pag
 from causallearn.search.ConstraintBased.PC import pc
 from causallearn.search.Granger.Granger import Granger
 from causallearn.utils.cit import fisherz
+from causallearn.utils.DAG2PAG import dag2pag
+from causallearn.utils.GraphUtils import GraphUtils
 from causallearn.utils.TimeseriesVisualization import plot_time_series
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
 
 
 class testGraphVisualization(unittest.TestCase):

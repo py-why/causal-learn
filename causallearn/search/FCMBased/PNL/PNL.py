@@ -3,13 +3,15 @@ import sys
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
+import math
+
 import numpy as np
 import torch
+import torch.autograd as autograd
 import torch.nn as nn
 import torch.nn.functional as F
-import math
+
 from causallearn.utils.KCI.KCI import KCI_UInd
-import torch.autograd as autograd
 
 
 class MLP(nn.Module):

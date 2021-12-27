@@ -11,7 +11,6 @@ from scipy.stats import scoreatpercentile as sap
 
 from causallearn.search.FCMBased.lingam import hsic2
 
-
 # Usage
 #
 # execute(X, alpha, num_explanatory_vals) is the method to infer causal graphs.

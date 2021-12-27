@@ -1,17 +1,20 @@
 import warnings
 from queue import Queue
-from causallearn.graph.Edge import Edge
-from causallearn.graph.GraphNode import GraphNode
-from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.cit import *
-from causallearn.utils.Fas import fas, citest_cache
-from causallearn.graph.Endpoint import Endpoint
-from causallearn.utils.ChoiceGenerator import ChoiceGenerator
+
 import numpy as np
+
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.utils.ChoiceGenerator import ChoiceGenerator
+from causallearn.utils.cit import *
+from causallearn.utils.Fas import citest_cache, fas
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 
 class SepsetsPossibleDsep():
-    def __init__(self, data, graph, independence_test, alpha, knowledge, depth, maxPathLength, verbose, cache_variables_map=None):
+    def __init__(self, data, graph, independence_test, alpha, knowledge, depth, maxPathLength, verbose,
+                 cache_variables_map=None):
 
         def _unique(column):
             return np.unique(column, return_inverse=True)[1]
@@ -40,7 +43,6 @@ class SepsetsPossibleDsep():
         self.data_hash_key = cache_variables_map["data_hash_key"]
         self.ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
         self.cardinalities = cache_variables_map["cardinalities"]
-
 
     def traverseSemiDirected(self, node, edge):
         if node == edge.get_node1():
@@ -91,7 +93,6 @@ class SepsetsPossibleDsep():
                 if self.existOnePathWithPossibleParents(previous, node_r, node_x, node_b, graph):
                     return True
         return False
-
 
     def getPossibleDsep(self, node_x, node_y, maxPathLength):
         dsep = set()
@@ -148,9 +149,9 @@ class SepsetsPossibleDsep():
                 # isDefCollider
                 edge1 = self.graph.get_edge(node_a, node_b)
                 edge2 = self.graph.get_edge(node_b, node_c)
-                isDefCollider =  not (edge1 is None or edge2 is None) and \
-                        edge1.get_proximal_endpoint(node_b) == Endpoint.ARROW and \
-                        edge2.get_proximal_endpoint(node_b) == Endpoint.ARROW
+                isDefCollider = not (edge1 is None or edge2 is None) and \
+                                edge1.get_proximal_endpoint(node_b) == Endpoint.ARROW and \
+                                edge2.get_proximal_endpoint(node_b) == Endpoint.ARROW
 
                 if isDefCollider or self.graph.is_adjacent_to(node_a, node_c):
                     u = (node_a, node_c)
@@ -177,10 +178,8 @@ class SepsetsPossibleDsep():
 
         return dsep
 
-
     def possibleParentOf(self, node_z, node_x, bk):
-        return True if bk is None else not(bk.is_forbidden(node_z, node_x) or bk.is_required(node_x, node_z))
-
+        return True if bk is None else not (bk.is_forbidden(node_z, node_x) or bk.is_required(node_x, node_z))
 
     def possibleParents(self, node_x, nodes, knowledge):
         possibleParents = list()
@@ -188,7 +187,6 @@ class SepsetsPossibleDsep():
             if self.possibleParentOf(node_z, node_x, knowledge):
                 possibleParents.append(node_z)
         return possibleParents
-
 
     def get_cond_set(self, node_1, node_2, max_path_length):
         possibleDsepSet = self.getPossibleDsep(node_1, node_2, max_path_length)
@@ -217,7 +215,7 @@ class SepsetsPossibleDsep():
                     p_value = citest_cache[XYS_key]
                 else:
                     p_value = self.independence_test(self.data, X, Y, tuple(condSet)) if self.cardinalities is None \
-                            else self.independence_test(self.data, X, Y, tuple(condSet), self.cardinalities)
+                        else self.independence_test(self.data, X, Y, tuple(condSet), self.cardinalities)
 
                     citest_cache[XYS_key] = p_value
                 independent = p_value > self.alpha
@@ -229,7 +227,6 @@ class SepsetsPossibleDsep():
             if flag:
                 return possible_sep_set
         return None
-
 
     def get_sep_set(self, node_i, node_k):
         condSet = self.get_cond_set(node_i, node_k, self.maxPathLength)
@@ -276,6 +273,7 @@ def is_arrow_point_allowed(node_x, node_y, graph, knowledge):
             return True
     return graph.get_endpoint(node_x, node_y) == Endpoint.CIRCLE
 
+
 def rule0(graph, nodes, sep_sets, knowledge, verbose):
     reorientAllWith(graph, Endpoint.CIRCLE)
     fci_orient_bk(knowledge, graph)
@@ -314,6 +312,7 @@ def rule0(graph, nodes, sep_sets, knowledge, verbose):
                 if verbose:
                     print(
                         "Orienting collider: " + node_a.get_name() + " *-> " + node_b.get_name() + " <-* " + node_c.get_name())
+
 
 def reorientAllWith(graph, endpoint):
     # reorient all edges with CIRCLE Endpoint
@@ -453,10 +452,8 @@ def getPath(node_c, previous):
     return l
 
 
-
 def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, independence_test_method, alpha, sep_sets,
                      changeFlag, bk, cache_variables_map, verbose=False):
-
     if graph.is_adjacent_to(node_d, node_c):
         raise Exception("illegal argument!")
     path = getPath(node_d, previous)
@@ -474,7 +471,7 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
         p_value = citest_cache[XYS_key]
     else:
         p_value = independence_test_method(data, X, Y, condSet) if cardinalities is None \
-                            else independence_test_method(data, X, Y, condSet, cardinalities)
+            else independence_test_method(data, X, Y, condSet, cardinalities)
 
         citest_cache[XYS_key] = p_value
     ind = p_value > alpha
@@ -490,7 +487,7 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
         p_value2 = citest_cache[XYS_key]
     else:
         p_value2 = independence_test_method(data, X, Y, condSet) if cardinalities is None \
-                            else independence_test_method(data, X, Y, condSet, cardinalities)
+            else independence_test_method(data, X, Y, condSet, cardinalities)
 
         citest_cache[XYS_key] = p_value2
     ind2 = p_value2 > alpha
@@ -507,7 +504,8 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
 
         if sep_set is None:
             if verbose:
-                print("Must be a sepset: " + node_d.get_name() + " and " + node_c.get_name() + "; they're non-adjacent.")
+                print(
+                    "Must be a sepset: " + node_d.get_name() + " and " + node_c.get_name() + "; they're non-adjacent.")
             return False, changeFlag
 
         ind = sep_set.__contains__(graph.node_map[node_b])
@@ -518,7 +516,9 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
         graph.add_edge(Edge(node_c, node_b, edge.get_proximal_endpoint(node_c), Endpoint.TAIL))
 
         if verbose:
-            print("Orienting edge (Definite discriminating path d = " + node_d.get_name() + "): " + graph.get_edge(node_b, node_c).__str__())
+            print(
+                "Orienting edge (Definite discriminating path d = " + node_d.get_name() + "): " + graph.get_edge(node_b,
+                                                                                                                 node_c).__str__())
 
         changeFlag = True
         return True, changeFlag
@@ -538,7 +538,8 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
         graph.add_edge(Edge(node_c, node_b, edge2.get_proximal_endpoint(node_c), Endpoint.ARROW))
 
         if verbose:
-            print("Orienting collider (Definite discriminating path.. d = " + node_d.get_name() + "): " + node_a.get_name() + " *-> " + node_b.get_name() + " <-* " + node_c.get_name())
+            print(
+                "Orienting collider (Definite discriminating path.. d = " + node_d.get_name() + "): " + node_a.get_name() + " *-> " + node_b.get_name() + " <-* " + node_c.get_name())
 
         changeFlag = True
         return True, changeFlag
@@ -598,7 +599,6 @@ def ddpOrient(node_a, node_b, node_c, graph, maxPathLength, data, independence_t
 
 def ruleR4B(graph, maxPathLength, data, independence_test_method, alpha, sep_sets, changeFlag, bk, cache_variables_map,
             verbose=False):
-
     nodes = graph.get_nodes()
 
     for node_b in nodes:
@@ -756,7 +756,7 @@ def get_color_edges(graph):
     return edges
 
 
-def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_path_length=-1,
+def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_path_length=-1,
         verbose=False, background_knowledge=None, cache_variables_map=None):
     '''
     Causal Discovery with Fast Causal Inference
@@ -796,7 +796,6 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
 
     if independence_test_method == chisq or independence_test_method == gsq:
         dataset = np.apply_along_axis(_unique, 0, dataset).astype(np.int64)
-
 
     ## ------- check parameters ------------
     if (depth is None) or type(depth) != int:
@@ -891,4 +890,3 @@ def fci(dataset, independence_test_method = fisherz, alpha=0.05, depth=-1, max_p
     edges = get_color_edges(graph)
 
     return graph, edges
-

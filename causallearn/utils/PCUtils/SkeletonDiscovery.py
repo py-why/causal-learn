@@ -1,13 +1,16 @@
 from itertools import combinations
-from causallearn.utils.Fas import fas
-import numpy as np
-from causallearn.graph.GraphClass import CausalGraph
-from causallearn.utils.PCUtils.Helper import append_value
-from causallearn.utils.cit import chisq, gsq
-from tqdm.auto import tqdm
-from causallearn.utils.Fas import citest_cache
 
-def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False, show_progress=True):
+import numpy as np
+from tqdm.auto import tqdm
+
+from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.cit import chisq, gsq
+from causallearn.utils.Fas import citest_cache, fas
+from causallearn.utils.PCUtils.Helper import append_value
+
+
+def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False,
+                       show_progress=True):
     '''
     Perform skeleton discovery
 
@@ -49,6 +52,7 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
         # but here we make sure it's in indexed form, so allow more user input e.g. 'apple' ..
         def _unique(column):
             return np.unique(column, return_inverse=True)[1]
+
         cg.is_discrete = True
         cg.data = np.apply_along_axis(_unique, 0, data).astype(np.int64)
         cg.cardinalities = np.max(cg.data, axis=0) + 1

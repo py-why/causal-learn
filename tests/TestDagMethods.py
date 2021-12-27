@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import unittest
+
+import numpy as np
+
 from causallearn.graph.Dag import Dag
-from causallearn.graph.GraphNode import GraphNode
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
-import numpy as np
+from causallearn.graph.GraphNode import GraphNode
+
 
 class TestDagMethods(unittest.TestCase):
 
@@ -920,7 +923,8 @@ class TestDagMethods(unittest.TestCase):
         dag.add_edge(edge2)
         dag.add_edge(edge3)
 
-        self.assertTrue(dag.exists_trek(node1, node4    ))
+        self.assertTrue(dag.exists_trek(node1, node4))
+
 
 if __name__ == '__main__':
     unittest.main()

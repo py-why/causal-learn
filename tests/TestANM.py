@@ -1,12 +1,16 @@
-import sys, os
+import os
+import sys
+
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
-from causallearn.search.FCMBased.ANM.ANM import ANM
 import sys
-import pandas as pd
 import unittest
 from pickle import load
+
 import numpy as np
+import pandas as pd
+
+from causallearn.search.FCMBased.ANM.ANM import ANM
 
 
 class TestANM(unittest.TestCase):
@@ -18,7 +22,7 @@ class TestANM(unittest.TestCase):
         dataset = df.to_numpy()
         anm = ANM()
         n = dataset.shape[0]
-        p_value_foward, p_value_backward = anm.cause_or_effect(dataset[:,0].reshape(n,1), dataset[:,1].reshape(n,1))
+        p_value_foward, p_value_backward = anm.cause_or_effect(dataset[:, 0].reshape(n, 1), dataset[:, 1].reshape(n, 1))
         print('pvalue for x->y is {:.4f}'.format(p_value_foward))
         print('pvalue for y->x is {:.4f}'.format(p_value_backward))
 

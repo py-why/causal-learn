@@ -1,10 +1,12 @@
-from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.cit import *
-from causallearn.graph.GeneralGraph import GeneralGraph
-from causallearn.graph.Edges import Edges
-from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 from copy import deepcopy
+
 from tqdm.auto import tqdm
+
+from causallearn.graph.Edges import Edges
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.utils.ChoiceGenerator import ChoiceGenerator
+from causallearn.utils.cit import *
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 citest_cache = dict()
 
@@ -37,7 +39,8 @@ def forbiddenEdge(node_x, node_y, knowledge):
     if knowledge is None:
         return False
     elif knowledge.is_forbidden(node_x, node_y) and knowledge.is_forbidden(node_y, node_x):
-        print(node_x.get_name() + " --- " + node_y.get_name() + " because it was forbidden by background background_knowledge.")
+        print(
+            node_x.get_name() + " --- " + node_y.get_name() + " because it was forbidden by background background_knowledge.")
         return True
     return False
 
@@ -62,10 +65,10 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
     for i in range(len(nodes)):
         if show_progress: pbar.update()
         if show_progress: pbar.set_description(f'Depth=0, working on node {i}')
-        if verbose and (i+1) % 100 == 0:
+        if verbose and (i + 1) % 100 == 0:
             print(nodes[i + 1].get_name())
 
-        for j in range(i+1, len(nodes)):
+        for j in range(i + 1, len(nodes)):
             ijS_key = (i, j, frozenset(), data_hash_key, ci_test_hash_key)
             if ijS_key in citest_cache:
                 p_value = citest_cache[ijS_key]
@@ -89,7 +92,7 @@ def searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method=
 
 
 def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
-                   verbose=False, knowledge=None, pbar=None, cache_variables_map=None):
+                  verbose=False, knowledge=None, pbar=None, cache_variables_map=None):
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -136,7 +139,8 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
                                 sep_sets[(i, nodes.index(adjx[j]))] = set(cond_set)
 
                         if verbose:
-                            message = "Independence accepted: " + nodes[i].get_name() + " _||_ " + adjx[j].get_name() + " | "
+                            message = "Independence accepted: " + nodes[i].get_name() + " _||_ " + adjx[
+                                j].get_name() + " | "
                             for cond_set_index in range(len(cond_set)):
                                 message += nodes[cond_set[cond_set_index]].get_name()
                                 if cond_set_index != len(cond_set) - 1:
@@ -177,7 +181,6 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
         adjx = list(adjacencies[nodes[i]])
         finish_flag = False
         while not finish_flag:
-
             finish_flag = edge(adjx, i, adjacencies_completed)
 
             adjx = list(adjacencies[nodes[i]])
@@ -186,7 +189,7 @@ def searchAtDepth(data, depth, nodes, adjacencies, sep_sets, independence_test_m
 
 
 def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independence_test_method=fisherz, alpha=0.05,
-                   verbose=False, knowledge=None, pbar=None, cache_variables_map=None):
+                             verbose=False, knowledge=None, pbar=None, cache_variables_map=None):
     def edge(adjx, i, adjacencies_completed_edge):
         for j in range(len(adjx)):
             node_y = adjx[j]
@@ -233,7 +236,8 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
                                 sep_sets[(i, nodes.index(adjx[j]))] = set(cond_set)
 
                         if verbose:
-                            message = "Independence accepted: " + nodes[i].get_name() + " _||_ " + adjx[j].get_name() + " | "
+                            message = "Independence accepted: " + nodes[i].get_name() + " _||_ " + adjx[
+                                j].get_name() + " | "
                             for cond_set_index in range(len(cond_set)):
                                 message += nodes[cond_set[cond_set_index]].get_name()
                                 if cond_set_index != len(cond_set) - 1:
@@ -270,7 +274,6 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
         adjx = list(adjacencies[nodes[i]])
         finish_flag = False
         while not finish_flag:
-
             finish_flag = edge(adjx, i, adjacencies)
 
             adjx = list(adjacencies[nodes[i]])
@@ -279,7 +282,7 @@ def searchAtDepth_not_stable(data, depth, nodes, adjacencies, sep_sets, independ
 
 
 def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=None, depth=-1,
-                verbose=False, stable=True, show_progress=True, cache_variables_map=None):
+        verbose=False, stable=True, show_progress=True, cache_variables_map=None):
     '''
     Implements the "fast adjacency search" used in several causal algorithm in this file. In the fast adjacency
     search, at a given stage of the search, an edge X*-*Y is removed from the graph if X _||_ Y | S, where S is a subset
@@ -366,7 +369,7 @@ def fas(data, nodes, independence_test_method=fisherz, alpha=0.05, knowledge=Non
 
     graph = GeneralGraph(nodes)
     for i in range(len(nodes)):
-        for j in range(i+1, len(nodes)):
+        for j in range(i + 1, len(nodes)):
             node_x = nodes[i]
             node_y = nodes[j]
             if adjacencies[node_x].__contains__(node_y):
