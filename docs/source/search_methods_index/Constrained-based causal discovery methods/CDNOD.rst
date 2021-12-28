@@ -65,6 +65,6 @@ For detailed usage, please kindly refer to its `usage example <https://github.co
 
 Returns
 -------------------
-**cg** : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j; cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j; cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
+**cg** : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicate  i --> j; cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j; cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
 .. [1] Huang, B., Zhang, K., Zhang, J., Ramsey, J. D., Sanchez-Romero, R., Glymour, C., & Schölkopf, B. (2020). Causal Discovery from Heterogeneous/Nonstationary Data. J. Mach. Learn. Res., 21(89), 1-53.

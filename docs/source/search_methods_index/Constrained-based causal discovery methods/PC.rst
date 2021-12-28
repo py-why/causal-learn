@@ -69,7 +69,7 @@ For detailed usage, please kindly refer to its `usage example <https://github.co
 
 Returns
 -------------------
-**cg** : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicates  i --> j; cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j; cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
+**cg** : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicate  i --> j; cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicate i --- j; cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
 .. [1] Spirtes, P., Glymour, C. N., Scheines, R., & Heckerman, D. (2000). Causation, prediction, and search. MIT press.
 .. [2] Tu, R., Zhang, C., Ackermann, P., Mohan, K., Kjellström, H., & Zhang, K. (2019, April). Causal discovery in the presence of missing data. In The 22nd International Conference on Artificial Intelligence and Statistics (pp. 1762-1770). PMLR.

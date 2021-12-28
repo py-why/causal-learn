@@ -52,7 +52,7 @@ Returns
 -------------------
 **graph**: a CausalGraph object, where graph.graph[j,i]=1 and graph.graph[i,j]=-1 indicates  i --> j; graph.graph[i,j] = graph.graph[j,i] = -1 indicates i --- j; graph.graph[i,j] = graph.graph[j,i] = 1 indicates i <-> j; graph.graph[j,i]=1 and graph.graph[i,j]=2 indicates  i o-> j.
 
-**edges**: list. Contains graph's edges properties. If an edge.properties have the Property dd, then it means there is no latent confounder. Otherwise, there is possibly latent confounder. If an edge.properties have the Property nl, then it is definitely direct. Otherwise, it is possibly direct.
+**edges**: list. Contains graph's edges properties. If edge.properties have the Property 'dd', then there is no latent confounder. Otherwise, there might be latent confounders. If edge.properties have the Property 'nl', then it is definitely direct. Otherwise, it is possibly direct.
 
 
 .. [1] Spirtes, P., Meek, C., & Richardson, T. (1995, August). Causal inference in the presence of latent variables and selection bias. In Proceedings of the Eleventh conference on Uncertainty in artificial intelligence (pp. 499-506).

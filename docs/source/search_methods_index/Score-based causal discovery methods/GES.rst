@@ -40,7 +40,7 @@ and n_features is the number of features.
 
 Returns
 -------------------
-- **Record['G']**: learned causal graph, where Record['G'].graph[j,i]=1 and Record['G'].graph[i,j]=-1 indicates  i --> j; Record['G'].graph[i,j] = Record['G'].graph[j,i] = -1 indicates i --- j.
+- **Record['G']**: learned causal graph, where Record['G'].graph[j,i]=1 and Record['G'].graph[i,j]=-1 indicate i --> j; Record['G'].graph[i,j] = Record['G'].graph[j,i] = -1 indicates i --- j.
 
 - **Record['update1']**: each update (Insert operator) in the forward step.
 

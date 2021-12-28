@@ -787,9 +787,9 @@ def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_pat
                     graph.graph[j,i]=1 and graph.graph[i,j]=2 indicates  i o-> j.
     edges : list
         Contains graph's edges properties.
-        If an edge.properties have the Property dd, then it means there is no latent confounder. Otherwise,
-            there is possibly latent confounder.
-        If an edge.properties have the Property nl, then it is definitely direct. Otherwise,
+        If edge.properties have the Property 'dd', then there is no latent confounder. Otherwise,
+            there might be latent confounders.
+        If edge.properties have the Property nl, then it is definitely direct. Otherwise,
             it is possibly direct.
     '''
 
