@@ -21,7 +21,7 @@ Parameters
 **X**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
 and n_features is the number of features.
 
-**score_func**: The score function you would like to use, including (see :ref:`score_functions`.).
+**score_func**: The score function you would like to use, including (see :ref:`score_functions`.). Default: 'local_score_BIC'.
               - ":ref:`local_score_BIC <BIC score>`": BIC score [3]_.
               - ":ref:`local_score_BDeu <BDeu score>`": BDeu score [4]_.
               - ":ref:`local_score_CV_general <Generalized score with cross validation>`": Generalized score with cross validation for data with single-dimensional variates [2]_.
@@ -29,9 +29,9 @@ and n_features is the number of features.
               - ":ref:`local_score_CV_multi <Generalized score with cross validation>`": Generalized score with cross validation for data with multi-dimensional variables [2]_.
               - ":ref:`local_score_marginal_multi <Generalized score with marginal likelihood>`": Generalized score with marginal likelihood for data with multi-dimensional variates [2]_.
 
-**maxP**: Allowed maximum number of parents when searching the graph.
+**maxP**: Allowed maximum number of parents when searching the graph. Default: None.
 
-**parameters**: when using CV likelihood,
+**parameters**: Needed when using CV likelihood. Default: None.
               - parameters['kfold']: k-fold cross validation.
               - parameters['lambda']: regularization parameter.
               - parameters['dlabel']: for variables with multi-dimensions, indicate which dimensions belong to the i-th variable.
@@ -40,7 +40,7 @@ and n_features is the number of features.
 
 Returns
 -------------------
-- **Record['G']**: learned causal graph.
+- **Record['G']**: learned causal graph, where Record['G'].graph[j,i]=1 and Record['G'].graph[i,j]=-1 indicates  i --> j; Record['G'].graph[i,j] = Record['G'].graph[j,i] = -1 indicates i --- j.
 
 - **Record['update1']**: each update (Insert operator) in the forward step.
 

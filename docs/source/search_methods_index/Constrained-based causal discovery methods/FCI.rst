@@ -14,34 +14,45 @@ Usage
 .. code-block:: python
 
     from causallearn.search.ConstraintBased.FCI import fci
-    G = fci(data, indep_test, alpha, verbose, background_knowledge)
+    G = fci(data, independence_test_method, alpha, depth, max_path_length,
+        verbose, background_knowledge, cache_variables_map)
 
     # visualization
-    pgv_g = GraphUtils.to_pgv(G)
-    pgv_g.draw('simple_test.png', prog='dot', format='png')
+    from causallearn.utils.GraphUtils import GraphUtils
+    pdy = GraphUtils.to_pydot(G)
+    pdy.write_png('simple_test.png')
+
 Parameters
 -------------------
-**data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
+**dataset**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
 and n_features is the number of features.
 
-**alpha**: Significance level of individual partial correlation tests.
-
-**indep_test**: Independence test method function.
+**independence_test_method**: Independence test method function. Default: 'fisherz'.
        - ":ref:`fisherz <Fisher-z test>`": Fisher's Z conditional independence test.
        - ":ref:`chisq <Chi-Square test>`": Chi-squared conditional independence test.
        - ":ref:`gsq <G-Square test>`": G-squared conditional independence test.
        - ":ref:`kci <Kernel-based conditional independence (KCI) test and independence test>`": kernel-based conditional independence test. (As a kernel method, its complexity is cubic in the sample size, so it might be slow if the same size is not small.)
        - ":ref:`mv_fisherz <Missing-value Fisher-z test>`": Missing-value Fisher's Z conditional independence test.
 
-**verbose**: 0 - no output, 1 - detailed output.
+**alpha**: Significance level of individual partial correlation tests. Default: 0.05.
 
-**background_knowledge**: class BackgroundKnowledge. Add prior edges according to assigned causal connections.
+**depth**: The depth for the fast adjacency search, or -1 if unlimited. Default: -1.
+
+**max_path_length**: the maximum length of any discriminating path, or -1 if unlimited. Default: -1.
+
+**verbose**: True is verbose output should be printed or logged. Default: False.
+
+**background_knowledge**: class BackgroundKnowledge. Add prior edges according to assigned causal connections. Default: None.
 For detailed usage, please kindly refer to its `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestBackgroundKnowledge.py>`_.
 
+**cache_variables_map**: This variable a map which contains the variables relate with cache. If it is not None, it should contain 'data_hash_key' 、'ci_test_hash_key' and 'cardinalities'. Default: None.
 
 
 Returns
 -------------------
-**G** : a GeneralGraph object. Nodes in the graph correspond to the column indices in the data. For visualization, please refer to the `running example <https://github.com/cmu-phil/causal-learn/tree/main/tests>`_.
+**graph**: a CausalGraph object, where graph.graph[j,i]=1 and graph.graph[i,j]=-1 indicates  i --> j; graph.graph[i,j] = graph.graph[j,i] = -1 indicates i --- j; graph.graph[i,j] = graph.graph[j,i] = 1 indicates i <-> j; graph.graph[j,i]=1 and graph.graph[i,j]=2 indicates  i o-> j.
+
+**edges**: list. Contains graph's edges properties. If an edge.properties have the Property dd, then it means there is no latent confounder. Otherwise, there is possibly latent confounder. If an edge.properties have the Property nl, then it is definitely direct. Otherwise, it is possibly direct.
+
 
 .. [1] Spirtes, P., Meek, C., & Richardson, T. (1995, August). Causal inference in the presence of latent variables and selection bias. In Proceedings of the Eleventh conference on Uncertainty in artificial intelligence (pp. 499-506).
