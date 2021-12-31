@@ -4,7 +4,10 @@ import sys
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.gaussian_process.kernels import ConstantKernel as C
+from sklearn.gaussian_process.kernels import WhiteKernel
+
 from causallearn.utils.KCI.KCI import KCI_UInd
 
 

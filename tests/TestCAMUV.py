@@ -1,29 +1,35 @@
 import sys
-sys.path.append("")
-import unittest
-import numpy as np
-from causallearn.search.FCMBased.lingam import CAMUV
-import random
 
-def get_random_constant(s,b):
+sys.path.append("")
+import random
+import unittest
+
+import numpy as np
+
+from causallearn.search.FCMBased.lingam import CAMUV
+
+
+def get_random_constant(s, b):
     constant = random.uniform(-1.0, 1.0)
-    if constant>0:
+    if constant > 0:
         constant = random.uniform(s, b)
     else:
         constant = random.uniform(-b, -s)
     return constant
 
+
 def get_noise(n):
-    noise = ((np.random.rand(1, n)-0.5)*5).reshape(n)
-    mean = get_random_constant(0.0,2.0)
+    noise = ((np.random.rand(1, n) - 0.5) * 5).reshape(n)
+    mean = get_random_constant(0.0, 2.0)
     noise += mean
     return noise
 
+
 def causal_func(cause):
-    a = get_random_constant(-5.0,5.0)
-    b = get_random_constant(-1.0,1.0)
-    c = int(random.uniform(2,3))
-    return ((cause+a)**(c))+b
+    a = get_random_constant(-5.0, 5.0)
+    b = get_random_constant(-1.0, 1.0)
+    c = int(random.uniform(2, 3))
+    return ((cause + a) ** (c)) + b
 
 
 def create_data(n):
@@ -63,6 +69,7 @@ def create_data(n):
                 data[:, i2] += causal_func(interm)
 
     return data
+
 
 class TestCAMUV(unittest.TestCase):
 

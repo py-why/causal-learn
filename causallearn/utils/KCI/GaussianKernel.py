@@ -1,6 +1,6 @@
-from numpy import exp, shape, sqrt, median
+from numpy import exp, median, shape, sqrt
 from numpy.random import permutation
-from scipy.spatial.distance import squareform, pdist, cdist
+from scipy.spatial.distance import cdist, pdist, squareform
 
 from causallearn.utils.KCI.Kernel import Kernel
 

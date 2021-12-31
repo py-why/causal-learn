@@ -3,7 +3,8 @@ The lingam module includes implementation of the LiNGAM algorithms.
 The LiNGAM Project: https://sites.google.com/site/sshimizu06/lingam
 """
 
-from .bootstrap import BootstrapResult, TimeseriesBootstrapResult, LongitudinalBootstrapResult
+from .bootstrap import (BootstrapResult, LongitudinalBootstrapResult,
+                        TimeseriesBootstrapResult)
 from .bottom_up_parce_lingam import BottomUpParceLiNGAM
 from .causal_effect import CausalEffect
 from .direct_lingam import DirectLiNGAM

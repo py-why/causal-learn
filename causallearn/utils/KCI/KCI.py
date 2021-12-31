@@ -3,7 +3,9 @@ from numpy import sqrt
 from numpy.linalg import eigh, eigvalsh
 from scipy import stats
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.gaussian_process.kernels import ConstantKernel as C
+from sklearn.gaussian_process.kernels import WhiteKernel
 
 from causallearn.utils.KCI.GaussianKernel import GaussianKernel
 from causallearn.utils.KCI.Kernel import Kernel

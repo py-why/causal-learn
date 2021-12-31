@@ -7,7 +7,7 @@ from causallearn.utils.ScoreUtils import *
 
 def local_score_BIC(Data, i, PAi, parameters=None):
     '''
-    Calculate the *negative* local score with BIC for the linear Gaussian case
+    Calculate the *negative* local score with BIC for the linear Gaussian continue data case
 
     Parameters
     ----------
@@ -79,7 +79,6 @@ def local_score_BDeu(Data, i, PAi, parameters=None):
     for pa in PAi:
         q_i *= r_i_map[pa]
 
-
     if len(PAi) != 0:
         # calculate N_{ij}
         names = ['x{}'.format(i) for i in range(Data.shape[1])]
@@ -105,7 +104,6 @@ def local_score_BDeu(Data, i, PAi, parameters=None):
         Nijk_map = {ij: Data_pd.groupby('x{}'.format(i)).apply(len).reset_index() for ij in Nij_map_keys_list}
         for v in Nijk_map.values():
             v.columns = ['x{}'.format(i), 'times']
-
 
     BDeu_score = 0
     # first term

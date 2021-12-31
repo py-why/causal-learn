@@ -1,9 +1,13 @@
-from causallearn.search.ScoreBased.ExactSearch import bic_exact_search
 import sys
+
+from causallearn.search.ScoreBased.ExactSearch import bic_exact_search
+
 sys.path.append("")
 import unittest
 from pickle import load
+
 import numpy as np
+
 
 class TestAstar(unittest.TestCase):
 
@@ -36,8 +40,3 @@ class TestAstar(unittest.TestCase):
             dag_est, search_stats = bic_exact_search(X, search_method='astar')
             print(dag_est)
             print(search_stats)
-
-
-
-
-

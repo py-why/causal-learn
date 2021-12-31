@@ -34,12 +34,12 @@ class ChoiceGenerator:
             self.choiceLocal.append(i)
         if b > 0:
             self.choiceLocal.append(b - 2)
-        self.choiceReturned = [ 0 for i in range(b)]
+        self.choiceReturned = [0 for i in range(b)]
         self.begun = False
 
     def fill(self, index):
         self.choiceLocal[index] += 1
-        for i in range(index+1, self.b):
+        for i in range(index + 1, self.b):
             self.choiceLocal[i] = self.choiceLocal[i - 1] + 1
 
     def next(self):

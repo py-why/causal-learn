@@ -1,10 +1,14 @@
 import sys
+
 sys.path.append("")
 import unittest
 from pickle import load
+
 import numpy as np
 import pandas as pd
+
 from causallearn.search.FCMBased import lingam
+
 
 class TestRCD(unittest.TestCase):
 

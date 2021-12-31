@@ -1,12 +1,16 @@
-import sys, os
+import os
+import sys
+
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
-from causallearn.search.Granger.Granger import Granger
 import sys
-import pandas as pd
 import unittest
 from pickle import load
+
 import numpy as np
+import pandas as pd
+
+from causallearn.search.Granger.Granger import Granger
 
 
 class TestGranger(unittest.TestCase):

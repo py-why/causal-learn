@@ -5,7 +5,7 @@ import networkx as nx
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
-from causallearn.search.ConstraintBased.FCI import rule1, rule2, rule3, rule4
+from causallearn.search.ConstraintBased.FCI import ruleR3, rulesR1R2cycle
 
 
 def dag2pag(dag, islatent):
@@ -96,10 +96,13 @@ def dag2pag(dag, islatent):
                     mod_endpoint(edge_yz, nodez, Endpoint.ARROW)
                     PAG.add_edge(edge_yz)
 
-    rule1(PAG)
-    rule2(PAG)
-    rule3(PAG)
-    rule4(PAG, sepset)
+    changeFlag = True
+
+    while changeFlag:
+        changeFlag = False
+        changeFlag = rulesR1R2cycle(PAG, None, changeFlag, False)
+        changeFlag = ruleR3(PAG, sepset, None, changeFlag, False)
+
     return PAG
 
 

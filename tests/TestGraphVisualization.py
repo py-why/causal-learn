@@ -2,18 +2,27 @@ import sys
 
 sys.path.append("")
 
-import unittest
-import numpy as np
 import io
+import unittest
+from itertools import product
 
-from causallearn.graph.Dag import Dag
-from causallearn.graph.GraphNode import GraphNode
-from causallearn.utils.GraphUtils import GraphUtils
-from causallearn.utils.DAG2PAG import dag2pag
-from causallearn.search.ConstraintBased.PC import pc
-from causallearn.utils.cit import fisherz
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from causallearn.graph.Dag import Dag
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphNode import GraphNode
+from causallearn.search.ConstraintBased.PC import pc
+from causallearn.search.Granger.Granger import Granger
+from causallearn.utils.cit import fisherz
+from causallearn.utils.DAG2PAG import dag2pag
+from causallearn.utils.GraphUtils import GraphUtils
+from causallearn.utils.TimeseriesVisualization import plot_time_series
+
 
 class testGraphVisualization(unittest.TestCase):
 
@@ -59,3 +68,37 @@ class testGraphVisualization(unittest.TestCase):
         pyd = GraphUtils.to_pydot(pag)
         pyd.write_png('pag.png')
 
+    def test_plot_simple_time_series_graph(self):
+        coef_matrix = np.zeros((3, 3, 4))
+        coef_matrix[0, 0, 1] = 1
+        coef_matrix[1, 1, 1] = 1
+        coef_matrix[2, 2, 1] = 1
+        coef_matrix[0, 1, 1] = 1
+        coef_matrix[1, 0, 1] = 1
+
+        plot_time_series(coef_matrix=coef_matrix)
+
+    def test_plot_granger(self):
+        df = pd.read_csv('https://cdn.jsdelivr.net/gh/selva86/datasets/a10.csv', parse_dates=['date'])
+        df['month'] = df.date.dt.month
+        dataset = df[['value', 'month']].to_numpy()
+        maxlag = 2
+        G = Granger(maxlag=maxlag)
+        coeff = G.granger_lasso(data=dataset)
+        dim = dataset.shape[1]
+        coef_matrix = np.zeros((dataset.shape[1], dataset.shape[1], maxlag + 1))
+        for i, j, tau in product(range(dim), range(dim), range(1, maxlag + 1)):
+            coef_matrix[i, j, tau] = coeff[j, (tau - 1) * dim + i]
+        plot_time_series(coef_matrix=coef_matrix)
+
+    def test_color(self):
+        nodes = []
+        for i in range(3):
+            nodes.append(GraphNode(f"X{i + 1}"))
+        pag = GeneralGraph(nodes)
+        edge = Edge(nodes[0], nodes[1], Endpoint.TAIL, Endpoint.ARROW)
+        edge.properties.append(Edge.Property.dd)
+        pag.add_edge(edge)
+        edges = [edge]
+        pyd = GraphUtils.to_pydot(pag, edges)
+        pyd.write_png('green.png')

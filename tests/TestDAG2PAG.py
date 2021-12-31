@@ -1,12 +1,13 @@
-import unittest
 import sys
+import unittest
 
 sys.path.append("")
 import numpy as np
-from causallearn.graph.GraphNode import GraphNode
+
 from causallearn.graph.Dag import Dag
-from causallearn.utils.GraphUtils import GraphUtils
+from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.DAG2PAG import dag2pag
+from causallearn.utils.GraphUtils import GraphUtils
 
 
 class TestDAG2PAG(unittest.TestCase):

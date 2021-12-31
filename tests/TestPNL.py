@@ -1,13 +1,20 @@
-import sys, os
+import os
+import sys
+
 sys.path.append("")
+import unittest
+from pickle import load
+
+import numpy as np
+<<<<<<< HEAD
+import matplotlib.pyplot as plt
+=======
+import pandas as pd
+
 # # BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 # # sys.path.append(BASE_DIR)
 from causallearn.search.FCMBased.PNL.PNL import PNL
-import pandas as pd
-import unittest
-from pickle import load
-import numpy as np
-import matplotlib.pyplot as plt
+>>>>>>> 8443c497f18ad0894ca9e86790cc630631680cb0
 
 
 class TestPNL(unittest.TestCase):
@@ -39,12 +46,16 @@ class TestPNL(unittest.TestCase):
         dataset = df.to_numpy()
         pnl = PNL()
         n = dataset.shape[0]
-        p_value_foward, p_value_backward = pnl.cause_or_effect(dataset[:,0].reshape(n,1), dataset[:,1].reshape(n,1))
+        p_value_foward, p_value_backward = pnl.cause_or_effect(dataset[:, 0].reshape(n, 1), dataset[:, 1].reshape(n, 1))
         print('pvalue for x->y is {:.4f}'.format(p_value_foward))
         print('pvalue for y->x is {:.4f}'.format(p_value_backward))
 
 
 if __name__ == '__main__':
     test = TestPNL()
+<<<<<<< HEAD
     test.test_pnl_simul()
     # test.test_pnl_pair()
+=======
+    test.test_pnl_pair()
+>>>>>>> 8443c497f18ad0894ca9e86790cc630631680cb0

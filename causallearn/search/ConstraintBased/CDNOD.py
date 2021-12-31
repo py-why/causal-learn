@@ -1,4 +1,5 @@
 import time
+import warnings
 from itertools import permutations, combinations
 
 import networkx as nx
@@ -6,11 +7,12 @@ import numpy as np
 
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
-from causallearn.utils.cit import fisherz, mc_fisherz
+from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
+from causallearn.utils.cit import *
 
 
-def cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=False,
-          correction_name='MV_Crtn_Fisher_Z'):
+def cdnod(data, c_indx, alpha=0.05, indep_test=fisherz, stable = True, uc_rule = 0, uc_priority = 2, mvcdnod=False,
+          correction_name='MV_Crtn_Fisher_Z', background_knowledge = None, verbose = False, show_progress = True):
     '''
     Causal discovery from nonstationary/heterogeneous data
     phase 1: learning causal skeleton,
@@ -26,23 +28,23 @@ def cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvpc=Fa
     -------
     cg : a CausalGraph object over the augmented dataset that includes c_indx
     '''
+    # augment the variable set by involving c_indx to capture the distribution shift
     data_aug = np.concatenate((data, c_indx), axis=1)
-    if mvpc:
+    if mvcdnod:
         return mvcdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, correction_name=correction_name,
-                           stable=stable,
-                           uc_rule=uc_rule, uc_priority=uc_priority)
+                           stable=stable,uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose, show_progress=show_progress)
     else:
         return cdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
-                         uc_priority=uc_priority)
+                         uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose, show_progress=show_progress)
 
 
-def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
+def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False, show_progress=True):
     '''
     Perform Peter-Clark algorithm for causal discovery on the augmented data set that captures the unobserved changing factors
 
     Parameters
     ----------
-    data : augmented data set (numpy ndarray)
+    data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     alpha : desired significance level (float) in (0, 1)
     indep_test : name of the independence test being used
             [fisherz, chisq, gsq, mv_fisherz, kci]
@@ -50,7 +52,7 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
            - "Chi_sq": Chi-squared conditional independence test
            - "G_sq": G-squared conditional independence test
            - "MV_Fisher_Z": Missing-value Fishers'Z conditional independence test
-           - "kci": kernel-based conditional independence test
+           - "kci": kernel-based conditional independence test (If C is time index, KCI test is recommended)
     stable : run stabilized skeleton discovery if True (default = True)
     uc_rule : how unshielded colliders are oriented
            0: run uc_sepset
@@ -63,10 +65,15 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
            2. prioritize existing colliders
            3. prioritize stronger colliders
            4. prioritize stronger* colliers
+    background_knowledge : background knowledge
+    verbose : True iff verbose output should be printed.
+    show_progress : True iff the algorithm progress should be show in console.
 
     Returns
     -------
-    cg : a CausalGraph object
+    cg : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicate i --> j ,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
+                    cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
     '''
 
@@ -76,29 +83,33 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
     # orient the direction from c_indx to X, if there is an edge between c_indx and X
     c_indx_id = data.shape[1] - 1
     for i in cg_1.G.get_adjacent_nodes(cg_1.G.nodes[c_indx_id]):
-        cg_1.G.add_directed_edge(i, cg_1.G.nodes[c_indx_id])
+        cg_1.G.add_directed_edge(cg_1.G.nodes[c_indx_id], i)
+
+
+    if background_knowledge is not None:
+        orient_by_background_knowledge(cg_1, background_knowledge)
 
     if uc_rule == 0:
         if uc_priority != -1:
-            cg_2 = UCSepset.uc_sepset(cg_1, uc_priority)
+            cg_2 = UCSepset.uc_sepset(cg_1, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = UCSepset.uc_sepset(cg_1)
-        cg = Meek.meek(cg_2)
+            cg_2 = UCSepset.uc_sepset(cg_1, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_2, background_knowledge=background_knowledge)
 
     elif uc_rule == 1:
         if uc_priority != -1:
-            cg_2 = UCSepset.maxp(cg_1, uc_priority)
+            cg_2 = UCSepset.maxp(cg_1, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = UCSepset.maxp(cg_1)
-        cg = Meek.meek(cg_2)
+            cg_2 = UCSepset.maxp(cg_1, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_2, background_knowledge=background_knowledge)
 
     elif uc_rule == 2:
         if uc_priority != -1:
-            cg_2 = UCSepset.definite_maxp(cg_1, alpha, uc_priority)
+            cg_2 = UCSepset.definite_maxp(cg_1, alpha, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = UCSepset.definite_maxp(cg_1, alpha)
-        cg_before = Meek.definite_meek(cg_2)
-        cg = Meek.meek(cg_before)
+            cg_2 = UCSepset.definite_maxp(cg_1, alpha, background_knowledge=background_knowledge)
+        cg_before = Meek.definite_meek(cg_2, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_before, background_knowledge=background_knowledge)
     end = time.time()
 
     cg.PC_elapsed = end - start
@@ -106,7 +117,7 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority):
     return cg
 
 
-def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority):
+def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, verbose, show_progress):
     """
     :param data: data set (numpy ndarray)
     :param alpha: desired significance level (float) in (0, 1)
@@ -142,13 +153,14 @@ def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_pr
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose, show_progress=show_progress)
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 
     ## b) Correction of the extra edges
     cg_corr = skeleton_correction(data, alpha, correction_name, cg_pre, prt_m, stable)
     # print('Finish missingness correction.')
+
 
     ## Step 3: Orient the edges
     # orient the direction from c_indx to X, if there is an edge between c_indx and X
@@ -218,10 +230,7 @@ def get_prt_mpairs(data, alpha, indep_test, stable=True):
 
 def isempty(prt_r):
     """Test whether the parent of a missingness indicator is empty"""
-    if len(prt_r) == 0:
-        return True
-    else:
-        return False
+    return len(prt_r) == 0
 
 
 def get_mindx(data):
