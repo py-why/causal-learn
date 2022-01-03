@@ -12,11 +12,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from causallearn.utils.KCI.KCI import KCI_UInd
-<<<<<<< HEAD
 import torch.autograd as autograd
 import matplotlib.pyplot as plt
-=======
->>>>>>> 8443c497f18ad0894ca9e86790cc630631680cb0
 
 
 class MLP(nn.Module):
@@ -148,7 +145,7 @@ class PNL(object):
 
             jacob = autograd.grad(outputs=G2(x2), inputs=x2, grad_outputs=torch.ones(y2.shape), create_graph=True,
                                   retain_graph=True, only_inputs=True)[0]
-            loss_jacob = -torch.sum(torch.log(torch.abs(jacob) + 1e-16))
+            loss_jacob = - torch.sum(torch.log(torch.abs(jacob) + 1e-16))
 
             loss = loss_jacob + loss_pdf
 
