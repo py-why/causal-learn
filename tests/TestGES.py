@@ -1,12 +1,13 @@
 import sys
-
-from causallearn.score.LocalScoreFunction import local_score_bdeu
-
+import io
+from causallearn.score.LocalScoreFunction import local_score_BDeu
+from causallearn.utils.GraphUtils import GraphUtils
 sys.path.append("")
 import unittest
 import warnings
 from pickle import load
-
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 import numpy as np
 
 from causallearn.search.ScoreBased.GES import ges
@@ -31,6 +32,15 @@ class TestGES(unittest.TestCase):
             parameters = {'kfold': 10, 'lambda': 0.01}
             X = X[:50, :]
             Record = ges(X, 'local_score_CV_general', maxP=maxP, parameters=parameters)
+
+            pyd = GraphUtils.to_pydot(Record['G'])
+            tmp_png = pyd.create_png(f="png")
+            fp = io.BytesIO(tmp_png)
+            img = mpimg.imread(fp, format='png')
+            plt.axis('off')
+            plt.imshow(img)
+            plt.show()
+
             print(Record)
 
     # example2
@@ -49,6 +59,15 @@ class TestGES(unittest.TestCase):
             parameters = {'kfold': 10, 'lambda': 0.01}
             X = X[:50, :]
             Record = ges(X, 'local_score_marginal_general', maxP=maxP, parameters=parameters)
+
+            pyd = GraphUtils.to_pydot(Record['G'])
+            tmp_png = pyd.create_png(f="png")
+            fp = io.BytesIO(tmp_png)
+            img = mpimg.imread(fp, format='png')
+            plt.axis('off')
+            plt.imshow(img)
+            plt.show()
+
             print(Record)
 
     # example3
@@ -73,6 +92,15 @@ class TestGES(unittest.TestCase):
                           'dlabel': d_label_save[trial]}  # indicate which dimensions belong to the i-th variable.
             X = X[:50, :]
             Record = ges(X, 'local_score_CV_multi', maxP=maxP, parameters=parameters)
+
+            pyd = GraphUtils.to_pydot(Record['G'])
+            tmp_png = pyd.create_png(f="png")
+            fp = io.BytesIO(tmp_png)
+            img = mpimg.imread(fp, format='png')
+            plt.axis('off')
+            plt.imshow(img)
+            plt.show()
+
             print(Record)
 
     # example4
@@ -97,6 +125,15 @@ class TestGES(unittest.TestCase):
                           'dlabel': d_label_save[trial]}  # indicate which dimensions belong to the i-th variable.
             X = X[:50, :]
             Record = ges(X, 'local_score_marginal_multi', maxP=maxP, parameters=parameters)
+
+            pyd = GraphUtils.to_pydot(Record['G'])
+            tmp_png = pyd.create_png(f="png")
+            fp = io.BytesIO(tmp_png)
+            img = mpimg.imread(fp, format='png')
+            plt.axis('off')
+            plt.imshow(img)
+            plt.show()
+
             print(Record)
 
     # example5
@@ -109,7 +146,15 @@ class TestGES(unittest.TestCase):
             X = example_data['X']
             maxP = example_data['maxP']
             # X = X[:50, :]
-            Record = ges(X, 'local_score_bic', maxP=maxP)
+            Record = ges(X, 'local_score_BIC', maxP=maxP)
+
+            pyd = GraphUtils.to_pydot(Record['G'])
+            tmp_png = pyd.create_png(f="png")
+            fp = io.BytesIO(tmp_png)
+            img = mpimg.imread(fp, format='png')
+            plt.axis('off')
+            plt.imshow(img)
+            plt.show()
 
             print(Record)
 
@@ -118,7 +163,16 @@ class TestGES(unittest.TestCase):
     # and score function is BDeu score
     def test_single_BDeu(self):
         X = np.loadtxt('example_data5.txt')
-        Record = ges(X, 'local_score_bdeu', maxP=5)
+        Record = ges(X, 'local_score_BDeu', maxP=5)
+
+        pyd = GraphUtils.to_pydot(Record['G'])
+        tmp_png = pyd.create_png(f="png")
+        fp = io.BytesIO(tmp_png)
+        img = mpimg.imread(fp, format='png')
+        plt.axis('off')
+        plt.imshow(img)
+        plt.show()
+
         print(Record)
 
     # example7
@@ -129,6 +183,6 @@ class TestGES(unittest.TestCase):
                       'structure_prior': 1,
                       'r_i_map': {i: len(np.unique(np.asarray(X[:, i]))) for i in range(X.shape[1])}}
 
-        score = local_score_bdeu(X, 20, [24], parameters)
+        score = local_score_BDeu(X, 20, [24], parameters)
 
         print(score)
