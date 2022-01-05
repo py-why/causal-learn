@@ -49,32 +49,6 @@ such as TestPC.py and TestGES.py.
 
 For the implemented modules, such as (conditional) independent test methods, we provide unit tests for the convenience of developing your own methods.
 
-..
-Quick benchmarking
-^^^^^^^^^^^^
-..
-To help users get a quick sense of the running time of the algorithms of interest, we conducted benchmarking for several methods.
-..
-We consider datasets with number of variables from {10, 25, 50, 100} and average degree from {2, 3, 4, 5}.
-..
-The random graphs are Erdős-Rényi graphs.
-..
-The average degree is the average number of edges connected to a node.
-..
-We simply calculate it by dividing the sum of degrees by the total number of nodes in the graph.
-..
-The sample size is 1000.
-..
-All algorithms were run on a single cluster node with 8 CPUs (Intel Xeon E5-2470) and 16 GB Memory.
-..
-We denote running time as '>D' if it is more than one day.
-..
-All results are average over 10 runs with different random seeds.
-..
-.. image:: table_modified_new.png
-..
-  :width: 365
-..
 
 Contributors
 ^^^^^^^^^^^^
