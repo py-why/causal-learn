@@ -12,6 +12,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from causallearn.utils.KCI.KCI import KCI_UInd
+import torch.autograd as autograd
+import matplotlib.pyplot as plt
 
 
 class MLP(nn.Module):
@@ -83,7 +85,7 @@ class PNL(object):
             independent from the learned disturbance.
     """
 
-    def __init__(self, kernelX='Gaussian', kernelY='Gaussian', mix_K=3, epochs=1000):
+    def __init__(self, kernelX='Gaussian', kernelY='Gaussian', mix_K=3, epochs=100000):
         '''
         Construct the ANM model.
 
@@ -125,28 +127,30 @@ class PNL(object):
         Final_y2 = x2
         Min_loss = float('inf')
 
-        G1 = MLP(1, 1, n_layers=3, n_units=20)
-        G2 = MLP(1, 1, n_layers=3, n_units=20)
-        MixGaussian = MixGaussianLayer(Mix_K=KofMix)
+        G1 = MLP(1, 1, n_layers=1, n_units=20)
+        G2 = MLP(1, 1, n_layers=1, n_units=20)
+        # MixGaussian = MixGaussianLayer(Mix_K=KofMix)
+        G3 = MLP(1, 1, n_layers=1, n_units=20)
         optimizer = torch.optim.Adam([
             {'params': G1.parameters()},
             {'params': G2.parameters()},
-            {'params': MixGaussian.parameters()}], lr=1e-3, betas=(0.9, 0.99))
+            {'params': G3.parameters()}], lr=1e-4, betas=(0.9, 0.99))
 
         for epoch in range(TotalEpoch):
 
             y2 = G2(x2) - G1(x1)
+            # y2 = x2 - G1(x1)
 
-            loss_pdf = -MixGaussian(y2)
+            loss_pdf = torch.sum((y2)**2)
 
             jacob = autograd.grad(outputs=G2(x2), inputs=x2, grad_outputs=torch.ones(y2.shape), create_graph=True,
                                   retain_graph=True, only_inputs=True)[0]
-            loss_jacob = -sum(torch.log(torch.abs(jacob) + 1e-10))
+            loss_jacob = - torch.sum(torch.log(torch.abs(jacob) + 1e-16))
 
-            loss = 0.1 * loss_jacob + loss_pdf
+            loss = loss_jacob + loss_pdf
 
-            if loss[0] < Min_loss:
-                Min_loss = loss[0]
+            if loss < Min_loss:
+                Min_loss = loss
                 Final_y2 = y2
 
             if epoch % 100 == 0:
@@ -156,9 +160,11 @@ class PNL(object):
                 print('The pdf loss is {}'.format(loss_pdf))
 
             optimizer.zero_grad()
-            loss[0].backward(retain_graph=True)
+            loss.backward(retain_graph=True)
             optimizer.step()
-
+        plt.plot(x1.detach().numpy(), G1(x1).detach().numpy(), '.')
+        plt.plot(x2.detach().numpy(), G2(x2).detach().numpy(),'.')
+        plt.show()
         return y1, Final_y2
 
     def cause_or_effect(self, data_x, data_y):

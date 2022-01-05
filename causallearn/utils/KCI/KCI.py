@@ -71,9 +71,10 @@ class KCI_UInd(object):
 
         Returns
         _________
-        pvalue: p value
-        test_stat: test statistic
+        pvalue: p value (scalar)
+        test_stat: test statistic (scalar)
         '''
+
         Kx, Ky = self.kernel_matrix(data_x, data_y)
         test_stat, Kxc, Kyc = self.HSIC_V_statistic(Kx, Ky)
         if self.approx:
@@ -87,6 +88,16 @@ class KCI_UInd(object):
     def kernel_matrix(self, data_x, data_y):
         '''
         Compute kernel matrix for data x and data y
+
+        Parameters
+        ----------
+        data_x: input data for x (nxd1 array)
+        data_y: input data for y (nxd2 array)
+
+        Returns
+        _________
+        Kx: kernel matrix for data_x (nxn)
+        Ky: kernel matrix for data_y (nxn)
         '''
         if self.kernelX == 'Gaussian':
             if self.est_width == 'manual':
@@ -139,14 +150,35 @@ class KCI_UInd(object):
     def HSIC_V_statistic(self, Kx, Ky):
         '''
         Compute V test statistic from kernel matrices Kx and Ky
+        Parameters
+        ----------
+        Kx: kernel matrix for data_x (nxn)
+        Ky: kernel matrix for data_y (nxn)
+
+        Returns
+        _________
+        Vstat: HSIC v statistics
+        Kxc: centralized kernel matrix for data_x (nxn)
+        Kyc: centralized kernel matrix for data_y (nxn)
         '''
         Kxc = Kernel.center_kernel_matrix(Kx)
         Kyc = Kernel.center_kernel_matrix(Ky)
-        return np.sum(Kxc * Kyc), Kxc, Kyc
+        V_stat = np.sum(Kxc * Kyc)
+        return V_stat, Kxc, Kyc
 
     def null_sample_spectral(self, Kxc, Kyc):
         '''
         Simulate data from null distribution
+
+        Parameters
+        ----------
+        Kxc: centralized kernel matrix for data_x (nxn)
+        Kyc: centralized kernel matrix for data_y (nxn)
+
+        Returns
+        _________
+        null_dstr: samples from the null distribution
+
         '''
         T = Kxc.shape[0]
         if T > 1000:
@@ -169,6 +201,15 @@ class KCI_UInd(object):
     def get_kappa(self, Kx, Ky):
         '''
         Get parameters for the approximated gamma distribution
+        Parameters
+        ----------
+        Kx: kernel matrix for data_x (nxn)
+        Ky: kernel matrix for data_y (nxn)
+
+        Returns
+        _________
+        k_appr, theta_appr: approximated parameters of the gamma distribution
+
         '''
         T = Kx.shape[0]
         mean_appr = np.trace(Kx) * np.trace(Ky) / T
@@ -255,6 +296,18 @@ class KCI_CInd(object):
     def kernel_matrix(self, data_x, data_y, data_z):
         '''
         Compute kernel matrix for data x, data y, and data_z
+        Parameters
+        ----------
+        data_x: input data for x (nxd1 array)
+        data_y: input data for y (nxd2 array)
+        data_z: input data for z (nxd3 array)
+
+        Returns
+        _________
+        Kx: kernel matrix for data_x (nxn)
+        Ky: kernel matrix for data_y (nxn)
+        Kzx: centering kernel matrix for data_x (nxn)
+        kzy: centering kernel matrix for data_y (nxn)
         '''
         # normalize the data
         data_x = stats.zscore(data_x, axis=0)
@@ -386,11 +439,41 @@ class KCI_CInd(object):
         return Kx, Ky, Kzx, Kzy
 
     def KCI_V_statistic(self, Kx, Ky, Kzx, Kzy):
+        '''
+        Compute V test statistic from kernel matrices Kx and Ky
+        Parameters
+        ----------
+        Kx: kernel matrix for data_x (nxn)
+        Ky: kernel matrix for data_y (nxn)
+        Kzx: centering kernel matrix for data_x (nxn)
+        kzy: centering kernel matrix for data_y (nxn)
+
+        Returns
+        _________
+        Vstat: KCI v statistics
+        KxR: centralized kernel matrix for data_x (nxn)
+        KyR: centralized kernel matrix for data_y (nxn)
+        '''
         KxR = Kernel.center_kernel_matrix_regression(Kx, Kzx, self.epsilon_x)
         KyR = Kernel.center_kernel_matrix_regression(Ky, Kzy, self.epsilon_y)
-        return np.sum(KxR * KyR), KxR, KyR
+        Vstat = np.sum(KxR * KyR)
+        return Vstat, KxR, KyR
 
     def get_uuprod(self, Kx, Ky):
+        '''
+        Compute eigenvalues for null distribution estimation
+
+        Parameters
+        ----------
+        Kx: centralized kernel matrix for data_x (nxn)
+        Ky: centralized kernel matrix for data_y (nxn)
+
+        Returns
+        _________
+        uu_prod: product of the eigenvectors of Kx and Ky
+        size_u: number of producted eigenvectors
+
+        '''
         wx, vx = eigh(0.5 * (Kx + Kx.T))
         wy, vy = eigh(0.5 * (Ky + Ky.T))
         idx = np.argsort(-wx)
@@ -424,7 +507,20 @@ class KCI_CInd(object):
         return uu_prod, size_u
 
     def null_sample_spectral(self, uu_prod, size_u, T):
+        '''
+        Simulate data from null distribution
 
+        Parameters
+        ----------
+        uu_prod: product of the eigenvectors of Kx and Ky
+        size_u: number of producted eigenvectors
+        T: sample size
+
+        Returns
+        _________
+        null_dstr: samples from the null distribution
+
+        '''
         eig_uu = eigvalsh(uu_prod)
         eig_uu = -np.sort(-eig_uu)
         eig_uu = eig_uu[0:np.min((T, size_u))]
@@ -435,6 +531,17 @@ class KCI_CInd(object):
         return null_dstr
 
     def get_kappa(self, uu_prod):
+        '''
+        Get parameters for the approximated gamma distribution
+        Parameters
+        ----------
+        uu_prod: product of the eigenvectors of Kx and Ky
+
+        Returns
+        ----------
+        k_appr, theta_appr: approximated parameters of the gamma distribution
+
+        '''
         mean_appr = np.trace(uu_prod)
         var_appr = 2 * np.trace(uu_prod.dot(uu_prod))
         k_appr = mean_appr ** 2 / var_appr
