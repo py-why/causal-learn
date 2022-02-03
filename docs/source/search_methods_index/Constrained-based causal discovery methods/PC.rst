@@ -59,7 +59,7 @@ and n_features is the number of features.
 
 **correction_name**. Missing value correction if using missing-value PC. Default: 'MV_Crtn_Fisher_Z'
 
-**background_knowledge**: class BackgroundKnowledge. Add prior edges according to assigned causal connections. Default: None. Currently it does not support missing-value PC.
+**background_knowledge**: class BackgroundKnowledge. Add prior edges according to assigned causal connections. Default: None. Currently it does not support Missing-Value PC.
 For detailed usage, please kindly refer to its `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestBackgroundKnowledge.py>`_.
 
 **verbose**: True iff verbose output should be printed. Default: False.
