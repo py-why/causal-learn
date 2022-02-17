@@ -181,6 +181,9 @@ class PNL(object):
         pval_forward: p value in the x->y direction
         pval_backward: p value in the y->x direction
         '''
+
+        raise SyntaxError('There are some potential issues in the current implementation of PNL. We are working on them and will update as soon as possible.')
+
         kci = KCI_UInd(self.kernelX, self.kernelY)
 
         # Now let's see if x1 -> x2 is plausible

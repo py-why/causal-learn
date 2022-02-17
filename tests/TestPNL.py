@@ -6,15 +6,12 @@ import unittest
 from pickle import load
 
 import numpy as np
-<<<<<<< HEAD
 import matplotlib.pyplot as plt
-=======
 import pandas as pd
 
 # # BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 # # sys.path.append(BASE_DIR)
 from causallearn.search.FCMBased.PNL.PNL import PNL
->>>>>>> 8443c497f18ad0894ca9e86790cc630631680cb0
 
 
 class TestPNL(unittest.TestCase):
@@ -53,9 +50,6 @@ class TestPNL(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestPNL()
-<<<<<<< HEAD
     test.test_pnl_simul()
     # test.test_pnl_pair()
-=======
     test.test_pnl_pair()
->>>>>>> 8443c497f18ad0894ca9e86790cc630631680cb0
