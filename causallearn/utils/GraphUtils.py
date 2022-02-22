@@ -144,6 +144,7 @@ class GraphUtils:
             for node_c in graph.get_parents(node_t):
                 if not (node_c in nodedeque):
                     nodedeque.append(node_c)
+        return False
 
     def get_sepset(self, x, y, graph):
 
