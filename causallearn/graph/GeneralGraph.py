@@ -891,9 +891,14 @@ class GeneralGraph(Graph):
         nodes.remove(node)
         self.nodes = nodes
 
-        node_map = self.node_map
-        node_map.pop(node)
+        # Node indices in node_map should be updated, so rebuild the node_map by the new nodes list
+        node_map = {}
+        for i, node in enumerate(self.nodes):
+            node_map[node] = i
         self.node_map = node_map
+
+        # num_vars should minus 1
+        self.num_vars -= 1
 
     # Iterates through the list and removes any permissible nodes found.  The
     # order in which nodes are removed is the order in which they are presented
