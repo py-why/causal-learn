@@ -166,7 +166,7 @@ class GraphUtils:
             path = [x]
             colliders = []
 
-            for b in x.get_adjacent_nodes():
+            for b in graph.get_adjacent_nodes(x):
                 if self.sepset_path_found(x, b, y, path, z, graph, colliders):
                     return None
 
