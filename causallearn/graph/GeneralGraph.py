@@ -693,7 +693,7 @@ class GeneralGraph(Graph):
 
     def is_def_unshielded_collider(self, node1, node2, node3):
 
-        return self.is_def_collider(self, node1, node2, node3) and not self.is_directly_connected_to(node1, node3)
+        return self.is_def_collider(node1, node2, node3) and not self.is_directly_connected_to(node1, node3)
 
     # Returns true if node1 and node2 are d-connected on the set of nodes z.
     def is_dconnected_to(self, node1, node2, z):
@@ -726,7 +726,7 @@ class GeneralGraph(Graph):
 
         return self.graph[j, i] == 1 and self.graph[i, j] == -1
 
-    # REturns true iff there is a single undirected edge between node1 and node2.
+    # Returns true iff there is a single undirected edge between node1 and node2.
     def is_undirected_from_to(self, node1, node2):
 
         i = self.node_map[node1]
@@ -835,7 +835,7 @@ class GeneralGraph(Graph):
                         self.graph[j, i] = -1
                         self.graph[i, j] = 1
                     else:
-                        if end1 == 1:
+                        if end1 == -1:
                             self.graph[j, i] = Endpoint.ARROW.value
                             self.graph[i, j] = Endpoint.ARROW.value
                 else:
@@ -891,9 +891,14 @@ class GeneralGraph(Graph):
         nodes.remove(node)
         self.nodes = nodes
 
-        node_map = self.node_map
-        node_map.pop(node)
+        # Node indices in node_map should be updated, so rebuild the node_map by the new nodes list
+        node_map = {}
+        for i, node in enumerate(self.nodes):
+            node_map[node] = i
         self.node_map = node_map
+
+        # num_vars should minus 1
+        self.num_vars -= 1
 
     # Iterates through the list and removes any permissible nodes found.  The
     # order in which nodes are removed is the order in which they are presented
