@@ -104,7 +104,8 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     return cg
 
 
-def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, verbose, show_progress):
+def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False,
+           show_progress=True):
     '''
     Perform missing value Peter-Clark (PC) algorithm for causal discovery
 
@@ -153,37 +154,44 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose,
-                                                  show_progress=show_progress)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, 
+                                                    background_knowledge=background_knowledge,
+                                                    verbose=verbose,show_progress=show_progress)
+    if background_knowledge is not None:
+        orient_by_background_knowledge(cg_pre, background_knowledge)
+
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 
     ## b) Correction of the extra edges
     cg_corr = skeleton_correction(data, alpha, correction_name, cg_pre, prt_m, stable)
     # print('Finish missingness correction.')
-
+    
+    if background_knowledge is not None:
+        orient_by_background_knowledge(cg_corr, background_knowledge)
+        
     ## Step 3: Orient the edges
     if uc_rule == 0:
         if uc_priority != -1:
-            cg_2 = UCSepset.uc_sepset(cg_corr, uc_priority)
+            cg_2 = UCSepset.uc_sepset(cg_corr, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = UCSepset.uc_sepset(cg_corr)
-        cg = Meek.meek(cg_2)
+            cg_2 = UCSepset.uc_sepset(cg_corr, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_2, background_knowledge=background_knowledge)
 
     elif uc_rule == 1:
         if uc_priority != -1:
-            cg_2 = UCSepset.maxp(cg_corr, uc_priority)
+            cg_2 = UCSepset.maxp(cg_corr, uc_priority,background_knowledge=background_knowledge)
         else:
-            cg_2 = UCSepset.maxp(cg_corr)
-        cg = Meek.meek(cg_2)
+            cg_2 = UCSepset.maxp(cg_corr, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_2, background_knowledge=background_knowledge)
 
     elif uc_rule == 2:
         if uc_priority != -1:
-            cg_2 = UCSepset.definite_maxp(cg_corr, alpha, uc_priority)
+            cg_2 = UCSepset.definite_maxp(cg_corr, alpha, uc_priority, background_knowledge=background_knowledge)
         else:
-            cg_2 = UCSepset.definite_maxp(cg_corr, alpha)
-        cg_before = Meek.definite_meek(cg_2)
-        cg = Meek.meek(cg_before)
+            cg_2 = UCSepset.definite_maxp(cg_corr, alpha, background_knowledge=background_knowledge)
+        cg_before = Meek.definite_meek(cg_2, background_knowledge=background_knowledge)
+        cg = Meek.meek(cg_before, background_knowledge=background_knowledge)
     end = time.time()
 
     cg.PC_elapsed = end - start
