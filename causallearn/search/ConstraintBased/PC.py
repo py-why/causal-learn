@@ -23,7 +23,8 @@ def pc(data, alpha=0.05, indep_test=fisherz, stable: bool = True, uc_rule: int =
         if indep_test == fisherz:
             indep_test = mv_fisherz
         return mvpc_alg(data=data, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
-                        uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose, show_progress=show_progress)
+                        uc_rule=uc_rule, uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose, 
+                        show_progress=show_progress)
     else:
         return pc_alg(data=data, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
                       uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose,
