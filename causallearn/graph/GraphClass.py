@@ -1,6 +1,7 @@
 import io
 import warnings
 from itertools import permutations
+from typing import List, Tuple
 
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
@@ -12,18 +13,19 @@ from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
+from causallearn.graph.Node import Node
 from causallearn.utils.GraphUtils import GraphUtils
 from causallearn.utils.PCUtils.Helper import list_union, powerset
 
 
 class CausalGraph:
-    def __init__(self, no_of_var):
-        node_names = [("X%d" % (i + 1)) for i in range(no_of_var)]
-        nodes = []
+    def __init__(self, no_of_var: int):
+        node_names: List[str] = [("X%d" % (i + 1)) for i in range(no_of_var)]
+        nodes: List[Node] = []
         for name in node_names:
             node = GraphNode(name)
             nodes.append(node)
-        self.G = GeneralGraph(nodes)
+        self.G: GeneralGraph = GeneralGraph(nodes)
         for i in range(no_of_var):
             for j in range(i + 1, no_of_var):
                 self.G.add_edge(Edge(nodes[i], nodes[j], Endpoint.TAIL, Endpoint.TAIL))
@@ -40,7 +42,7 @@ class CausalGraph:
         self.nx_skel = nx.Graph()  # store the undirected graph
         self.labels = {}
         self.prt_m = {}  # store the parents of missingness indicators
-        self.mvpc = None
+        self.mvpc = False
         self.cardinalities = None  # only works when self.data is discrete, i.e. self.test is chisq or gsq
         self.is_discrete = False
         self.citest_cache = dict()
@@ -50,12 +52,11 @@ class CausalGraph:
     def set_ind_test(self, indep_test, mvpc=False):
         """Set the conditional independence test that will be used"""
         # assert name_of_test in ["Fisher_Z", "Chi_sq", "G_sq"]
-        if mvpc:
-            self.mvpc = True
+        self.mvpc = mvpc
         self.test = indep_test
         self.ci_test_hash_key = hash(indep_test)
 
-    def ci_test(self, i, j, S):
+    def ci_test(self, i: int, j: int, S) -> float:
         """Define the conditional independence test"""
         # assert i != j and not i in S and not j in S
         if self.mvpc:
@@ -71,33 +72,33 @@ class CausalGraph:
         self.citest_cache[ijS_key] = pValue
         return pValue
 
-    def neighbors(self, i):
+    def neighbors(self, i: int):
         """Find the neighbors of node i in adjmat"""
         return np.where(self.G.graph[i, :] != 0)[0]
 
-    def max_degree(self):
+    def max_degree(self) -> int:
         """Return the maximum number of edges connected to a node in adjmat"""
         return max(np.sum(self.G.graph != 0, axis=1))
 
-    def find_arrow_heads(self):
+    def find_arrow_heads(self) -> List[Tuple[int, int]]:
         """Return the list of i o-> j in adjmat as (i, j)"""
         L = np.where(self.G.graph == 1)
         return list(zip(L[1], L[0]))
 
-    def find_tails(self):
+    def find_tails(self) -> List[Tuple[int, int]]:
         """Return the list of i --o j in adjmat as (j, i)"""
         L = np.where(self.G.graph == -1)
         return list(zip(L[1], L[0]))
 
-    def find_undirected(self):
+    def find_undirected(self) -> List[Tuple[int, int]]:
         """Return the list of undirected edge i --- j in adjmat as (i, j) [with symmetry]"""
         return [(edge[0], edge[1]) for edge in self.find_tails() if self.G.graph[edge[0], edge[1]] == -1]
 
-    def find_fully_directed(self):
+    def find_fully_directed(self) -> List[Tuple[int, int]]:
         """Return the list of directed edges i --> j in adjmat as (i, j)"""
         return [(edge[0], edge[1]) for edge in self.find_arrow_heads() if self.G.graph[edge[0], edge[1]] == -1]
 
-    def find_bi_directed(self):
+    def find_bi_directed(self) -> List[Tuple[int, int]]:
         """Return the list of bidirected edges i <-> j in adjmat as (i, j) [with symmetry]"""
         return [(edge[1], edge[0]) for edge in self.find_arrow_heads() if (
                 self.G.graph[edge[1], edge[0]] == Endpoint.ARROW.value and self.G.graph[
@@ -107,33 +108,33 @@ class CausalGraph:
         """Return the list of adjacencies i --- j in adjmat as (i, j) [with symmetry]"""
         return list(self.find_tails() + self.find_arrow_heads())
 
-    def is_undirected(self, i, j):
+    def is_undirected(self, i, j) -> bool:
         """Return True if i --- j holds in adjmat and False otherwise"""
         return self.G.graph[i, j] == -1 and self.G.graph[j, i] == -1
 
-    def is_fully_directed(self, i, j):
+    def is_fully_directed(self, i, j) -> bool:
         """Return True if i --> j holds in adjmat and False otherwise"""
         return self.G.graph[i, j] == -1 and self.G.graph[j, i] == 1
 
-    def find_unshielded_triples(self):
+    def find_unshielded_triples(self) -> List[Tuple[int, int, int]]:
         """Return the list of unshielded triples i o-o j o-o k in adjmat as (i, j, k)"""
         return [(pair[0][0], pair[0][1], pair[1][1]) for pair in permutations(self.find_adj(), 2)
                 if pair[0][1] == pair[1][0] and pair[0][0] != pair[1][1] and self.G.graph[pair[0][0], pair[1][1]] == 0]
 
-    def find_triangles(self):
+    def find_triangles(self) -> List[Tuple[int, int, int]]:
         """Return the list of triangles i o-o j o-o k o-o i in adjmat as (i, j, k) [with symmetry]"""
         Adj = self.find_adj()
         return [(pair[0][0], pair[0][1], pair[1][1]) for pair in permutations(Adj, 2)
                 if pair[0][1] == pair[1][0] and pair[0][0] != pair[1][1] and (pair[0][0], pair[1][1]) in Adj]
 
-    def find_kites(self):
+    def find_kites(self) -> List[Tuple[int, int, int, int]]:
         """Return the list of non-ambiguous kites i o-o j o-o l o-o k o-o i o-o l in adjmat \
         (where j and k are non-adjacent) as (i, j, k, l) [with asymmetry j < k]"""
         return [(pair[0][0], pair[0][1], pair[1][1], pair[0][2]) for pair in permutations(self.find_triangles(), 2)
                 if pair[0][0] == pair[1][0] and pair[0][2] == pair[1][2]
                 and pair[0][1] < pair[1][1] and self.G.graph[pair[0][1], pair[1][1]] == 0]
 
-    def find_cond_sets(self, i, j):
+    def find_cond_sets(self, i: int, j: int) -> List[Tuple[int]]:
         """return the list of conditioning sets of the neighbors of i or j in adjmat"""
         neigh_x = self.neighbors(i)
         neigh_y = self.neighbors(j)
@@ -141,11 +142,11 @@ class CausalGraph:
         pow_neigh_y = powerset(neigh_y)
         return list_union(pow_neigh_x, pow_neigh_y)
 
-    def find_cond_sets_with_mid(self, i, j, k):
+    def find_cond_sets_with_mid(self, i: int, j: int, k: int) -> List[Tuple[int]]:
         """return the list of conditioning sets of the neighbors of i or j in adjmat which contains k"""
         return [S for S in self.find_cond_sets(i, j) if k in S]
 
-    def find_cond_sets_without_mid(self, i, j, k):
+    def find_cond_sets_without_mid(self, i: int, j: int, k: int) -> List[Tuple[int]]:
         """return the list of conditioning sets of the neighbors of i or j which in adjmat does not contain k"""
         return [S for S in self.find_cond_sets(i, j) if k not in S]
 

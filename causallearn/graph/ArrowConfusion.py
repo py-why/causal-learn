@@ -5,9 +5,9 @@ from causallearn.graph.Graph import Graph
 
 
 class ArrowConfusion:
-    '''
+    """
     Compute the arrow confusion between two graphs.
-    '''
+    """
     __arrowsFp = 0
     __arrowsFn = 0
     __arrowsTp = 0
@@ -19,7 +19,7 @@ class ArrowConfusion:
     __arrowsTnCE = 0
 
     def __init__(self, truth: Graph, est: Graph):
-        '''
+        """
         Compute and store the arrow confusion between two graphs.
 
         Parameters
@@ -28,7 +28,7 @@ class ArrowConfusion:
             Truth graph.
         est :
             Estimated graph.
-        '''
+        """
         nodes = truth.get_nodes()
         nodes_name = [node.get_name() for node in nodes]
 
@@ -37,7 +37,7 @@ class ArrowConfusion:
         truePositivesCE = np.zeros((len(nodes), len(nodes)))
         estPositivesCE = np.zeros((len(nodes), len(nodes)))
 
-        # Assumes the the list of nodes for the two graphs are the same.
+        # Assumes the list of nodes for the two graphs are the same.
         for i in list(range(0, len(nodes))):
             for j in list(range(0, len(nodes))):
                 if truth.get_endpoint(truth.get_node(nodes_name[i]), truth.get_node(nodes_name[j])) == Endpoint.ARROW:
