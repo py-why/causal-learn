@@ -6,19 +6,20 @@ import networkx as nx
 import numpy as np
 
 from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.cit import *
 from causallearn.utils.PCUtils import Helper, Meek, SkeletonDiscovery, UCSepset
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
     orient_by_background_knowledge
 
 
-def pc(data, alpha=0.05, indep_test=fisherz, stable=True, uc_rule=0, uc_priority=2, mvpc=False,
-       correction_name='MV_Crtn_Fisher_Z',
-       background_knowledge=None, verbose=False, show_progress=True):
+def pc(data, alpha=0.05, indep_test=fisherz, stable: bool = True, uc_rule: int = 0, uc_priority: int = 2,
+       mvpc: bool = False, correction_name: str = 'MV_Crtn_Fisher_Z',
+       background_knowledge: BackgroundKnowledge | None = None, verbose: bool = False, show_progress: bool = True):
     if data.shape[0] < data.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
 
-    if mvpc:
+    if mvpc:  # missing value PC
         if indep_test == fisherz:
             indep_test = mv_fisherz
         return mvpc_alg(data=data, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
@@ -31,7 +32,7 @@ def pc(data, alpha=0.05, indep_test=fisherz, stable=True, uc_rule=0, uc_priority
 
 def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False,
            show_progress=True):
-    '''
+    """
     Perform Peter-Clark (PC) algorithm for causal discovery
 
     Parameters
@@ -66,7 +67,7 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
                     cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
-    '''
+    """
 
     start = time.time()
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
@@ -104,8 +105,9 @@ def pc_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_kno
     return cg
 
 
-def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False,
-           show_progress=True):
+def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, background_knowledge=None,
+             verbose=False,
+             show_progress=True):
     '''
     Perform missing value Peter-Clark (PC) algorithm for causal discovery
 
@@ -154,9 +156,9 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, 
-                                                    background_knowledge=background_knowledge,
-                                                    verbose=verbose,show_progress=show_progress)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
+                                                  background_knowledge=background_knowledge,
+                                                  verbose=verbose, show_progress=show_progress)
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_pre, background_knowledge)
 
@@ -166,10 +168,10 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
     ## b) Correction of the extra edges
     cg_corr = skeleton_correction(data, alpha, correction_name, cg_pre, prt_m, stable)
     # print('Finish missingness correction.')
-    
+
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_corr, background_knowledge)
-        
+
     ## Step 3: Orient the edges
     if uc_rule == 0:
         if uc_priority != -1:
@@ -180,7 +182,7 @@ def mvpc_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_prior
 
     elif uc_rule == 1:
         if uc_priority != -1:
-            cg_2 = UCSepset.maxp(cg_corr, uc_priority,background_knowledge=background_knowledge)
+            cg_2 = UCSepset.maxp(cg_corr, uc_priority, background_knowledge=background_knowledge)
         else:
             cg_2 = UCSepset.maxp(cg_corr, background_knowledge=background_knowledge)
         cg = Meek.meek(cg_2, background_knowledge=background_knowledge)
