@@ -20,7 +20,7 @@ Parameters
 -------------------
 
 **data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
-and n_features is the number of features.
+and n_features is the number of features. Note that for granger_test_2d(), the shape of input data is (n_samples, 2).
 
 Returns
 -------------------

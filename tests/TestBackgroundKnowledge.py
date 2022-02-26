@@ -5,7 +5,7 @@ import numpy as np
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.search.ConstraintBased.PC import pc
-from causallearn.utils.cit import fisherz
+from causallearn.utils.cit import fisherz, mv_fisherz
 from causallearn.utils.PCUtils import SkeletonDiscovery
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
@@ -144,3 +144,25 @@ class TestPC(unittest.TestCase):
 
         assert cg_with_background_knowledge.G.get_edge(nodes[2], nodes[8]) is None
         assert cg_with_background_knowledge.G.is_directed_from_to(nodes[7], nodes[17])
+
+    def test_mvpc_with_background_knowledge(self):
+        data_path = "data_linear_10.txt"
+        data = np.loadtxt(data_path, skiprows=1)  # Import the file at data_path as data
+        cg_without_background_knowledge = pc(data, 0.05, mv_fisherz, True, 0,
+                                             0, mvpc=True)  # Run PC and obtain the estimated graph (CausalGraph object)
+
+        nodes = cg_without_background_knowledge.G.get_nodes()
+
+        assert cg_without_background_knowledge.G.is_directed_from_to(nodes[0], nodes[3])
+        assert cg_without_background_knowledge.G.is_directed_from_to(nodes[0], nodes[12])
+
+        bk = BackgroundKnowledge() \
+            .add_forbidden_by_node(nodes[0], nodes[3]) \
+            .add_forbidden_by_node(nodes[3], nodes[0]) \
+            .add_required_by_node(nodes[7], nodes[17])
+        cg_with_background_knowledge = pc(data, 0.05, mv_fisherz, True, 0, 0, mvpc=True, background_knowledge=bk)
+
+        assert cg_with_background_knowledge.G.get_edge(nodes[0], nodes[3]) is None
+        assert cg_with_background_knowledge.G.is_directed_from_to(nodes[0], nodes[12])
+
+

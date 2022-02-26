@@ -29,7 +29,7 @@ class Granger(object):
 
         Parameters:
         -----------
-        data - input data (nxd)
+        data - 2d input data (nx2)
 
         Returns:
         ----------
