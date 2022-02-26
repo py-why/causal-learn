@@ -36,30 +36,20 @@ class Edges:
     # return true iff the given edge is a directed edge -->
     def is_directed_edge(self, edge):
         if edge.get_endpoint1() is Endpoint.TAIL:
-            if edge.get_endpoint2() is Endpoint.ARROW:
-                return True
-            else:
-                return False
+            return edge.get_endpoint2() is Endpoint.ARROW
+        elif edge.get_endpoint2() is Endpoint.TAIL:
+            return edge.get_endpoint1() is Endpoint.ARROW
         else:
-            if edge.get_endpoint2() is Endpoint.TAIL:
-                if edge.get_endpoint1() is Endpoint.ARROW:
-                    return True
-            else:
-                return False
+            return False
 
     # return true iff the given edge is a partially oriented edge o->
     def is_partially_oriented_edge(self, edge):
         if edge.get_endpoint1() is Endpoint.CIRCLE:
-            if edge.get_endpoint2() is Endpoint.ARROW:
-                return True
-            else:
-                return False
+            return edge.get_endpoint2() is Endpoint.ARROW
+        elif edge.get_endpoint2() is Endpoint.CIRCLE:
+            return edge.get_endpoint1() is Endpoint.ARROW
         else:
-            if edge.get_endpoint2() is Endpoint.CIRCLE:
-                if edge.get_endpoint1() is Endpoint.ARROW:
-                    return True
-            else:
-                return False
+            return False
 
     # return true iff some edge is an undirected edge --
     def is_undirected_edge(self, edge):
@@ -69,9 +59,8 @@ class Edges:
         if node == edge.get_node1():
             if str(edge.get_endpoint1()) == "TAIL" and str(edge.get_endpoint2()) == "ARROW":
                 return edge.get_node2()
-        else:
-            if node == edge.get_node2():
-                if str(edge.get_endpoint2()) == "TAIL" and str(edge.get_endpoint1()) == "ARROW":
-                    return edge.get_node1()
+        elif node == edge.get_node2():
+            if str(edge.get_endpoint2()) == "TAIL" and str(edge.get_endpoint1()) == "ARROW":
+                return edge.get_node1()
 
         return None
