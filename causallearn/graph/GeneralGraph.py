@@ -43,8 +43,8 @@ class GeneralGraph(Graph, ABC):
         self.dotted_underline_triples: List[Tuple[Node, Node, Node]] = []
 
         self.attributes = {}
-        self.pattern: bool = False
-        self.pag: bool = False
+        self.pattern = False
+        self.pag = False
 
     ### Helper Functions ###
 
