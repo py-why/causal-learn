@@ -2,16 +2,16 @@ from causallearn.graph.Graph import Graph
 
 
 class AdjacencyConfusion:
-    '''
+    """
     Compute the adjacency confusion between two graphs.
-    '''
+    """
     __adjFn = 0
     __adjTp = 0
     __adjFp = 0
     __adjTn = 0
 
     def __init__(self, truth: Graph, est: Graph):
-        '''
+        """
         Compute and store the adjacency confusion between two graphs.
 
         Parameters
@@ -20,7 +20,7 @@ class AdjacencyConfusion:
             Truth graph.
         est :
             Estimated graph.
-        '''
+        """
         nodes = truth.get_nodes()
         nodes_name = [node.get_name() for node in nodes]
         for i in list(range(0, len(nodes))):

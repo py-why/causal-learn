@@ -3,6 +3,8 @@
 from enum import Enum
 
 from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.Node import Node
+
 
 # Represents an edge node1 *-# node2 where * and # are endpoints of type
 # Endpoint--that is, Endpoint.TAIL, Endpoint.ARROW, or Endpoint.CIRCLE.
@@ -18,7 +20,7 @@ class Edge:
         pd = 3
         pl = 4
 
-    def __init__(self, node1, node2, end1, end2):
+    def __init__(self, node1: Node, node2: Node, end1: Endpoint, end2: Endpoint):
         self.properties = []
 
         if node1 is None or node2 is None:
@@ -45,19 +47,19 @@ class Edge:
             self.numerical_endpoint_2 = end2.value
 
     # return the A node
-    def get_node1(self):
+    def get_node1(self) -> Node:
         return self.node1
 
     # return the B node
-    def get_node2(self):
+    def get_node2(self) -> Node:
         return self.node2
 
     # return the endpoint of the edge at the A node
-    def get_endpoint1(self):
+    def get_endpoint1(self) -> Endpoint:
         return self.endpoint1
 
     # return the endpoint of the edge at the B node
-    def get_endpoint2(self):
+    def get_endpoint2(self) -> Endpoint:
         return self.endpoint2
 
     # # set the endpoint of the edge at the A node
@@ -68,14 +70,14 @@ class Edge:
     # def set_endpoint2(self, endpoint):
     #     self.endpoint2 = endpoint
 
-    def get_numerical_endpoint1(self):
+    def get_numerical_endpoint1(self) -> int:
         return self.numerical_endpoint_1
 
-    def get_numerical_endpoint2(self):
+    def get_numerical_endpoint2(self) -> int:
         return self.numerical_endpoint_2
 
     # set the endpoint of the edge at the A node
-    def set_endpoint1(self, endpoint):
+    def set_endpoint1(self, endpoint: Endpoint):
         self.endpoint1 = endpoint
 
         if self.numerical_endpoint_1 == 1 and self.numerical_endpoint_2 == 1:
@@ -116,7 +118,7 @@ class Edge:
             self.numerical_endpoint_1 = self.numerical_endpoint_2
             self.numerical_endpoint_2 = tempnum
 
-    def set_endpoint2(self, endpoint):
+    def set_endpoint2(self, endpoint: Endpoint):
         self.endpoint2 = endpoint
 
         if self.numerical_endpoint_1 == 1 and self.numerical_endpoint_2 == 1:
@@ -159,7 +161,7 @@ class Edge:
 
     # return the endpoint nearest to the given node; returns NoneType if the
     # given node is not along the edge
-    def get_proximal_endpoint(self, node):
+    def get_proximal_endpoint(self, node: Node) -> Endpoint | None:
         if self.node1 is node:
             return self.endpoint1
         else:
@@ -170,7 +172,7 @@ class Edge:
 
     # return the endpoint furthest from the given node; returns NoneType if the
     # given node is not along the edge
-    def get_distal_endpoint(self, node):
+    def get_distal_endpoint(self, node: Node) -> Endpoint | None:
         if self.node1 is node:
             return self.endpoint2
         else:
@@ -181,7 +183,7 @@ class Edge:
 
     # traverses the edge in an undirected fashion: given one node along the
     # edge, returns the node at the opposite end of the edge
-    def get_distal_node(self, node):
+    def get_distal_node(self, node: Node) -> Node | None:
         if self.node1 is node:
             return self.node2
         else:
@@ -190,8 +192,7 @@ class Edge:
             else:
                 return None
 
-    def points_toward(self, node):
-
+    def points_toward(self, node: Node) -> bool:
         proximal = self.get_proximal_endpoint(node)
         distal = self.get_distal_endpoint(node)
         return proximal == Endpoint.ARROW and (distal == Endpoint.TAIL or distal == Endpoint.CIRCLE)
@@ -200,10 +201,7 @@ class Edge:
         if not isinstance(other, Edge):
             raise TypeError("Not an edge")
 
-        if self.endpoint1 == other.endpoint1 and self.endpoint2 == other.endpoint2 and self.node1 == other.node1 and self.node2 == other.node2:
-            return True
-        else:
-            return False
+        return self.endpoint1 == other.endpoint1 and self.endpoint2 == other.endpoint2 and self.node1 == other.node1 and self.node2 == other.node2
 
     def __lt__(self, other):
         return self.node1 < other.node1 or self.node2 < other.node2
@@ -243,5 +241,5 @@ class Edge:
     #
 
     # returns True if the edge is pointing "left"
-    def pointing_left(self, endpoint1, endpoint2):
+    def pointing_left(self, endpoint1: Endpoint, endpoint2: Endpoint):
         return endpoint1 == Endpoint.ARROW and (endpoint2 == Endpoint.TAIL or endpoint2 == Endpoint.CIRCLE)

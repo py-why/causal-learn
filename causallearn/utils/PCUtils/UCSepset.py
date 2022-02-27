@@ -2,11 +2,14 @@ from copy import deepcopy
 
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.PCUtils.Helper import sort_dict_ascending
 
 
-def uc_sepset(cg, priority=3, background_knowledge=None):
-    '''
+def uc_sepset(cg: CausalGraph, priority: int = 3,
+              background_knowledge: BackgroundKnowledge | None = None) -> CausalGraph:
+    """
     Run (UC_sepset) to orient unshielded colliders
 
     Parameters
@@ -25,7 +28,7 @@ def uc_sepset(cg, priority=3, background_knowledge=None):
     cg_new : a CausalGraph object. Where cg_new.G.graph[j,i]=1 and cg_new.G.graph[i,j]=-1 indicates  i --> j ,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = -1 indicates i --- j,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = 1 indicates i <-> j.
-    '''
+    """
 
     assert priority in [0, 1, 2, 3, 4]
 
@@ -50,8 +53,8 @@ def uc_sepset(cg, priority=3, background_knowledge=None):
                 edge2 = cg_new.G.get_edge(cg_new.G.nodes[y], cg_new.G.nodes[x])
                 if edge2 is not None:
                     cg_new.G.remove_edge(edge2)
-                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL,
-                                       Endpoint.ARROW))  # Fully orient the edge irrespective of what have been oriented
+                # Fully orient the edge irrespective of what have been oriented
+                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
                 edge3 = cg_new.G.get_edge(cg_new.G.nodes[y], cg_new.G.nodes[z])
                 if edge3 is not None:
@@ -89,8 +92,8 @@ def uc_sepset(cg, priority=3, background_knowledge=None):
                     edge1 = cg_new.G.get_edge(cg_new.G.nodes[x], cg_new.G.nodes[y])
                     if edge1 is not None:
                         cg_new.G.remove_edge(edge1)
-                    cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL,
-                                           Endpoint.ARROW))  # Orient only if the edges have not been oriented the other way around
+                    # Orient only if the edges have not been oriented the other way around
+                    cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
                     edge2 = cg_new.G.get_edge(cg_new.G.nodes[z], cg_new.G.nodes[y])
                     if edge2 is not None:
@@ -127,8 +130,8 @@ def uc_sepset(cg, priority=3, background_knowledge=None):
                 edge1 = cg_new.G.get_edge(cg_new.G.nodes[x], cg_new.G.nodes[y])
                 if edge1 is not None:
                     cg_new.G.remove_edge(edge1)
-                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL,
-                                       Endpoint.ARROW))  # Orient only if the edges have not been oriented the other way around
+                # Orient only if the edges have not been oriented the other way around
+                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
                 edge2 = cg_new.G.get_edge(cg_new.G.nodes[z], cg_new.G.nodes[y])
                 if edge2 is not None:
@@ -138,8 +141,8 @@ def uc_sepset(cg, priority=3, background_knowledge=None):
         return cg_new
 
 
-def maxp(cg, priority=3, background_knowledge=None):
-    '''
+def maxp(cg: CausalGraph, priority: int = 3, background_knowledge: BackgroundKnowledge = None):
+    """
     Run (MaxP) to orient unshielded colliders
 
     Parameters
@@ -158,7 +161,7 @@ def maxp(cg, priority=3, background_knowledge=None):
     cg_new : a CausalGraph object. Where cg_new.G.graph[j,i]=1 and cg_new.G.graph[i,j]=-1 indicates  i --> j ,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = -1 indicates i --- j,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = 1 indicates i <-> j.
-    '''
+    """
 
     assert priority in [0, 1, 2, 3, 4]
 
@@ -188,8 +191,8 @@ def maxp(cg, priority=3, background_knowledge=None):
                 edge2 = cg_new.G.get_edge(cg_new.G.nodes[y], cg_new.G.nodes[x])
                 if edge2 is not None:
                     cg_new.G.remove_edge(edge2)
-                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL,
-                                       Endpoint.ARROW))  # Fully orient the edge irrespective of what have been oriented
+                # Fully orient the edge irrespective of what have been oriented
+                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
                 edge3 = cg_new.G.get_edge(cg_new.G.nodes[y], cg_new.G.nodes[z])
                 if edge3 is not None:
@@ -201,7 +204,7 @@ def maxp(cg, priority=3, background_knowledge=None):
 
             elif priority == 1:  # 1: orient bi-directed
                 edge1 = cg_new.G.get_edge(cg_new.G.nodes[x], cg_new.G.nodes[y])
-                if edge1 is None:
+                if edge1 is not None:
                     if cg_new.G.graph[x, y] == Endpoint.TAIL.value and cg_new.G.graph[y, x] == Endpoint.TAIL.value:
                         cg_new.G.remove_edge(edge1)
                         cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
@@ -212,7 +215,7 @@ def maxp(cg, priority=3, background_knowledge=None):
                     cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
                 edge2 = cg_new.G.get_edge(cg_new.G.nodes[z], cg_new.G.nodes[y])
-                if edge2 is None:
+                if edge2 is not None:
                     if cg_new.G.graph[z, y] == Endpoint.TAIL.value and cg_new.G.graph[y, z] == Endpoint.TAIL.value:
                         cg_new.G.remove_edge(edge2)
                         cg_new.G.add_edge(Edge(cg_new.G.nodes[z], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
@@ -227,8 +230,8 @@ def maxp(cg, priority=3, background_knowledge=None):
                     edge1 = cg_new.G.get_edge(cg_new.G.nodes[x], cg_new.G.nodes[y])
                     if edge1 is not None:
                         cg_new.G.remove_edge(edge1)
-                    cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL,
-                                           Endpoint.ARROW))  # Orient only if the edges have not been oriented the other way around
+                    # Orient only if the edges have not been oriented the other way around
+                    cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
                     edge2 = cg_new.G.get_edge(cg_new.G.nodes[z], cg_new.G.nodes[y])
                     if edge2 is not None:
@@ -262,8 +265,8 @@ def maxp(cg, priority=3, background_knowledge=None):
                 edge1 = cg_new.G.get_edge(cg_new.G.nodes[x], cg_new.G.nodes[y])
                 if edge1 is not None:
                     cg_new.G.remove_edge(edge1)
-                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL,
-                                       Endpoint.ARROW))  # Orient only if the edges have not been oriented the other way around
+                # Orient only if the edges have not been oriented the other way around
+                cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
                 edge2 = cg_new.G.get_edge(cg_new.G.nodes[z], cg_new.G.nodes[y])
                 if edge2 is not None:
@@ -273,8 +276,9 @@ def maxp(cg, priority=3, background_knowledge=None):
         return cg_new
 
 
-def definite_maxp(cg, alpha, priority=4, background_knowledge=None):
-    '''
+def definite_maxp(cg: CausalGraph, alpha: float, priority: int = 4,
+                  background_knowledge: BackgroundKnowledge = None) -> CausalGraph:
+    """
     Run (Definite_MaxP) to orient unshielded colliders
 
     Parameters
@@ -293,7 +297,7 @@ def definite_maxp(cg, alpha, priority=4, background_knowledge=None):
     cg_new : a CausalGraph object. Where cg_new.G.graph[j,i]=1 and cg_new.G.graph[i,j]=-1 indicates  i --> j ,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = -1 indicates i --- j,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = 1 indicates i <-> j.
-    '''
+    """
 
     assert 1 > alpha >= 0
     assert priority in [2, 3, 4]
@@ -362,8 +366,8 @@ def definite_maxp(cg, alpha, priority=4, background_knowledge=None):
             edge1 = cg_new.G.get_edge(cg_new.G.nodes[x], cg_new.G.nodes[y])
             if edge1 is not None:
                 cg_new.G.remove_edge(edge1)
-            cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL,
-                                   Endpoint.ARROW))  # Orient only if the edges have not been oriented the other way around
+            # Orient only if the edges have not been oriented the other way around
+            cg_new.G.add_edge(Edge(cg_new.G.nodes[x], cg_new.G.nodes[y], Endpoint.TAIL, Endpoint.ARROW))
 
             edge2 = cg_new.G.get_edge(cg_new.G.nodes[z], cg_new.G.nodes[y])
             if edge2 is not None:

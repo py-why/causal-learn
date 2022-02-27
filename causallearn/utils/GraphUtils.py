@@ -2,6 +2,7 @@
 
 from collections import deque
 from itertools import permutations
+from typing import List, Tuple, Deque
 
 import pydot
 
@@ -11,6 +12,7 @@ from causallearn.graph.Edge import Edge
 from causallearn.graph.Edges import Edges
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.Graph import Graph
+from causallearn.graph.Node import Node
 from causallearn.graph.NodeType import NodeType
 
 
@@ -21,22 +23,19 @@ class GraphUtils:
 
     # Returns true if node1 is d-connected to node2 on the set of nodes z.
     ### CURRENTLY THIS DOES NOT IMPLEMENT UNDERLINE TRIPLE EXCEPTIONS ###
-    def is_dconnected_to(self, node1, node2, z, graph):
+    def is_dconnected_to(self, node1: Node, node2: Node, z: List[Node], graph: Graph):
         if node1 == node2:
             return True
 
         edgenode_deque = deque([])
 
         for edge in graph.get_node_edges(node1):
-
-            if edge.get_distal_node(node1) == (node2):
+            if edge.get_distal_node(node1) == node2:
                 return True
-
             edgenode_deque.append((edge, node1))
 
         while len(edgenode_deque) > 0:
             edge, node_a = edgenode_deque.pop()
-
             node_b = edge.get_distal_node(node_a)
 
             for edge2 in graph.get_node_edges(node_b):
@@ -53,8 +52,7 @@ class GraphUtils:
 
         return False
 
-    def edge_string(self, edge):
-
+    def edge_string(self, edge: Edge) -> str:
         node1 = edge.get_node1()
         node2 = edge.get_node2()
 
@@ -81,11 +79,10 @@ class GraphUtils:
             else:
                 edge_string = edge_string + "o"
 
-        edge_string = edge_string + " " + node2
+        edge_string = edge_string + " " + node2.get_name()
         return edge_string
 
-    def graph_string(self, graph):
-
+    def graph_string(self, graph: Graph) -> str:
         nodes = graph.get_nodes()
         edges = graph.get_graph_edges()
 
@@ -112,8 +109,7 @@ class GraphUtils:
 
     # Helper method. Determines if two edges do or do not form a block for d-separation, conditional on a set of nodes z
     # starting from a node a
-    def reachable(self, edge1, edge2, node_a, z, graph):
-
+    def reachable(self, edge1: Edge, edge2: Edge, node_a: Node, z: List[Node], graph: Graph) -> bool:
         node_b = edge1.get_distal_node(node_a)
 
         collider = str(edge1.get_proximal_endpoint(node_b)) == "ARROW" and str(
@@ -127,7 +123,7 @@ class GraphUtils:
         return collider and ancestor
 
     # Helper method. Determines if a given node is an ancestor of any node in a set of nodes z.
-    def is_ancestor(self, node, z, graph):
+    def is_ancestor(self, node: Node, z: List[Node], graph: Graph) -> bool:
         if node in z:
             return True
 
@@ -142,28 +138,26 @@ class GraphUtils:
                 return True
 
             for node_c in graph.get_parents(node_t):
-                if not (node_c in nodedeque):
+                if node_c not in nodedeque:
                     nodedeque.append(node_c)
         return False
 
-    def get_sepset(self, x, y, graph):
-
+    def get_sepset(self, x: Node, y: Node, graph: Graph) -> List[Node] | None:
         sepset = self.get_sepset_visit(x, y, graph)
         if sepset is None:
             sepset = self.get_sepset_visit(y, x, graph)
 
         return sepset
 
-    def get_sepset_visit(self, x, y, graph):
-
+    def get_sepset_visit(self, x: Node, y: Node, graph: Graph) -> List[Node] | None:
         if x == y:
             return None
 
-        z = []
+        z: List[Node] = []
 
         while True:
             _z = z.copy()
-            path = [x]
+            path: List[Node] = [x]
             colliders = []
 
             for b in graph.get_adjacent_nodes(x):
@@ -172,13 +166,13 @@ class GraphUtils:
 
             z.sort()
             _z.sort()
-            if z != _z:
+            if z == _z:
                 break
 
         return z
 
-    def sepset_path_found(self, a, b, y, path, z, graph, colliders):
-
+    def sepset_path_found(self, a: Node, b: Node, y: Node, path: List[Node], z: List[Node], graph: Graph,
+                          colliders: List[Tuple[Node, Node, Node]]) -> bool:
         if b == y:
             return True
 
@@ -214,11 +208,11 @@ class GraphUtils:
 
             z.append(b)
             found2 = False
-            colliders2 = []
+            colliders2: List[Tuple[Node, Node, Node]] = []
             pass_nodes2 = self.get_pass_nodes(a, b, z, graph, None)
 
             for c in pass_nodes2:
-                if self.sepset_path_found(b, c, y, z, graph, colliders2):
+                if self.sepset_path_found(b, c, y, path, z, graph, colliders2):
                     found2 = True
                     break
 
@@ -231,9 +225,9 @@ class GraphUtils:
             path.remove(b)
             return True
 
-    def get_pass_nodes(self, a, b, z, graph, colliders):
-
-        pass_nodes = []
+    def get_pass_nodes(self, a: Node, b: Node, z: List[Node], graph: Graph,
+                       colliders: List[Tuple[Node, Node, Node]] | None) -> List[Node]:
+        pass_nodes: List[Node] = []
 
         for c in graph.get_adjacent_nodes(b):
             if c == a:
@@ -244,7 +238,8 @@ class GraphUtils:
 
         return pass_nodes
 
-    def node_reachable(self, a, b, c, z, graph, colliders):
+    def node_reachable(self, a: Node, b: Node, c: Node, z: List[Node], graph: Graph,
+                       colliders: List[Tuple[Node, Node, Node]] | None) -> bool:
         collider = graph.is_def_collider(a, b, c)
 
         if not collider and not (b in z):
@@ -254,46 +249,19 @@ class GraphUtils:
 
         collider_reachable = collider and ancestor
 
-        if colliders is None and collider and not ancestor:
+        if colliders is not None and collider and not ancestor:
             colliders.append((a, b, c))
 
         return collider_reachable
 
-    def is_ancestor(self, b, z, graph):
-
-        if b in z:
-            return True
-
-        Q = deque([])
-        V = []
-
-        for node in z:
-            Q.append(node)
-            V.append(node)
-
-        while (len(Q) > 0):
-            t = Q.pop()
-
-            if t == b:
-                return True
-
-            for c in graph.get_parents(t):
-                if not (c in V):
-                    Q.append(c)
-                    V.append(c)
-
-        return False
-
     # Returns a tiered ordering of variables in an acyclic graph. THIS ALGORITHM IS NOT ALWAYS CORRECT.
-    def get_causal_order(self, graph):
-
+    def get_causal_order(self, graph: Graph) -> List[Node]:
         if graph.exists_directed_cycle():
             raise ValueError("Graph must be acyclic.")
 
-        found = []
-        not_found = graph.get_nodes()
-
-        sub_not_found = []
+        found: List[Node] = []
+        not_found: List[Node] = graph.get_nodes()
+        sub_not_found: List[Node] = []
 
         for node in not_found:
             if node.get_node_type() == NodeType.ERROR:
@@ -303,19 +271,19 @@ class GraphUtils:
 
         all_nodes = not_found.copy()
 
-        while (len(not_found) > 0):
-            sub_not_found = []
+        while len(not_found) > 0:
+            sub_not_found: List[Node] = []
             for node in not_found:
                 print(node)
                 parents = graph.get_parents(node)
-                sub_parents = []
+                sub_parents: List[Node] = []
                 for node1 in parents:
                     if not (node1 in all_nodes):
                         sub_parents.append(node1)
 
                 parents = [e for e in parents if e not in sub_parents]
 
-                if (all(node1 in found for node1 in parents)):
+                if all(node1 in found for node1 in parents):
                     found.append(node)
                     sub_not_found.append(node)
 
@@ -323,9 +291,11 @@ class GraphUtils:
 
         return found
 
-    def find_unshielded_triples(self, graph):
+    def find_unshielded_triples(self, graph: Graph):
         """Return the list of unshielded triples i o-o j o-o k in adjmat as (i, j, k)"""
-
+        from causallearn.graph.Dag import Dag
+        if not isinstance(graph, Dag):
+            raise ValueError("graph must be a DAG")
         triples = []
 
         for pair in permutations(graph.get_graph_edges(), 2):
@@ -357,10 +327,10 @@ class GraphUtils:
     #    return [(pair[0].get_node1(), pair[0].get_node2(), pair[1].get_node2) for pair in permutations(graph.get_graph_edges(), 2)
     #            if pair[0].get_node2() == pair[1].get_node1() and pair[0].get_node1() != pair[1].get_node2() and graph.get_adjacency_matrix()[graph.get_node_map()[pair[0].get_node1()], graph.get_node_map()[pair[1].get_node2()]] == -1]
 
-    def find_triangles(self, graph):
+    def find_triangles(self, graph: Graph) -> List[Tuple[Node, Node, Node]]:
         """Return the list of triangles i o-o j o-o k o-o i in adjmat as (i, j, k) [with symmetry]"""
         Adj = graph.get_graph_edges()
-        triangles = []
+        triangles: List[Tuple[Node, Node, Node]] = []
 
         for pair in permutations(Adj, 2):
             node1 = pair[0].get_node1()
@@ -389,10 +359,8 @@ class GraphUtils:
     #    return [(pair[0].get_node1(), pair[0].get_node2(), pair[1].get_node2) for pair in permutations(Adj, 3)
     #            if pair[0].get_node2 == pair[1].get_node1() and pair[0].get_node1() != pair[1].get_node2() and (pair[0][0], pair[1][1]) in Adj]
 
-    def find_kites(self, graph):
-
-        kites = []
-
+    def find_kites(self, graph) -> List[Tuple[Node, Node, Node, Node]]:
+        kites: List[Tuple[Node, Node, Node, Node]] = []
         for pair in permutations(self.find_triangles(graph), 2):
             if (pair[0][0] == pair[1][0]) and (pair[0][2] == pair[1][2]) and (
                     graph.node_map[pair[0][1]] < graph.node_map[pair[1][1]]) and (
@@ -405,7 +373,7 @@ class GraphUtils:
         #        if pair[0][0] == pair[1][0] and pair[0][2] == pair[1][2]
         #        and pair[0][1] < pair[1][1] and self.adjmat[pair[0][1], pair[1][1]] == -1]
 
-    def sdh(self, graph1: Graph, graph2: Graph):
+    def sdh(self, graph1: Graph, graph2: Graph) -> int:
         nodes = graph1.get_nodes()
         error = 0
 
@@ -417,7 +385,7 @@ class GraphUtils:
 
         return error
 
-    def shd_one_edge(self, e1: Edge, e2: Edge):
+    def shd_one_edge(self, e1: Edge, e2: Edge) -> int:
         if self.no_edge(e1) and self.undirected(e2):
             return 1
         elif self.no_edge(e2) and self.undirected(e1):
@@ -435,55 +403,52 @@ class GraphUtils:
                 return 1
         elif self.bi_directed(e1) or self.bi_directed(e2):
             return 2
-
         return 0
 
-    def no_edge(self, e: Edge):
-        return e == None
+    def no_edge(self, e: Edge | None) -> bool:
+        return e is None
 
-    def undirected(self, e: Edge):
+    def undirected(self, e: Edge) -> bool:
         return e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.TAIL
 
-    def directed(self, e: Edge):
+    def directed(self, e: Edge) -> bool:
         return (e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.ARROW) \
                or (e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.TAIL)
 
-    def bi_directed(self, e: Edge):
+    def bi_directed(self, e: Edge) -> bool:
         return e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.ARROW
 
-    def adj_precision(self, truth: Graph, est: Graph):
+    def adj_precision(self, truth: Graph, est: Graph) -> float:
         confusion = AdjacencyConfusion(truth, est)
         return confusion.get_adj_tp() / (confusion.get_adj_tp() + confusion.get_adj_fp())
 
-    def adj_recall(self, truth: Graph, est: Graph):
+    def adj_recall(self, truth: Graph, est: Graph) -> float:
         confusion = AdjacencyConfusion(truth, est)
         return confusion.get_adj_tp() / (confusion.get_adj_tp() + confusion.get_adj_fn())
 
-    def arrow_precision(self, truth: Graph, est: Graph):
+    def arrow_precision(self, truth: Graph, est: Graph) -> float:
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fp())
 
-    def arrow_recall(self, truth: Graph, est: Graph):
+    def arrow_recall(self, truth: Graph, est: Graph) -> float:
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fn())
 
-    def arrow_precision_common_edges(self, truth: Graph, est: Graph):
+    def arrow_precision_common_edges(self, truth: Graph, est: Graph) -> float:
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fp_ce())
 
-    def arrow_recall_common_edges(self, truth: Graph, est: Graph):
+    def arrow_recall_common_edges(self, truth: Graph, est: Graph) -> float:
         confusion = ArrowConfusion(truth, est)
         return confusion.get_arrows_tp() / (confusion.get_arrows_tp() + confusion.get_arrows_fn_ce())
 
-    def exists_directed_path_from_to_breadth_first(self, node_from, node_to, G):
-
-        Q = deque()
-        V = [node_from]
+    def exists_directed_path_from_to_breadth_first(self, node_from: Node, node_to: Node, G: Graph) -> bool:
+        Q: Deque[Node] = deque()
+        V: List[Node] = [node_from]
         Q.append(node_from)
 
         while len(Q) > 0:
             t = Q.pop()
-
             for u in G.get_adjacent_nodes(t):
                 if G.is_parent_of(t, u) and G.is_parent_of(u, t):
                     return True
@@ -492,7 +457,7 @@ class GraphUtils:
                 edges = Edges()
                 c = edges.traverse_directed(t, edge)
 
-                if c == None:
+                if c is None:
                     continue
                 if c in V:
                     continue
@@ -503,7 +468,7 @@ class GraphUtils:
                 Q.append(c)
 
     @staticmethod
-    def to_pgv(G, title=""):
+    def to_pgv(G: Graph, title: str = ""):
         # warnings.warn("GraphUtils.to_pgv() is deprecated", DeprecationWarning)
         import pygraphviz as pgv
         graphviz_g = pgv.AGraph(directed=True)
@@ -543,7 +508,7 @@ class GraphUtils:
         return graphviz_g
 
     @staticmethod
-    def to_pydot(G, edges=None, title="", dpi=200):
+    def to_pydot(G: Graph, edges: List[Edge] | None = None, title: str = "", dpi: int = 200):
         pydot_g = pydot.Dot(title, graph_type="digraph", fontsize=18)
         pydot_g.obj_dict["attributes"]["dpi"] = dpi
         nodes = G.get_nodes()

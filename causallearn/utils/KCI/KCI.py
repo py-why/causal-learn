@@ -15,7 +15,7 @@ from causallearn.utils.KCI.PolynomialKernel import PolynomialKernel
 
 # Cannot find reference 'xxx' in '__init__.pyi | __init__.pyi | __init__.pxd' is a bug in pycharm, please ignore
 class KCI_UInd(object):
-    '''
+    """
     Python implementation of Kernel-based Conditional Independence (KCI) test. Unconditional version.
     The original Matlab implementation can be found in http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
 
@@ -25,11 +25,11 @@ class KCI_UInd(object):
     "A kernel-based conditional independence test and application in causal discovery," In UAI 2011.
     [2] A. Gretton, K. Fukumizu, C.-H. Teo, L. Song, B. Schölkopf, and A. Smola, "A kernel
        Statistical test of independence." In NIPS 21, 2007.
-    '''
+    """
 
     def __init__(self, kernelX='Gaussian', kernelY='Gaussian', null_ss=1000, approx=True, est_width='empirical',
                  polyd=2, kwidthx=None, kwidthy=None):
-        '''
+        """
         Construct the KCI_UInd model.
 
         Parameters
@@ -48,7 +48,7 @@ class KCI_UInd(object):
         polyd: polynomial kernel degrees (default=1)
         kwidthx: kernel width for data x (standard deviation sigma)
         kwidthy: kernel width for data y (standard deviation sigma)
-        '''
+        """
 
         self.kernelX = kernelX
         self.kernelY = kernelY
@@ -61,7 +61,7 @@ class KCI_UInd(object):
         self.approx = approx
 
     def compute_pvalue(self, data_x=None, data_y=None):
-        '''
+        """
         Main function: compute the p value and return it together with the test statistic
 
         Parameters
@@ -73,7 +73,7 @@ class KCI_UInd(object):
         _________
         pvalue: p value (scalar)
         test_stat: test statistic (scalar)
-        '''
+        """
 
         Kx, Ky = self.kernel_matrix(data_x, data_y)
         test_stat, Kxc, Kyc = self.HSIC_V_statistic(Kx, Ky)
@@ -86,7 +86,7 @@ class KCI_UInd(object):
         return pvalue, test_stat
 
     def kernel_matrix(self, data_x, data_y):
-        '''
+        """
         Compute kernel matrix for data x and data y
 
         Parameters
@@ -98,7 +98,7 @@ class KCI_UInd(object):
         _________
         Kx: kernel matrix for data_x (nxn)
         Ky: kernel matrix for data_y (nxn)
-        '''
+        """
         if self.kernelX == 'Gaussian':
             if self.est_width == 'manual':
                 if self.kwidthx is not None:
@@ -148,7 +148,7 @@ class KCI_UInd(object):
         return Kx, Ky
 
     def HSIC_V_statistic(self, Kx, Ky):
-        '''
+        """
         Compute V test statistic from kernel matrices Kx and Ky
         Parameters
         ----------
@@ -160,14 +160,14 @@ class KCI_UInd(object):
         Vstat: HSIC v statistics
         Kxc: centralized kernel matrix for data_x (nxn)
         Kyc: centralized kernel matrix for data_y (nxn)
-        '''
+        """
         Kxc = Kernel.center_kernel_matrix(Kx)
         Kyc = Kernel.center_kernel_matrix(Ky)
         V_stat = np.sum(Kxc * Kyc)
         return V_stat, Kxc, Kyc
 
     def null_sample_spectral(self, Kxc, Kyc):
-        '''
+        """
         Simulate data from null distribution
 
         Parameters
@@ -179,7 +179,7 @@ class KCI_UInd(object):
         _________
         null_dstr: samples from the null distribution
 
-        '''
+        """
         T = Kxc.shape[0]
         if T > 1000:
             num_eig = np.int(np.floor(T / 2))
@@ -193,13 +193,13 @@ class KCI_UInd(object):
         lambday = lambday[0:num_eig]
         lambda_prod = np.dot(lambdax.reshape(num_eig, 1), lambday.reshape(1, num_eig)).reshape(
             (num_eig ** 2, 1))
-        lambda_prod = lambda_prod[lambda_prod > lambda_prod.max() * Thresh]
+        lambda_prod = lambda_prod[lambda_prod > lambda_prod.max() * self.thresh]
         f_rand = np.random.chisquare(1, (lambda_prod.shape[0], self.nullss))
         null_dstr = lambda_prod.T.dot(f_rand) / T
         return null_dstr
 
     def get_kappa(self, Kx, Ky):
-        '''
+        """
         Get parameters for the approximated gamma distribution
         Parameters
         ----------
@@ -210,7 +210,7 @@ class KCI_UInd(object):
         _________
         k_appr, theta_appr: approximated parameters of the gamma distribution
 
-        '''
+        """
         T = Kx.shape[0]
         mean_appr = np.trace(Kx) * np.trace(Ky) / T
         var_appr = 2 * np.trace(Kx.dot(Kx)) * np.trace(Ky.dot(Ky)) / T / T
@@ -220,18 +220,18 @@ class KCI_UInd(object):
 
 
 class KCI_CInd(object):
-    '''
+    """
     Python implementation of Kernel-based Conditional Independence (KCI) test. Conditional version.
     The original Matlab implementation can be found in http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
 
     References
     ----------
     [1] K. Zhang, J. Peters, D. Janzing, and B. Schölkopf, "A kernel-based conditional independence test and application in causal discovery," In UAI 2011.
-    '''
+    """
 
     def __init__(self, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', nullss=5000, est_width='empirical',
                  use_gp=False, approx=True, polyd=2, kwidthx=None, kwidthy=None, kwidthz=None):
-        '''
+        """
         Construct the KCI_CInd model.
         Parameters
         ----------
@@ -252,7 +252,7 @@ class KCI_CInd(object):
         kwidthx: kernel width for data x (standard deviation sigma, default None)
         kwidthy: kernel width for data y (standard deviation sigma)
         kwidthz: kernel width for data z (standard deviation sigma)
-        '''
+        """
         self.kernelX = kernelX
         self.kernelY = kernelY
         self.kernelZ = kernelZ
@@ -269,7 +269,7 @@ class KCI_CInd(object):
         self.approx = approx
 
     def compute_pvalue(self, data_x=None, data_y=None, data_z=None):
-        '''
+        """
         Main function: compute the p value and return it together with the test statistic
         Parameters
         ----------
@@ -281,7 +281,7 @@ class KCI_CInd(object):
         _________
         pvalue: p value
         test_stat: test statistic
-        '''
+        """
         Kx, Ky, Kzx, Kzy = self.kernel_matrix(data_x, data_y, data_z)
         test_stat, KxR, KyR = self.KCI_V_statistic(Kx, Ky, Kzx, Kzy)
         uu_prod, size_u = self.get_uuprod(KxR, KyR)
@@ -294,7 +294,7 @@ class KCI_CInd(object):
         return pvalue, test_stat
 
     def kernel_matrix(self, data_x, data_y, data_z):
-        '''
+        """
         Compute kernel matrix for data x, data y, and data_z
         Parameters
         ----------
@@ -308,7 +308,7 @@ class KCI_CInd(object):
         Ky: kernel matrix for data_y (nxn)
         Kzx: centering kernel matrix for data_x (nxn)
         kzy: centering kernel matrix for data_y (nxn)
-        '''
+        """
         # normalize the data
         data_x = stats.zscore(data_x, axis=0)
         data_y = stats.zscore(data_y, axis=0)
@@ -439,7 +439,7 @@ class KCI_CInd(object):
         return Kx, Ky, Kzx, Kzy
 
     def KCI_V_statistic(self, Kx, Ky, Kzx, Kzy):
-        '''
+        """
         Compute V test statistic from kernel matrices Kx and Ky
         Parameters
         ----------
@@ -453,14 +453,14 @@ class KCI_CInd(object):
         Vstat: KCI v statistics
         KxR: centralized kernel matrix for data_x (nxn)
         KyR: centralized kernel matrix for data_y (nxn)
-        '''
+        """
         KxR = Kernel.center_kernel_matrix_regression(Kx, Kzx, self.epsilon_x)
         KyR = Kernel.center_kernel_matrix_regression(Ky, Kzy, self.epsilon_y)
         Vstat = np.sum(KxR * KyR)
         return Vstat, KxR, KyR
 
     def get_uuprod(self, Kx, Ky):
-        '''
+        """
         Compute eigenvalues for null distribution estimation
 
         Parameters
@@ -473,7 +473,7 @@ class KCI_CInd(object):
         uu_prod: product of the eigenvectors of Kx and Ky
         size_u: number of producted eigenvectors
 
-        '''
+        """
         wx, vx = eigh(0.5 * (Kx + Kx.T))
         wy, vy = eigh(0.5 * (Ky + Ky.T))
         idx = np.argsort(-wx)
@@ -507,7 +507,7 @@ class KCI_CInd(object):
         return uu_prod, size_u
 
     def null_sample_spectral(self, uu_prod, size_u, T):
-        '''
+        """
         Simulate data from null distribution
 
         Parameters
@@ -520,7 +520,7 @@ class KCI_CInd(object):
         _________
         null_dstr: samples from the null distribution
 
-        '''
+        """
         eig_uu = eigvalsh(uu_prod)
         eig_uu = -np.sort(-eig_uu)
         eig_uu = eig_uu[0:np.min((T, size_u))]
@@ -531,7 +531,7 @@ class KCI_CInd(object):
         return null_dstr
 
     def get_kappa(self, uu_prod):
-        '''
+        """
         Get parameters for the approximated gamma distribution
         Parameters
         ----------
@@ -541,7 +541,7 @@ class KCI_CInd(object):
         ----------
         k_appr, theta_appr: approximated parameters of the gamma distribution
 
-        '''
+        """
         mean_appr = np.trace(uu_prod)
         var_appr = 2 * np.trace(uu_prod.dot(uu_prod))
         k_appr = mean_appr ** 2 / var_appr

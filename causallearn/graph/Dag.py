@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from itertools import combinations
+from typing import List
 
 import networkx as nx
 import numpy as np
@@ -8,15 +9,16 @@ from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.Graph import Graph
+from causallearn.graph.Node import Node
 from causallearn.utils.GraphUtils import GraphUtils
 
 
 # Represents a directed acyclic graph--that is, a graph containing only
 # directed edges, with no cycles--using a matrix. Variables are permitted to be either measured
 # or latent, with at most one edge per node pair, and no edges to self.
-class Dag(Graph):
+class Dag(GeneralGraph):
 
-    def __init__(self, nodes):
+    def __init__(self, nodes: List[Node]):
 
         # for node in nodes:
         #     if not isinstance(node, type(GraphNode)):

@@ -18,7 +18,7 @@ def plot_time_series(
         label_fontsize=12,
         alpha=0.001
 ):
-    '''
+    """
     Plot time series graph.
 
     Parameters
@@ -47,7 +47,7 @@ def plot_time_series(
     Returns
     -------
 
-    '''
+    """
 
     if link_matrix is None and coef_matrix is None:
         raise RuntimeError("link_matrix is None and coef_matrix is None")
@@ -95,8 +95,8 @@ def plot_time_series(
 
     pos_tmp = {}
 
-    xmin, ymin = posarray.min(axis=0)
-    xmax, ymax = posarray.max(axis=0)
+    xmin, ymin = posarray.min(axis=0, initial=0)
+    xmax, ymax = posarray.max(axis=0, initial=0)
 
     for i in range(dim * max_lag):
         pos_tmp[i] = np.array(
