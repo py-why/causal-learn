@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
+from numpy import ndarray
 from sklearn.linear_model import LinearRegression
 
 #######################################################################################################################
@@ -99,8 +100,10 @@ def chisq(data, X, Y, conditioning_set, G_sq=False):
 #######################################################################################################################
 
 def append_value(array, i, j, value):
-    "Append value to the list at array[i, j]"
-    if array[i, j] == None:
+    """
+    Append value to the list at array[i, j]
+    """
+    if array[i, j] is None:
         array[i, j] = [value]
     else:
         array[i, j].append(value)
@@ -109,7 +112,9 @@ def append_value(array, i, j, value):
 #######################################################################################################################
 
 def powerset(L):
-    "Return the powerset of L (list)"
+    """
+    Return the powerset of L (list)
+    """
     s = list(L)
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
 

@@ -2,7 +2,7 @@ from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 
-def orient_by_background_knowledge(cg, background_knowledge):
+def orient_by_background_knowledge(cg: CausalGraph, background_knowledge: BackgroundKnowledge):
     """
     orient the direction of edges using background background_knowledge after running skeleton_discovery in PC algorithm
 

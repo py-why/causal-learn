@@ -1,17 +1,19 @@
 from itertools import combinations
 
 import numpy as np
+from numpy import ndarray
 from tqdm.auto import tqdm
 
 from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.cit import chisq, gsq
-from causallearn.utils.Fas import citest_cache, fas
 from causallearn.utils.PCUtils.Helper import append_value
 
 
-def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledge=None, verbose=False,
-                       show_progress=True):
-    '''
+def skeleton_discovery(data: ndarray, alpha: float, indep_test, stable: bool = True,
+                       background_knowledge: BackgroundKnowledge | None = None, verbose: bool = False,
+                       show_progress: bool = True) -> CausalGraph:
+    """
     Perform skeleton discovery
 
     Parameters
@@ -37,7 +39,7 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                     cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i -- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
-    '''
+    """
 
     assert type(data) == np.ndarray
     assert 0 < alpha < 1
@@ -67,10 +69,13 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
     while cg.max_degree() - 1 > depth:
         depth += 1
         edge_removal = []
-        if show_progress: pbar.reset()
+        if show_progress:
+            pbar.reset()
         for x in range(no_of_var):
-            if show_progress: pbar.update()
-            if show_progress: pbar.set_description(f'Depth={depth}, working on node {x}')
+            if show_progress:
+                pbar.update()
+            if show_progress:
+                pbar.set_description(f'Depth={depth}, working on node {x}')
             Neigh_x = cg.neighbors(x)
             if len(Neigh_x) < depth - 1:
                 continue
@@ -100,7 +105,8 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                 for S in combinations(Neigh_x_noy, depth):
                     p = cg.ci_test(x, y, S)
                     if p > alpha:
-                        if verbose: print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
+                        if verbose:
+                            print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
                         if not stable:
                             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
                             if edge1 is not None:
@@ -117,17 +123,20 @@ def skeleton_discovery(data, alpha, indep_test, stable=True, background_knowledg
                             for s in S:
                                 sepsets.add(s)
                     else:
-                        if verbose: print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
+                        if verbose:
+                            print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
                 append_value(cg.sepset, x, y, tuple(sepsets))
                 append_value(cg.sepset, y, x, tuple(sepsets))
 
-        if show_progress: pbar.refresh()
+        if show_progress:
+            pbar.refresh()
 
         for (x, y) in list(set(edge_removal)):
             edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
             if edge1 is not None:
                 cg.G.remove_edge(edge1)
 
-    if show_progress: pbar.close()
+    if show_progress:
+        pbar.close()
 
     return cg

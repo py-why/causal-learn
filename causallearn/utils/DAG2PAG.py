@@ -1,15 +1,18 @@
 from itertools import combinations, permutations
+from typing import List
 
 import networkx as nx
 
+from causallearn.graph.Dag import Dag
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.Node import Node
 from causallearn.search.ConstraintBased.FCI import ruleR3, rulesR1R2cycle
 
 
-def dag2pag(dag, islatent):
-    '''
+def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
+    """
     Covert a DAG to its corresponding PAG
     Parameters
     ----------
@@ -18,7 +21,7 @@ def dag2pag(dag, islatent):
     Returns
     -------
     PAG : Partial Ancestral Graph
-    '''
+    """
     udg = nx.Graph()
     nodes = dag.get_nodes()
     nodes_ids = {node: i for i, node in enumerate(nodes)}
@@ -96,24 +99,24 @@ def dag2pag(dag, islatent):
                     mod_endpoint(edge_yz, nodez, Endpoint.ARROW)
                     PAG.add_edge(edge_yz)
 
-    changeFlag = True
+    change_flag = True
 
-    while changeFlag:
-        changeFlag = False
-        changeFlag = rulesR1R2cycle(PAG, None, changeFlag, False)
-        changeFlag = ruleR3(PAG, sepset, None, changeFlag, False)
+    while change_flag:
+        change_flag = False
+        change_flag = rulesR1R2cycle(PAG, None, change_flag, False)
+        change_flag = ruleR3(PAG, sepset, None, change_flag, False)
 
     return PAG
 
 
-def is_fully_directed(edge):
+def is_fully_directed(edge: Edge) -> bool:
     if edge:
         if edge.get_endpoint1() == Endpoint.TAIL and edge.get_endpoint2() == Endpoint.ARROW:
             return True
     return False
 
 
-def is_endpoint(edge, z, end):
+def is_endpoint(edge: Edge, z: Node, end: Endpoint) -> bool:
     if edge.get_node1() == z:
         if edge.get_endpoint1() == end:
             return True
@@ -128,7 +131,7 @@ def is_endpoint(edge, z, end):
         raise ValueError("z not in edge")
 
 
-def mod_endpoint(edge, z, end):
+def mod_endpoint(edge: Edge, z: Node, end: Endpoint):
     if edge.get_node1() == z:
         edge.set_endpoint1(end)
     elif edge.get_node2() == z:

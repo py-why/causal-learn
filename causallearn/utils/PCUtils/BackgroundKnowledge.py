@@ -1,18 +1,19 @@
 import re
+from typing import Set, Tuple, Dict
 
 from causallearn.graph.Node import Node
 
 
 class BackgroundKnowledge(object):
     def __init__(self):
-        self.forbidden_rules_specs = set()
-        self.forbidden_pattern_rules_specs = set()
-        self.required_rules_specs = set()
-        self.required_pattern_rules_specs = set()
-        self.tier_map = {}
-        self.tier_value_map = {}
+        self.forbidden_rules_specs: Set[Tuple[Node, Node]] = set()
+        self.forbidden_pattern_rules_specs: Set[Tuple[str, str]] = set()
+        self.required_rules_specs: Set[Tuple[Node, Node]] = set()
+        self.required_pattern_rules_specs: Set[Tuple[str, str]] = set()
+        self.tier_map: Dict[int, Set[Node]] = {}
+        self.tier_value_map: Dict[Node, int] = {}
 
-    def add_forbidden_by_node(self, node1, node2):
+    def add_forbidden_by_node(self, node1: Node, node2: Node):
         """
         Marks the edge node1 --> node2 as forbidden.
 
@@ -33,7 +34,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def add_required_by_node(self, node1, node2):
+    def add_required_by_node(self, node1: Node, node2: Node):
         """
         Marks the edge node1 --> node2 as required.
 
@@ -54,7 +55,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def add_forbidden_by_pattern(self, node_pattern1, node_pattern2):
+    def add_forbidden_by_pattern(self, node_pattern1: str, node_pattern2: str):
         """
         Marks the edges node_pattern1 --> node_pattern2 as forbidden.
 
@@ -75,7 +76,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def add_required_by_pattern(self, node_pattern1, node_pattern2):
+    def add_required_by_pattern(self, node_pattern1: str, node_pattern2: str):
         """
         Marks the edges node_pattern1 --> node_pattern2 as required.
 
@@ -96,7 +97,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def _ensure_tiers(self, tier):
+    def _ensure_tiers(self, tier: int):
         if type(tier) != int:
             raise TypeError('tier must be int type. tier = ' + str(type(tier)))
 
@@ -104,7 +105,7 @@ class BackgroundKnowledge(object):
             if not self.tier_map.keys().__contains__(t):
                 self.tier_map[t] = set()
 
-    def add_node_to_tier(self, node, tier):
+    def add_node_to_tier(self, node: Node, tier: int):
         """
         Mark the tier of the node. And the edges from the equal or higher tiers to the other tiers are forbidden.
 
@@ -130,13 +131,10 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def _is_node_match_regular_expression(self, pattern, node):
-        if re.match(pattern, node.get_name()) is not None:
-            return True
-        else:
-            return False
+    def _is_node_match_regular_expression(self, pattern: str, node: Node) -> bool:
+        return re.match(pattern, node.get_name()) is not None
 
-    def is_forbidden(self, node1, node2):
+    def is_forbidden(self, node1: Node, node2: Node) -> bool:
         """
         check whether the edge node1 --> node2 is forbidden
 
@@ -172,7 +170,7 @@ class BackgroundKnowledge(object):
 
         return False
 
-    def is_required(self, node1, node2):
+    def is_required(self, node1: Node, node2: Node) -> bool:
         """
         check whether the edge node1 --> node2 is required
 
@@ -203,7 +201,7 @@ class BackgroundKnowledge(object):
 
         return False
 
-    def remove_forbidden_by_node(self, node1, node2):
+    def remove_forbidden_by_node(self, node1: Node, node2: Node):
         """
         remove the forbidden mark of the edge node1 --> node2.
 
@@ -225,7 +223,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def remove_required_by_node(self, node1, node2):
+    def remove_required_by_node(self, node1: Node, node2: Node):
         """
         remove the required mark of the edge node1 --> node2.
 
@@ -247,7 +245,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def remove_forbidden_by_pattern(self, node_pattern1, node_pattern2):
+    def remove_forbidden_by_pattern(self, node_pattern1: str, node_pattern2: str):
         """
         remove the forbidden mark of the edges node_pattern1 --> node_pattern2.
 
@@ -269,7 +267,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def remove_required_by_pattern(self, node_pattern1, node_pattern2):
+    def remove_required_by_pattern(self, node_pattern1: str, node_pattern2: str):
         """
         remove the required mark of the edges node_pattern1 --> node_pattern2.
 
@@ -291,7 +289,7 @@ class BackgroundKnowledge(object):
 
         return self
 
-    def remove_node_from_tier(self, node, tier):
+    def remove_node_from_tier(self, node: Node, tier: int):
         """
         remove the mark of the tier of the node.
 
