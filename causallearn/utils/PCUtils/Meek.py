@@ -2,10 +2,12 @@ from copy import deepcopy
 
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GraphClass import CausalGraph
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 
-def meek(cg, background_knowledge=None):
-    '''
+def meek(cg: CausalGraph, background_knowledge: BackgroundKnowledge | None = None) -> CausalGraph:
+    """
     Run Meek rules
 
     Parameters
@@ -20,7 +22,7 @@ def meek(cg, background_knowledge=None):
     cg_new : a CausalGraph object. Where cg_new.G.graph[j,i]=1 and cg_new.G.graph[i,j]=-1 indicates  i --> j ,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = -1 indicates i --- j,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = 1 indicates i <-> j.
-    '''
+    """
 
     cg_new = deepcopy(cg)
 
@@ -28,10 +30,10 @@ def meek(cg, background_knowledge=None):
     Tri = cg_new.find_triangles()
     Kite = cg_new.find_kites()
 
-    Loop = True
+    loop = True
 
-    while Loop:
-        Loop = False
+    while loop:
+        loop = False
         for (i, j, k) in UT:
             if cg_new.is_fully_directed(i, j) and cg_new.is_undirected(j, k):
                 if (background_knowledge is not None) and \
@@ -43,7 +45,7 @@ def meek(cg, background_knowledge=None):
                     if edge1 is not None:
                         cg_new.G.remove_edge(edge1)
                     cg_new.G.add_edge(Edge(cg_new.G.nodes[j], cg_new.G.nodes[k], Endpoint.TAIL, Endpoint.ARROW))
-                    Loop = True
+                    loop = True
 
         for (i, j, k) in Tri:
             if cg_new.is_fully_directed(i, j) and cg_new.is_fully_directed(j, k) and cg_new.is_undirected(i, k):
@@ -56,7 +58,7 @@ def meek(cg, background_knowledge=None):
                     if edge1 is not None:
                         cg_new.G.remove_edge(edge1)
                     cg_new.G.add_edge(Edge(cg_new.G.nodes[i], cg_new.G.nodes[k], Endpoint.TAIL, Endpoint.ARROW))
-                    Loop = True
+                    loop = True
 
         for (i, j, k, l) in Kite:
             if cg_new.is_undirected(i, j) and cg_new.is_undirected(i, k) and cg_new.is_fully_directed(j, l) \
@@ -70,13 +72,13 @@ def meek(cg, background_knowledge=None):
                     if edge1 is not None:
                         cg_new.G.remove_edge(edge1)
                     cg_new.G.add_edge(Edge(cg_new.G.nodes[i], cg_new.G.nodes[l], Endpoint.TAIL, Endpoint.ARROW))
-                    Loop = True
+                    loop = True
 
     return cg_new
 
 
-def definite_meek(cg, background_knowledge=None):
-    '''
+def definite_meek(cg: CausalGraph, background_knowledge: BackgroundKnowledge | None = None) -> CausalGraph:
+    """
     Run Meek rules over the definite unshielded triples
 
     Parameters
@@ -91,17 +93,17 @@ def definite_meek(cg, background_knowledge=None):
     cg_new : a CausalGraph object. Where cg_new.G.graph[j,i]=1 and cg_new.G.graph[i,j]=-1 indicates  i --> j ,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = -1 indicates i --- j,
                     cg_new.G.graph[i,j] = cg_new.G.graph[j,i] = 1 indicates i <-> j.
-    '''
+    """
 
     cg_new = deepcopy(cg)
 
     Tri = cg_new.find_triangles()
     Kite = cg_new.find_kites()
 
-    Loop = True
+    loop = True
 
-    while Loop:
-        Loop = False
+    while loop:
+        loop = False
         for (i, j, k) in cg_new.definite_non_UC:
             if cg_new.is_fully_directed(i, j) and \
                     cg_new.is_undirected(j, k) and \
@@ -112,7 +114,7 @@ def definite_meek(cg, background_knowledge=None):
                 if edge1 is not None:
                     cg_new.G.remove_edge(edge1)
                 cg_new.G.add_edge(Edge(cg_new.G.nodes[j], cg_new.G.nodes[k], Endpoint.TAIL, Endpoint.ARROW))
-                Loop = True
+                loop = True
             elif cg_new.is_fully_directed(k, j) and \
                     cg_new.is_undirected(j, i) and \
                     not ((background_knowledge is not None) and
@@ -122,7 +124,7 @@ def definite_meek(cg, background_knowledge=None):
                 if edge1 is not None:
                     cg_new.G.remove_edge(edge1)
                 cg_new.G.add_edge(Edge(cg_new.G.nodes[j], cg_new.G.nodes[i], Endpoint.TAIL, Endpoint.ARROW))
-                Loop = True
+                loop = True
 
         for (i, j, k) in Tri:
             if cg_new.is_fully_directed(i, j) and cg_new.is_fully_directed(j, k) and cg_new.is_undirected(i, k):
@@ -135,7 +137,7 @@ def definite_meek(cg, background_knowledge=None):
                     if edge1 is not None:
                         cg_new.G.remove_edge(edge1)
                     cg_new.G.add_edge(Edge(cg_new.G.nodes[i], cg_new.G.nodes[k], Endpoint.TAIL, Endpoint.ARROW))
-                    Loop = True
+                    loop = True
 
         for (i, j, k, l) in Kite:
             if ((j, l, k) in cg_new.definite_UC or (k, l, j) in cg_new.definite_UC) \
@@ -150,6 +152,6 @@ def definite_meek(cg, background_knowledge=None):
                     if edge1 is not None:
                         cg_new.G.remove_edge(edge1)
                     cg_new.G.add_edge(Edge(cg_new.G.nodes[i], cg_new.G.nodes[l], Endpoint.TAIL, Endpoint.ARROW))
-                    Loop = True
+                    loop = True
 
     return cg_new

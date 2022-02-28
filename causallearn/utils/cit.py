@@ -19,7 +19,7 @@ def kci(data, X, Y, condition_set=None, kernelX='Gaussian', kernelY='Gaussian', 
 
 
 def kci_ui(X, Y, kernelX='Gaussian', kernelY='Gaussian', est_width='empirical', polyd=2, kwidthx=None, kwidthy=None):
-    '''
+    """
      To test if x and y are unconditionally independent
        Parameters
        ----------
@@ -34,7 +34,7 @@ def kci_ui(X, Y, kernelX='Gaussian', kernelY='Gaussian', est_width='empirical', 
        polyd: polynomial kernel degrees (default=2)
        kwidthx: kernel width for data x (standard deviation sigma)
        kwidthy: kernel width for data y (standard deviation sigma)
-    '''
+    """
 
     kci_uind = KCI_UInd(kernelX, kernelY, est_width=est_width, polyd=polyd, kwidthx=kwidthx, kwidthy=kwidthy)
     pvalue, _ = kci_uind.compute_pvalue(X, Y)
@@ -43,7 +43,7 @@ def kci_ui(X, Y, kernelX='Gaussian', kernelY='Gaussian', est_width='empirical', 
 
 def kci_ci(X, Y, Z, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', est_width='empirical', polyd=2,
            kwidthx=None, kwidthy=None, kwidthz=None):
-    '''
+    """
      To test if x and y are conditionally independent given z
        Parameters
        ----------
@@ -60,7 +60,7 @@ def kci_ci(X, Y, Z, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', 
        kwidthx: kernel width for data x (standard deviation sigma, default None)
        kwidthy: kernel width for data y (standard deviation sigma)
        kwidthz: kernel width for data y (standard deviation sigma)
-    '''
+    """
 
     kci_cind = KCI_CInd(kernelX, kernelY, kernelZ, est_width=est_width, polyd=polyd, kwidthx=kwidthx, kwidthy=kwidthy,
                         kwidthz=kwidthz)
@@ -69,7 +69,7 @@ def kci_ci(X, Y, Z, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', 
 
 
 def mv_fisherz(mvdata, X, Y, condition_set, sample_size=None):
-    '''
+    """
     Perform an independence test using Fisher-Z's test for data with missing values
 
     Parameters
@@ -80,7 +80,7 @@ def mv_fisherz(mvdata, X, Y, condition_set, sample_size=None):
     Returns
     -------
     p : the p-value of the test
-    '''
+    """
     var = list((X, Y) + condition_set)
     sub_corr_matrix, del_sample_size = get_sub_correlation_matrix(mvdata[:, var])  # the columns represent variables
     sample_size = del_sample_size
@@ -149,7 +149,7 @@ def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
 
 
 def fisherz(data, X, Y, condition_set, correlation_matrix=None):
-    '''
+    """
     Perform an independence test using Fisher-Z's test
 
     Parameters
@@ -162,7 +162,7 @@ def fisherz(data, X, Y, condition_set, correlation_matrix=None):
     Returns
     -------
     p : the p-value of the test
-    '''
+    """
     if correlation_matrix is None:
         correlation_matrix = np.corrcoef(data.T)
     sample_size = data.shape[0]
@@ -191,17 +191,17 @@ def gsq(data, X, Y, conditioning_set, cardinalities=None):
 
 
 def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
-    '''by Haoyue@12/18/2021
+    """by Haoyue@12/18/2021
     Parameters
     ----------
     dataSXY: numpy.ndarray, in shape (|S|+2, n), where |S| is size of conditioning set (can be 0), n is sample size
              dataSXY.dtype = np.int64, and each row has values [0, 1, 2, ..., card_of_this_row-1]
     cardSXY: cardinalities of each row (each variable)
     G_sq: True if use G-sq, otherwise (False by default), use Chi_sq
-    '''
+    """
 
     def _Fill2DCountTable(dataXY, cardXY):
-        '''
+        """
         e.g. dataXY: the observed dataset contains 5 samples, on variable x and y they're
             x: 0 1 2 3 0
             y: 1 0 1 2 1
@@ -218,7 +218,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
             however some values may be missed.
             also in joint count, not every value in [0, cardX * cardY - 1] occurs.
             that's why we pass cardinalities in, and use `minlength=...` in bincount
-        '''
+        """
         cardX, cardY = cardXY
         xyIndexed = dataXY[0] * cardY + dataXY[1]
         xyJointCounts = np.bincount(xyIndexed, minlength=cardX * cardY).reshape(cardXY)
@@ -246,7 +246,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
         return SxyJointCounts, SMarginalCounts, SxJointCounts, SyJointCounts
 
     def _CalculatePValue(cTables, eTables):
-        '''
+        """
         calculate the rareness (pValue) of an observation from a given distribution with certain sample size.
 
         Let k, m, n be respectively the cardinality of S, x, y. if S=empty, k==1.
@@ -260,7 +260,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
 
         Returns: pValue (float in range (0, 1)), the larger pValue is (>alpha), the more independent.
         -------
-        '''
+        """
         eTables_zero_inds = eTables == 0
         eTables_zero_to_one = np.copy(eTables)
         eTables_zero_to_one[eTables_zero_inds] = 1  # for legal division
@@ -300,7 +300,7 @@ def gsq_notoptimized(data, X, Y, conditioning_set):
 
 
 def chisq_or_gsq_test_notoptimized(data, X, Y, conditioning_set, G_sq=False):
-    '''
+    """
     Perform an independence test using chi-square test or G-square test
 
     Parameters
@@ -313,7 +313,7 @@ def chisq_or_gsq_test_notoptimized(data, X, Y, conditioning_set, G_sq=False):
     Returns
     -------
     p : the p-value of the test
-    '''
+    """
 
     # Step 1: Subset the data
     categories_list = [np.unique(data[:, i]) for i in

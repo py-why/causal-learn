@@ -2,10 +2,11 @@ from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
+from causallearn.graph.Node import Node
 
 
-def txt2generalgraph(filename):
-    G = GeneralGraph([])
+def txt2generalgraph(filename: str) -> GeneralGraph:
+    g = GeneralGraph([])
     node_map = {}
     with open(filename, "r") as file:
         next_nodes_line = False
@@ -20,7 +21,7 @@ def txt2generalgraph(filename):
                 # print(nodes)
                 for node in nodes:
                     node_map[node] = GraphNode(node)
-                    G.add_node(node_map[node])
+                    g.add_node(node_map[node])
             elif len(words) > 0 and words[0][-1] == '.':
                 next_nodes_line = False
                 node1 = words[1]
@@ -34,11 +35,11 @@ def txt2generalgraph(filename):
                 edge = Edge(node_map[node1], node_map[node2], Endpoint.CIRCLE, Endpoint.CIRCLE)
                 mod_endpoint(edge, node_map[node1], end1)
                 mod_endpoint(edge, node_map[node2], end2)
-                G.add_edge(edge)
-    return G
+                g.add_edge(edge)
+    return g
 
 
-def to_endpoint(s):
+def to_endpoint(s: str) -> Endpoint:
     if s == 'o':
         return Endpoint.CIRCLE
     elif s == '>':
@@ -49,7 +50,7 @@ def to_endpoint(s):
         raise NotImplementedError
 
 
-def mod_endpoint(edge, z, end):
+def mod_endpoint(edge: Edge, z: Node, end: Endpoint):
     if edge.get_node1() == z:
         edge.set_endpoint1(end)
     elif edge.get_node2() == z:

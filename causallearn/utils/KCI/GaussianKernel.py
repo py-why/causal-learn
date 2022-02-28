@@ -1,4 +1,4 @@
-from numpy import exp, median, shape, sqrt
+from numpy import exp, median, shape, sqrt, ndarray
 from numpy.random import permutation
 from scipy.spatial.distance import cdist, pdist, squareform
 
@@ -8,9 +8,9 @@ from causallearn.utils.KCI.Kernel import Kernel
 class GaussianKernel(Kernel):
     def __init__(self, width=1.0):
         Kernel.__init__(self)
-        self.width = 1.0 / width ** 2
+        self.width: float = 1.0 / width ** 2
 
-    def kernel(self, X, Y=None):
+    def kernel(self, X: ndarray, Y: ndarray | None = None):
         """
         Computes the Gaussian kernel k(x,y)=exp(-0.5* ||x-y||**2 / sigma**2)=exp(-0.5* ||x-y||**2 *self.width)
         """
@@ -19,11 +19,11 @@ class GaussianKernel(Kernel):
         else:
             assert (shape(X)[1] == shape(Y)[1])
             sq_dists = cdist(X, Y, 'sqeuclidean')
-        K = exp(-0.5 * (sq_dists) * self.width)
+        K = exp(-0.5 * sq_dists * self.width)
         return K
 
     # kernel width using median trick
-    def set_width_median(self, X):
+    def set_width_median(self, X: ndarray):
         n = shape(X)[0]
         if n > 1000:
             X = X[permutation(n)[:1000], :]
@@ -34,7 +34,7 @@ class GaussianKernel(Kernel):
         self.width = theta
 
     # use empirical kernel width instead of the median
-    def set_width_empirical_kci(self, X):
+    def set_width_empirical_kci(self, X: ndarray):
         n = shape(X)[0]
         if n < 200:
             width = 1.2
@@ -45,7 +45,7 @@ class GaussianKernel(Kernel):
         theta = 1.0 / (width ** 2)
         self.width = theta / X.shape[1]
 
-    def set_width_empirical_hsic(self, X):
+    def set_width_empirical_hsic(self, X: ndarray):
         n = shape(X)[0]
         if n < 200:
             width = 0.8
