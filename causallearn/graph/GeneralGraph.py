@@ -983,3 +983,6 @@ class GeneralGraph(Graph, ABC):
 
     def add_attribute(self, key, value):
         self.attributes[key] = value
+
+    def get_node_map(self) -> Dict[Node, int]:
+        return self.node_map
