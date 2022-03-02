@@ -1,19 +1,22 @@
 import warnings
 from queue import Queue
-
-import numpy as np
+from typing import List, Set, Tuple, Dict
+from numpy import ndarray
 
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.Graph import Graph
 from causallearn.graph.GraphNode import GraphNode
+from causallearn.graph.Node import Node
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 from causallearn.utils.cit import *
 from causallearn.utils.Fas import citest_cache, fas
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 
-class SepsetsPossibleDsep():
-    def __init__(self, data, graph, independence_test, alpha, knowledge, depth, maxPathLength, verbose,
+class SepsetsPossibleDsep:
+    def __init__(self, data: ndarray, graph: Graph, independence_test, alpha: float,
+                 knowledge: BackgroundKnowledge | None, depth: int, maxPathLength: int, verbose: bool,
                  cache_variables_map=None):
 
         def _unique(column):
@@ -44,7 +47,7 @@ class SepsetsPossibleDsep():
         self.ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
         self.cardinalities = cache_variables_map["cardinalities"]
 
-    def traverseSemiDirected(self, node, edge):
+    def traverseSemiDirected(self, node: Node, edge: Edge) -> Node | None:
         if node == edge.get_node1():
             if edge.get_endpoint1() == Endpoint.TAIL or edge.get_endpoint1() == Endpoint.CIRCLE:
                 return edge.get_node2()
@@ -53,7 +56,7 @@ class SepsetsPossibleDsep():
                 return edge.get_node1()
         return None
 
-    def existsSemidirectedPath(self, node_from, node_to, G):
+    def existsSemidirectedPath(self, node_from: Node, node_to: Node, G: Graph) -> bool:
         Q = Queue()
         V = set()
         Q.put(node_from)
@@ -79,7 +82,7 @@ class SepsetsPossibleDsep():
 
         return False
 
-    def existOnePathWithPossibleParents(self, previous, node_w, node_x, node_b, graph):
+    def existOnePathWithPossibleParents(self, previous, node_w: Node, node_x: Node, node_b: Node, graph: Graph) -> bool:
         if node_w == node_x:
             return True
         p = previous.get(node_w)
@@ -94,7 +97,7 @@ class SepsetsPossibleDsep():
                     return True
         return False
 
-    def getPossibleDsep(self, node_x, node_y, maxPathLength):
+    def getPossibleDsep(self, node_x: Node, node_y: Node, maxPathLength: int) -> Set[Node]:
         dsep = set()
         Q = Queue()
         V = set()
@@ -178,17 +181,17 @@ class SepsetsPossibleDsep():
 
         return dsep
 
-    def possibleParentOf(self, node_z, node_x, bk):
+    def possibleParentOf(self, node_z: Node, node_x: Node, bk: BackgroundKnowledge | None) -> bool:
         return True if bk is None else not (bk.is_forbidden(node_z, node_x) or bk.is_required(node_x, node_z))
 
-    def possibleParents(self, node_x, nodes, knowledge):
+    def possibleParents(self, node_x: Node, nodes: List[Node], knowledge: BackgroundKnowledge | None) -> List[Node]:
         possibleParents = list()
         for node_z in nodes:
             if self.possibleParentOf(node_z, node_x, knowledge):
                 possibleParents.append(node_z)
         return possibleParents
 
-    def get_cond_set(self, node_1, node_2, max_path_length):
+    def get_cond_set(self, node_1: Node, node_2: Node, max_path_length: int):
         possibleDsepSet = self.getPossibleDsep(node_1, node_2, max_path_length)
         possibleDsep = list(possibleDsepSet)
         noEdgeRequired = True if self.knowledge is None else not \
@@ -205,10 +208,10 @@ class SepsetsPossibleDsep():
             choice = cg.next()
             flag = False
             while choice is not None:
-                condSet = [self.graph.node_map[possParents[index]] for index in choice]
+                condSet = [self.graph.get_node_map()[possParents[index]] for index in choice]
                 choice = cg.next()
 
-                X, Y = self.graph.node_map[node_1], self.graph.node_map[node_2]
+                X, Y = self.graph.get_node_map()[node_1], self.graph.get_node_map()[node_2]
                 X, Y = (X, Y) if (X < Y) else (Y, X)
                 XYS_key = (X, Y, frozenset(condSet), self.data_hash_key, self.ci_test_hash_key)
                 if XYS_key in citest_cache:
@@ -228,14 +231,14 @@ class SepsetsPossibleDsep():
                 return possible_sep_set
         return None
 
-    def get_sep_set(self, node_i, node_k):
+    def get_sep_set(self, node_i: Node, node_k: Node) -> Set[int] | None:
         condSet = self.get_cond_set(node_i, node_k, self.maxPathLength)
         if condSet is None:
             condSet = self.get_cond_set(node_k, node_i, self.maxPathLength)
         return condSet
 
 
-def fci_orient_bk(bk, graph):
+def fci_orient_bk(bk: BackgroundKnowledge | None, graph: Graph):
     if bk is None:
         return
     print("Starting BK Orientation.")
@@ -244,23 +247,23 @@ def fci_orient_bk(bk, graph):
         if bk.is_forbidden(edge.get_node1(), edge.get_node2()):
             graph.remove_edge(edge)
             graph.add_directed_edge(edge.get_node2(), edge.get_node1())
-            print("Orienting edge (Knowledge): " + graph.get_edge(edge.get_node2(), edge.get_node1()))
+            print("Orienting edge (Knowledge): " + str(graph.get_edge(edge.get_node2(), edge.get_node1())))
         elif bk.is_forbidden(edge.get_node2(), edge.get_node1()):
             graph.remove_edge(edge)
             graph.add_directed_edge(edge.get_node1(), edge.get_node2())
-            print("Orienting edge (Knowledge): " + graph.get_edge(edge.get_node2(), edge.get_node1()))
+            print("Orienting edge (Knowledge): " + str(graph.get_edge(edge.get_node2(), edge.get_node1())))
         elif bk.is_required(edge.get_node1(), edge.get_node2()):
             graph.remove_edge(edge)
             graph.add_directed_edge(edge.get_node1(), edge.get_node2())
-            print("Orienting edge (Knowledge): " + graph.get_edge(edge.get_node2(), edge.get_node1()))
+            print("Orienting edge (Knowledge): " + str(graph.get_edge(edge.get_node2(), edge.get_node1())))
         elif bk.is_required(edge.get_node2(), edge.get_node1()):
             graph.remove_edge(edge)
             graph.add_directed_edge(edge.get_node2(), edge.get_node1())
-            print("Orienting edge (Knowledge): " + graph.get_edge(edge.get_node2(), edge.get_node1()))
+            print("Orienting edge (Knowledge): " + str(graph.get_edge(edge.get_node2(), edge.get_node1())))
     print("Finishing BK Orientation.")
 
 
-def is_arrow_point_allowed(node_x, node_y, graph, knowledge):
+def is_arrow_point_allowed(node_x: Node, node_y: Node, graph: Graph, knowledge: BackgroundKnowledge | None) -> bool:
     if graph.get_endpoint(node_x, node_y) == Endpoint.ARROW:
         return True
     if graph.get_endpoint(node_x, node_y) == Endpoint.TAIL:
@@ -274,7 +277,9 @@ def is_arrow_point_allowed(node_x, node_y, graph, knowledge):
     return graph.get_endpoint(node_x, node_y) == Endpoint.CIRCLE
 
 
-def rule0(graph, nodes, sep_sets, knowledge, verbose):
+def rule0(graph: Graph, nodes: List[Node], sep_sets: Dict[Tuple[int, int], Set[int]],
+          knowledge: BackgroundKnowledge | None,
+          verbose: bool):
     reorientAllWith(graph, Endpoint.CIRCLE)
     fci_orient_bk(knowledge, graph)
     for node_b in nodes:
@@ -294,8 +299,8 @@ def rule0(graph, nodes, sep_sets, knowledge, verbose):
             if graph.is_def_collider(node_a, node_b, node_c):
                 continue
             # check if is collider
-            sep_set = sep_sets.get((graph.node_map[node_a], graph.node_map[node_c]))
-            if sep_set is not None and not sep_set.__contains__(graph.node_map[node_b]):
+            sep_set = sep_sets.get((graph.get_node_map()[node_a], graph.get_node_map()[node_c]))
+            if sep_set is not None and not sep_set.__contains__(graph.get_node_map()[node_b]):
                 if not is_arrow_point_allowed(node_a, node_b, graph, knowledge):
                     continue
                 if not is_arrow_point_allowed(node_c, node_b, graph, knowledge):
@@ -314,7 +319,7 @@ def rule0(graph, nodes, sep_sets, knowledge, verbose):
                         "Orienting collider: " + node_a.get_name() + " *-> " + node_b.get_name() + " <-* " + node_c.get_name())
 
 
-def reorientAllWith(graph, endpoint):
+def reorientAllWith(graph: Graph, endpoint: Endpoint):
     # reorient all edges with CIRCLE Endpoint
     ori_edges = graph.get_graph_edges()
     for ori_edge in ori_edges:
@@ -324,7 +329,8 @@ def reorientAllWith(graph, endpoint):
         graph.add_edge(ori_edge)
 
 
-def ruleR1(node_a, node_b, node_c, graph, bk, changeFlag, verbose=False):
+def ruleR1(node_a: Node, node_b: Node, node_c: Node, graph: Graph, bk: BackgroundKnowledge | None, changeFlag: bool,
+           verbose: bool = False) -> bool:
     if graph.is_adjacent_to(node_a, node_c):
         return changeFlag
 
@@ -344,7 +350,8 @@ def ruleR1(node_a, node_b, node_c, graph, bk, changeFlag, verbose=False):
     return changeFlag
 
 
-def ruleR2(node_a, node_b, node_c, graph, bk, changeFlag, verbose=False):
+def ruleR2(node_a: Node, node_b: Node, node_c: Node, graph: Graph, bk: BackgroundKnowledge | None, changeFlag: bool,
+           verbose=False) -> bool:
     if graph.is_adjacent_to(node_a, node_c) and graph.get_endpoint(node_a, node_c) == Endpoint.CIRCLE:
         if graph.get_endpoint(node_a, node_b) == Endpoint.ARROW and \
                 graph.get_endpoint(node_b, node_c) == Endpoint.ARROW and \
@@ -365,7 +372,7 @@ def ruleR2(node_a, node_b, node_c, graph, bk, changeFlag, verbose=False):
     return changeFlag
 
 
-def rulesR1R2cycle(graph, bk, changeFlag, verbose=False):
+def rulesR1R2cycle(graph: Graph, bk: BackgroundKnowledge | None, changeFlag: bool, verbose: bool = False) -> bool:
     nodes = graph.get_nodes()
     for node_B in nodes:
         adj = graph.get_adjacent_nodes(node_B)
@@ -389,12 +396,14 @@ def rulesR1R2cycle(graph, bk, changeFlag, verbose=False):
     return changeFlag
 
 
-def isNoncollider(graph, sep_sets, node_i, node_j, node_k):
-    sep_set = sep_sets[(graph.node_map[node_i], graph.node_map[node_k])]
-    return sep_set is not None and sep_set.__contains__(graph.node_map[node_j])
+def isNoncollider(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], node_i: Node, node_j: Node,
+                  node_k: Node) -> bool:
+    sep_set = sep_sets[(graph.get_node_map()[node_i], graph.get_node_map()[node_k])]
+    return sep_set is not None and sep_set.__contains__(graph.get_node_map()[node_j])
 
 
-def ruleR3(graph, sep_sets, bk, changeFlag, verbose=False):
+def ruleR3(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], bk: BackgroundKnowledge | None, changeFlag: bool,
+           verbose: bool = False) -> bool:
     nodes = graph.get_nodes()
     for node_B in nodes:
         intoBArrows = graph.get_nodes_into(node_B, Endpoint.ARROW)
@@ -440,7 +449,7 @@ def ruleR3(graph, sep_sets, bk, changeFlag, verbose=False):
     return changeFlag
 
 
-def getPath(node_c, previous):
+def getPath(node_c: Node, previous) -> List[Node]:
     l = []
     node_p = previous[node_c]
     if node_p is not None:
@@ -452,15 +461,16 @@ def getPath(node_c, previous):
     return l
 
 
-def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, independence_test_method, alpha, sep_sets,
-                     changeFlag, bk, cache_variables_map, verbose=False):
+def doDdpOrientation(node_d: Node, node_a: Node, node_b: Node, node_c: Node, previous, graph: Graph, data,
+                     independence_test_method, alpha: float, sep_sets: Dict[Tuple[int, int], Set[int]],
+                     change_flag: bool, bk, cache_variables_map, verbose: bool = False) -> (bool, bool):
     if graph.is_adjacent_to(node_d, node_c):
         raise Exception("illegal argument!")
     path = getPath(node_d, previous)
 
-    X, Y = graph.node_map[node_d], graph.node_map[node_c]
+    X, Y = graph.get_node_map()[node_d], graph.get_node_map()[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
-    condSet = tuple([graph.node_map[nn] for nn in path])
+    condSet = tuple([graph.get_node_map()[nn] for nn in path])
 
     data_hash_key = cache_variables_map["data_hash_key"]
     ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
@@ -479,9 +489,9 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     path2 = list(path)
     path2.remove(node_b)
 
-    X, Y = graph.node_map[node_d], graph.node_map[node_c]
+    X, Y = graph.get_node_map()[node_d], graph.get_node_map()[node_c]
     X, Y = (X, Y) if (X < Y) else (Y, X)
-    condSet = tuple([graph.node_map[nn2] for nn2 in path2])
+    condSet = tuple([graph.get_node_map()[nn2] for nn2 in path2])
     XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
     if XYS_key in citest_cache:
         p_value2 = citest_cache[XYS_key]
@@ -493,12 +503,12 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:
-        sep_set = sep_sets.get((graph.node_map[node_d], graph.node_map[node_c]))
+        sep_set = sep_sets.get((graph.get_node_map()[node_d], graph.get_node_map()[node_c]))
         if verbose:
             message = "Sepset for d = " + node_d.get_name() + " and c = " + node_c.get_name() + " = [ "
             if sep_set is not None:
                 for ss in sep_set:
-                    message += graph.nodes[ss].get_name() + " "
+                    message += graph.get_nodes()[ss].get_name() + " "
             message += "]"
             print(message)
 
@@ -506,9 +516,9 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
             if verbose:
                 print(
                     "Must be a sepset: " + node_d.get_name() + " and " + node_c.get_name() + "; they're non-adjacent.")
-            return False, changeFlag
+            return False, change_flag
 
-        ind = sep_set.__contains__(graph.node_map[node_b])
+        ind = sep_set.__contains__(graph.get_node_map()[node_b])
 
     if ind:
         edge = graph.get_edge(node_c, node_b)
@@ -520,14 +530,14 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
                 "Orienting edge (Definite discriminating path d = " + node_d.get_name() + "): " + graph.get_edge(node_b,
                                                                                                                  node_c).__str__())
 
-        changeFlag = True
-        return True, changeFlag
+        change_flag = True
+        return True, change_flag
     else:
         if not is_arrow_point_allowed(node_a, node_b, graph, bk):
-            return False, changeFlag
+            return False, change_flag
 
         if not is_arrow_point_allowed(node_c, node_b, graph, bk):
-            return False, changeFlag
+            return False, change_flag
 
         edge1 = graph.get_edge(node_a, node_b)
         graph.remove_edge(edge1)
@@ -541,12 +551,13 @@ def doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data, inde
             print(
                 "Orienting collider (Definite discriminating path.. d = " + node_d.get_name() + "): " + node_a.get_name() + " *-> " + node_b.get_name() + " <-* " + node_c.get_name())
 
-        changeFlag = True
-        return True, changeFlag
+        change_flag = True
+        return True, change_flag
 
 
-def ddpOrient(node_a, node_b, node_c, graph, maxPathLength, data, independence_test_method, alpha, sep_sets, changeFlag,
-              bk, cache_variables_map, verbose=False):
+def ddpOrient(node_a: Node, node_b: Node, node_c: Node, graph: Graph, maxPathLength: int, data: ndarray,
+              independence_test_method, alpha: float, sep_sets: Dict[Tuple[int, int], Set[int]], change_flag: bool,
+              bk: BackgroundKnowledge | None, cache_variables_map, verbose: bool = False) -> bool:
     Q = Queue()
     V = set()
     e = None
@@ -567,7 +578,7 @@ def ddpOrient(node_a, node_b, node_c, graph, maxPathLength, data, independence_t
             e = node_t
             distance += 1
             if distance > 0 and distance > (1000 if maxPathLength == -1 else maxPathLength):
-                return changeFlag
+                return change_flag
 
         nodesInTo = graph.get_nodes_into(node_t, Endpoint.ARROW)
 
@@ -584,21 +595,25 @@ def ddpOrient(node_a, node_b, node_c, graph, maxPathLength, data, independence_t
             previous[node_d] = node_t
 
             if not graph.is_adjacent_to(node_d, node_c) and node_d != node_c:
-                res, changeFlag = doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data,
-                                                   independence_test_method, alpha, sep_sets, changeFlag, bk,
-                                                   cache_variables_map, verbose)
+                res, change_flag = \
+                    doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data,
+                                     independence_test_method, alpha, sep_sets, change_flag, bk,
+                                     cache_variables_map, verbose)
 
                 if res:
-                    return changeFlag
+                    return change_flag
 
             if cParents.__contains__(node_d):
                 Q.put(node_d)
                 V.add(node_d)
-    return changeFlag
+    return change_flag
 
 
-def ruleR4B(graph, maxPathLength, data, independence_test_method, alpha, sep_sets, changeFlag, bk, cache_variables_map,
-            verbose=False):
+def ruleR4B(graph: Graph, maxPathLength: int, data: ndarray, independence_test_method, alpha: float,
+            sep_sets: Dict[Tuple[int, int], Set[int]],
+            change_flag: bool, bk: BackgroundKnowledge | None,
+            cache_variables_map,
+            verbose: bool = False) -> bool:
     nodes = graph.get_nodes()
 
     for node_b in nodes:
@@ -613,12 +628,12 @@ def ruleR4B(graph, maxPathLength, data, independence_test_method, alpha, sep_set
                 if graph.get_endpoint(node_b, node_c) != Endpoint.ARROW:
                     continue
 
-                changeFlag = ddpOrient(node_a, node_b, node_c, graph, maxPathLength, data, independence_test_method,
-                                       alpha, sep_sets, changeFlag, bk, cache_variables_map, verbose)
-    return changeFlag
+                change_flag = ddpOrient(node_a, node_b, node_c, graph, maxPathLength, data, independence_test_method,
+                                        alpha, sep_sets, change_flag, bk, cache_variables_map, verbose)
+    return change_flag
 
 
-def traverseSemiDirected(node, edge):
+def traverseSemiDirected(node: Node, edge: Edge) -> Node | None:
     if node == edge.get_node1():
         if edge.get_endpoint1() == Endpoint.TAIL or edge.get_endpoint1() == Endpoint.CIRCLE:
             return edge.get_node2()
@@ -628,7 +643,7 @@ def traverseSemiDirected(node, edge):
     return None
 
 
-def existsSemiDirectedPath(node_from, node_to, bound, graph):
+def existsSemiDirectedPath(node_from: Node, node_to: Node, bound: int, graph: Graph) -> bool:
     Q = Queue()
     V = set()
     Q.put(node_from)
@@ -661,13 +676,13 @@ def existsSemiDirectedPath(node_from, node_to, bound, graph):
                 V.add(node_c)
                 Q.put(node_c)
 
-                if node_e == None:
+                if node_e is None:
                     node_e = node_u
 
     return False
 
 
-def visibleEdgeHelperVisit(graph, node_c, node_a, node_b, path):
+def visibleEdgeHelperVisit(graph: Graph, node_c: Node, node_a: Node, node_b: Node, path: List[Node]) -> bool:
     if path.__contains__(node_a):
         return False
 
@@ -692,9 +707,8 @@ def visibleEdgeHelperVisit(graph, node_c, node_a, node_b, path):
     return False
 
 
-def visibleEdgeHelper(node_A, node_B, graph):
-    path = []
-    path.append(node_A)
+def visibleEdgeHelper(node_A: Node, node_B: Node, graph: Graph) -> bool:
+    path = [node_A]
 
     for node_C in graph.get_nodes_into(node_A, Endpoint.ARROW):
         if graph.is_parent_of(node_C, node_A):
@@ -706,7 +720,7 @@ def visibleEdgeHelper(node_A, node_B, graph):
     return False
 
 
-def defVisible(edge, graph):
+def defVisible(edge: Edge, graph: Graph) -> bool:
     if graph.contains_edge(edge):
         if edge.get_endpoint1() == Endpoint.TAIL:
             node_A = edge.get_node1()
@@ -727,7 +741,7 @@ def defVisible(edge, graph):
         raise Exception("Given edge is not in the graph.")
 
 
-def get_color_edges(graph):
+def get_color_edges(graph: Graph) -> List[Edge]:
     edges = graph.get_graph_edges()
     for edge in edges:
         if (edge.get_endpoint1() == Endpoint.TAIL and edge.get_endpoint2() == Endpoint.ARROW) or \
@@ -756,9 +770,10 @@ def get_color_edges(graph):
     return edges
 
 
-def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_path_length=-1,
-        verbose=False, background_knowledge=None, cache_variables_map=None):
-    '''
+def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05, depth: int = -1,
+        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None,
+        cache_variables_map=None) -> Tuple[Graph, List[Edge]]:
+    """
     Perform Fast Causal Inference (FCI) algorithm for causal discovery
 
     Parameters
@@ -791,7 +806,7 @@ def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_pat
             there might be latent confounders.
         If edge.properties have the Property nl, then it is definitely direct. Otherwise,
             it is possibly direct.
-    '''
+    """
 
     if dataset.shape[0] < dataset.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
@@ -807,7 +822,7 @@ def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_pat
         raise TypeError("'depth' must be 'int' type!")
     if (background_knowledge is not None) and type(background_knowledge) != BackgroundKnowledge:
         raise TypeError("'background_knowledge' must be 'BackgroundKnowledge' type!")
-    if (max_path_length is not None) and type(max_path_length) != int:
+    if type(max_path_length) != int:
         raise TypeError("'max_path_length' must be 'int' type!")
     ## ------- end check parameters ------------
 
@@ -870,22 +885,23 @@ def fci(dataset, independence_test_method=fisherz, alpha=0.05, depth=-1, max_pat
     reorientAllWith(graph, Endpoint.CIRCLE)
     rule0(graph, nodes, sep_sets, background_knowledge, verbose)
 
-    changeFlag = True
-    firstTime = True
+    change_flag = True
+    first_time = True
 
-    while changeFlag:
-        changeFlag = False
-        changeFlag = rulesR1R2cycle(graph, background_knowledge, changeFlag, verbose)
-        changeFlag = ruleR3(graph, sep_sets, background_knowledge, changeFlag, verbose)
+    while change_flag:
+        change_flag = False
+        change_flag = rulesR1R2cycle(graph, background_knowledge, change_flag, verbose)
+        change_flag = ruleR3(graph, sep_sets, background_knowledge, change_flag, verbose)
 
-        if changeFlag or (firstTime and background_knowledge is not None and
-                          len(background_knowledge.forbidden_rules_specs) > 0 and
-                          len(background_knowledge.required_rules_specs) > 0 and
-                          len(background_knowledge.tier_map.keys()) > 0):
-            changeFlag = ruleR4B(graph, max_path_length, dataset, independence_test_method, alpha, sep_sets, changeFlag,
-                                 background_knowledge, cache_variables_map, verbose)
+        if change_flag or (first_time and background_knowledge is not None and
+                           len(background_knowledge.forbidden_rules_specs) > 0 and
+                           len(background_knowledge.required_rules_specs) > 0 and
+                           len(background_knowledge.tier_map.keys()) > 0):
+            change_flag = ruleR4B(graph, max_path_length, dataset, independence_test_method, alpha, sep_sets,
+                                  change_flag,
+                                  background_knowledge, cache_variables_map, verbose)
 
-            firstTime = False
+            first_time = False
 
             if verbose:
                 print("Epoch")

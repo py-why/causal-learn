@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Dict
+from typing import List, Dict, Tuple, Set
 
 from numpy import ndarray
 from tqdm.auto import tqdm
@@ -48,7 +48,8 @@ def forbiddenEdge(node_x: Node, node_y: Node, knowledge: BackgroundKnowledge | N
     return False
 
 
-def searchAtDepth0(data: ndarray, nodes: List[Node], adjacencies: Dict[Node, set], sep_sets,
+def searchAtDepth0(data: ndarray, nodes: List[Node], adjacencies: Dict[Node, Set[Node]],
+                   sep_sets: Dict[Tuple[int, int], Set[int]],
                    independence_test_method=fisherz, alpha: float = 0.05,
                    verbose: bool = False, knowledge: BackgroundKnowledge | None = None, pbar=None,
                    cache_variables_map=None) -> bool:
@@ -99,11 +100,13 @@ def searchAtDepth0(data: ndarray, nodes: List[Node], adjacencies: Dict[Node, set
     return freeDegree(nodes, adjacencies) > 0
 
 
-def searchAtDepth(data: ndarray, depth: int, nodes: List[Node], adjacencies, sep_sets, independence_test_method=fisherz,
+def searchAtDepth(data: ndarray, depth: int, nodes: List[Node], adjacencies: Dict[Node, Set[Node]],
+                  sep_sets: Dict[Tuple[int, int], Set[int]],
+                  independence_test_method=fisherz,
                   alpha: float = 0.05,
                   verbose: bool = False, knowledge: BackgroundKnowledge | None = None, pbar=None,
                   cache_variables_map=None) -> bool:
-    def edge(adjx, i, adjacencies_completed_edge):
+    def edge(adjx: List[Node], i: int, adjacencies_completed_edge: Dict[Node, Set[Node]]) -> bool:
         for j in range(len(adjx)):
             node_y = adjx[j]
             _adjx = list(adjacencies_completed_edge[nodes[i]])
@@ -201,7 +204,8 @@ def searchAtDepth(data: ndarray, depth: int, nodes: List[Node], adjacencies, sep
     return freeDegree(nodes, adjacencies) > depth
 
 
-def searchAtDepth_not_stable(data: ndarray, depth: int, nodes: List[Node], adjacencies, sep_sets,
+def searchAtDepth_not_stable(data: ndarray, depth: int, nodes: List[Node], adjacencies: Dict[Node, Set[Node]],
+                             sep_sets: Dict[Tuple[int, int], Set[int]],
                              independence_test_method=fisherz, alpha: float = 0.05, verbose: bool = False,
                              knowledge: BackgroundKnowledge | None = None,
                              pbar=None,
@@ -302,8 +306,8 @@ def searchAtDepth_not_stable(data: ndarray, depth: int, nodes: List[Node], adjac
 
 def fas(data: ndarray, nodes: List[Node], independence_test_method=fisherz, alpha: float = 0.05,
         knowledge: BackgroundKnowledge | None = None, depth: int = -1,
-        verbose: bool = False, stable: bool = True, show_progress: bool = True, cache_variables_map=None) -> (
-        GeneralGraph, dict):
+        verbose: bool = False, stable: bool = True, show_progress: bool = True, cache_variables_map=None) -> Tuple[
+    GeneralGraph, Dict[Tuple[int, int], Set[int]]]:
     """
     Implements the "fast adjacency search" used in several causal algorithm in this file. In the fast adjacency
     search, at a given stage of the search, an edge X*-*Y is removed from the graph if X _||_ Y | S, where S is a subset
@@ -348,8 +352,8 @@ def fas(data: ndarray, nodes: List[Node], independence_test_method=fisherz, alph
     # --------end check parameter -----------
 
     # ------- initial variable -----------
-    sep_sets = {}
-    adjacencies = {node: set() for node in nodes}
+    sep_sets: Dict[Tuple[int, int], Set[int]] = {}
+    adjacencies: Dict[Node, Set[Node]] = {node: set() for node in nodes}
     if depth is None or depth < 0:
         depth = 1000
 
