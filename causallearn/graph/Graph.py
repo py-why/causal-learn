@@ -2,7 +2,7 @@
 
 # Implements a graph capable of storing edges of type N1 *-$ N2 where * and
 # $ are endpoints of type Endpoint.
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
@@ -453,4 +453,7 @@ class Graph:
         raise NotImplementedError
 
     def add_attribute(self, key, value):
+        raise NotImplementedError
+
+    def get_node_map(self) -> Dict[Node, int]:
         raise NotImplementedError
