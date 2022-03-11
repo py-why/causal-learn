@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from numpy import exp, median, shape, sqrt, ndarray
 from numpy.random import permutation
 from scipy.spatial.distance import cdist, pdist, squareform

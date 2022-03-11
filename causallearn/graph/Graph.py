@@ -2,6 +2,8 @@
 
 # Implements a graph capable of storing edges of type N1 *-$ N2 where * and
 # $ are endpoints of type Endpoint.
+from __future__ import annotations
+
 from typing import List, Tuple, Dict
 
 from causallearn.graph.Edge import Edge
