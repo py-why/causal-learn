@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 from abc import ABC
 from typing import List, Dict, Tuple
 
