@@ -209,6 +209,8 @@ class GeneralGraph(Graph, ABC):
         self.graph = graph
         self.dpath = dpath
 
+        self.adjust_dpath(self.num_vars - 1, self.num_vars - 1)
+
         return True
 
     # Removes all nodes (and therefore all edges) from the graph.
@@ -790,6 +792,8 @@ class GeneralGraph(Graph, ABC):
                         self.graph[j, i] = 0
                         self.graph[i, j] = 0
 
+        self.reconstitute_dpath(self.get_graph_edges())
+
     # Removes the edge connecting the given two nodes, provided there is exactly one such edge.
     def remove_connecting_edge(self, node1: Node, node2: Node):
         i = self.node_map[node1]
@@ -839,6 +843,8 @@ class GeneralGraph(Graph, ABC):
 
         # num_vars should minus 1
         self.num_vars -= 1
+
+        self.reconstitute_dpath(self.get_graph_edges())
 
     # Iterates through the list and removes any permissible nodes found.  The
     # order in which nodes are removed is the order in which they are presented
