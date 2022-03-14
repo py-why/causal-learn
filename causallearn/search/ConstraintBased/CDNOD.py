@@ -1,19 +1,22 @@
 import time
-import warnings
 from itertools import permutations, combinations
+from typing import Dict, List, Optional
 
 import networkx as nx
-import numpy as np
+from numpy import ndarray
 
 from causallearn.graph.GraphClass import CausalGraph
-from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek, Helper
+from causallearn.utils.PCUtils import SkeletonDiscovery, UCSepset, Meek
+from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import orient_by_background_knowledge
 from causallearn.utils.cit import *
 
 
-def cdnod(data, c_indx, alpha=0.05, indep_test=fisherz, stable = True, uc_rule = 0, uc_priority = 2, mvcdnod=False,
-          correction_name='MV_Crtn_Fisher_Z', background_knowledge = None, verbose = False, show_progress = True):
-    '''
+def cdnod(data: ndarray, c_indx: ndarray, alpha: float = 0.05, indep_test=fisherz, stable: bool = True,
+          uc_rule: int = 0, uc_priority: int = 2, mvcdnod: bool = False, correction_name: str = 'MV_Crtn_Fisher_Z',
+          background_knowledge: Optional[BackgroundKnowledge] = None, verbose: bool = False,
+          show_progress: bool = True) -> CausalGraph:
+    """
     Causal discovery from nonstationary/heterogeneous data
     phase 1: learning causal skeleton,
     phase 2: identifying causal directions with generalization of invariance, V-structure. Meek rule
@@ -27,19 +30,23 @@ def cdnod(data, c_indx, alpha=0.05, indep_test=fisherz, stable = True, uc_rule =
     Returns
     -------
     cg : a CausalGraph object over the augmented dataset that includes c_indx
-    '''
+    """
     # augment the variable set by involving c_indx to capture the distribution shift
     data_aug = np.concatenate((data, c_indx), axis=1)
     if mvcdnod:
         return mvcdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, correction_name=correction_name,
-                           stable=stable,uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose, show_progress=show_progress)
+                           stable=stable, uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose,
+                           show_progress=show_progress)
     else:
         return cdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
-                         uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose, show_progress=show_progress)
+                         uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose,
+                         show_progress=show_progress)
 
 
-def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_knowledge=None, verbose=False, show_progress=True):
-    '''
+def cdnod_alg(data: ndarray, alpha: float, indep_test, stable: bool, uc_rule: int, uc_priority: int,
+              background_knowledge: Optional[BackgroundKnowledge] = None, verbose: bool = False,
+              show_progress: bool = True) -> CausalGraph:
+    """
     Perform Peter-Clark algorithm for causal discovery on the augmented data set that captures the unobserved changing factors
 
     Parameters
@@ -75,8 +82,7 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_
                     cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j,
                     cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
-    '''
-
+    """
     start = time.time()
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
 
@@ -84,7 +90,6 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_
     c_indx_id = data.shape[1] - 1
     for i in cg_1.G.get_adjacent_nodes(cg_1.G.nodes[c_indx_id]):
         cg_1.G.add_directed_edge(cg_1.G.nodes[c_indx_id], i)
-
 
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_1, background_knowledge)
@@ -110,6 +115,8 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_
             cg_2 = UCSepset.definite_maxp(cg_1, alpha, background_knowledge=background_knowledge)
         cg_before = Meek.definite_meek(cg_2, background_knowledge=background_knowledge)
         cg = Meek.meek(cg_before, background_knowledge=background_knowledge)
+    else:
+        raise ValueError("uc_rule should be in [0, 1, 2]")
     end = time.time()
 
     cg.PC_elapsed = end - start
@@ -117,7 +124,8 @@ def cdnod_alg(data, alpha, indep_test, stable, uc_rule, uc_priority, background_
     return cg
 
 
-def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_priority, verbose, show_progress):
+def mvcdnod_alg(data: ndarray, alpha: float, indep_test, correction_name: str, stable: bool, uc_rule: int,
+                uc_priority: int, verbose: bool, show_progress: bool) -> CausalGraph:
     """
     :param data: data set (numpy ndarray)
     :param alpha: desired significance level (float) in (0, 1)
@@ -153,14 +161,14 @@ def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_pr
 
     ## Step 2:
     ## a) Run PC algorithm with the 1st step skeleton;
-    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose, show_progress=show_progress)
+    cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable, verbose=verbose,
+                                                  show_progress=show_progress)
     cg_pre.to_nx_skeleton()
     # print('Finish skeleton search with test-wise deletion.')
 
     ## b) Correction of the extra edges
     cg_corr = skeleton_correction(data, alpha, correction_name, cg_pre, prt_m, stable)
     # print('Finish missingness correction.')
-
 
     ## Step 3: Orient the edges
     # orient the direction from c_indx to X, if there is an edge between c_indx and X
@@ -189,6 +197,8 @@ def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_pr
             cg_2 = UCSepset.definite_maxp(cg_corr, alpha)
         cg_before = Meek.definite_meek(cg_2)
         cg = Meek.meek(cg_before)
+    else:
+        raise ValueError("uc_rule should be in [0, 1, 2]")
     end = time.time()
 
     cg.PC_elapsed = end - start
@@ -198,7 +208,7 @@ def mvcdnod_alg(data, alpha, indep_test, correction_name, stable, uc_rule, uc_pr
 
 #######################################################################################################################
 ## *********** Functions for Step 1 ***********
-def get_prt_mpairs(data, alpha, indep_test, stable=True):
+def get_prt_mpairs(data: ndarray, alpha: float, indep_test, stable: bool = True) -> Dict[str, list]:
     """
     Detect the parents of missingness indicators
     If a missingness indicator has no parent, it will not be included in the result
@@ -228,12 +238,12 @@ def get_prt_mpairs(data, alpha, indep_test, stable=True):
     return prt_m
 
 
-def isempty(prt_r):
+def isempty(prt_r: ndarray) -> bool:
     """Test whether the parent of a missingness indicator is empty"""
     return len(prt_r) == 0
 
 
-def get_mindx(data):
+def get_mindx(data: ndarray) -> List[int]:
     """Detect the parents of missingness indicators
     :param data: data set (numpy ndarray)
     :return:
@@ -248,7 +258,7 @@ def get_mindx(data):
     return m_indx
 
 
-def detect_parent(r, data_, alpha, indep_test, stable=True):
+def detect_parent(r: int, data_: ndarray, alpha: float, indep_test, stable: bool = True) -> ndarray:
     """Detect the parents of a missingness indicator
     :param r: the missingness indicator
     :param data_: data set (numpy ndarray)
@@ -278,7 +288,7 @@ def detect_parent(r, data_, alpha, indep_test, stable=True):
     ## If r is not a missingness indicator, return [].
     data[:, r] = np.isnan(data[:, r]).astype(float)  # True is missing; false is not missing
     if sum(data[:, r]) == 0 or sum(data[:, r]) == len(data[:, r]):
-        return []
+        return np.empty(0)
     ## *********** End ***********
 
     no_of_var = data.shape[1]
@@ -335,14 +345,14 @@ def detect_parent(r, data_, alpha, indep_test, stable=True):
     ## *********** Adaptation 3 ***********
     ## extract the parent of r from the graph
     cg.to_nx_skeleton()
-    cg_skel_adj = nx.to_numpy_array(cg.nx_skel).astype(int)
+    cg_skel_adj: ndarray = nx.to_numpy_array(cg.nx_skel).astype(int)
     prt = get_parent(r, cg_skel_adj)
     ## *********** End ***********
 
     return prt
 
 
-def get_parent(r, cg_skel_adj):
+def get_parent(r: int, cg_skel_adj: ndarray) -> ndarray:
     """Get the neighbors of missingness indicators which are the parents
     :param r: the missingness indicator index
     :param cg_skel_adj: adjacancy matrix of a causal skeleton
@@ -358,7 +368,8 @@ def get_parent(r, cg_skel_adj):
 ## *********** END ***********
 #######################################################################################################################
 
-def skeleton_correction(data, alpha, test_with_correction_name, init_cg, prt_m, stable=True):
+def skeleton_correction(data: ndarray, alpha: float, test_with_correction_name: str,
+                        init_cg: CausalGraph, prt_m: dict, stable: bool = True) -> CausalGraph:
     """Perform skeleton discovery
     :param data: data set (numpy ndarray)
     :param alpha: desired significance level in (0, 1) (float)
@@ -432,11 +443,11 @@ def skeleton_correction(data, alpha, test_with_correction_name, init_cg, prt_m, 
 
 # *********** Evaluation util ***********
 
-def get_adjacancy_matrix(g):
+def get_adjacancy_matrix(g: CausalGraph):
     return nx.to_numpy_array(g.nx_graph).astype(int)
 
 
-def matrix_diff(cg1, cg2):
+def matrix_diff(cg1: CausalGraph, cg2: CausalGraph):
     adj1 = get_adjacancy_matrix(cg1)
     adj2 = get_adjacancy_matrix(cg2)
     count = 0
