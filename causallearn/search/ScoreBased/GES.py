@@ -1,4 +1,5 @@
-from causallearn.graph.Endpoint import Endpoint
+from typing import Optional
+
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.DAG2CPDAG import dag2cpdag
@@ -6,8 +7,9 @@ from causallearn.utils.GESUtils import *
 from causallearn.utils.PDAG2DAG import pdag2dag
 
 
-def ges(X, score_func='local_score_BIC', maxP=None, parameters=None):
-    '''
+def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] = None,
+        parameters: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
     Perform greedy equivalence search (GES) algorithm
 
     Parameters
@@ -31,7 +33,7 @@ def ges(X, score_func='local_score_BIC', maxP=None, parameters=None):
     Record['G_step1']: learned graph at each step in the forward step
     Record['G_step2']: learned graph at each step in the backward step
     Record['score']: the score of the learned graph
-    '''
+    """
 
     if X.shape[0] < X.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
@@ -227,9 +229,9 @@ def ges(X, score_func='local_score_BIC', maxP=None, parameters=None):
                                 min_chscore = chscore
                                 min_desc = desc
 
-        if (len(min_desc) != 0):
+        if len(min_desc) != 0:
             score_new = score + min_chscore
-            if (score - score_new <= 0):
+            if score - score_new <= 0:
                 break
             G = delete(G, min_desc[0], min_desc[1], min_desc[2])
             update2.append([min_desc[0], min_desc[1], min_desc[2]])

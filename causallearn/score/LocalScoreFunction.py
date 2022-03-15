@@ -1,12 +1,14 @@
 import math
+from typing import List, Dict, Any
 
 import pandas as pd
+from numpy import ndarray
 
 from causallearn.utils.ScoreUtils import *
 
 
-def local_score_BIC(Data, i, PAi, parameters=None):
-    '''
+def local_score_BIC(Data: ndarray, i: int, PAi: List[int], parameters=None) -> float:
+    """
     Calculate the *negative* local score with BIC for the linear Gaussian continue data case
 
     Parameters
@@ -19,7 +21,7 @@ def local_score_BIC(Data, i, PAi, parameters=None):
     Returns
     -------
     score: local BIC score
-    '''
+    """
 
     if parameters is None:
         lambda_value = 1
@@ -47,8 +49,8 @@ def local_score_BIC(Data, i, PAi, parameters=None):
     return score
 
 
-def local_score_BDeu(Data, i, PAi, parameters=None):
-    '''
+def local_score_BDeu(Data: ndarray, i: int, PAi: List[int], parameters=None) -> float:
+    """
     Calculate the *negative* local score with BDeu for the discrete case
 
     Parameters
@@ -64,7 +66,7 @@ def local_score_BDeu(Data, i, PAi, parameters=None):
     Returns
     -------
     score: local BDeu score
-    '''
+    """
     if parameters is None:
         sample_prior = 1  # default sample_prior = 1
         structure_prior = 1  # default structure_prior = 1
@@ -126,8 +128,8 @@ def local_score_BDeu(Data, i, PAi, parameters=None):
     return -BDeu_score
 
 
-def local_score_cv_general(Data, Xi, PAi, parameters):
-    '''
+def local_score_cv_general(Data: ndarray, Xi: int, PAi: List[int], parameters: Dict[str, Any]) -> float:
+    """
     Calculate the local score
     using negative k-fold cross-validated log likelihood as the score
     based on a regression model in RKHS
@@ -135,7 +137,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
     Parameters
     ----------
     Data: (sample, features)
-    i: current index
+    Xi: current index
     PAi: parent indexes
     parameters:
                    kfold: k-fold cross validation
@@ -144,7 +146,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
     Returns
     -------
     score: local score
-    '''
+    """
 
     Data = np.mat(Data)
     PAi = list(PAi)
@@ -157,7 +159,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
     gamma = 0.01
     Thresh = 1E-5
 
-    if (len(PAi)):
+    if len(PAi):
         PA = Data[:, PAi]
 
         # set the kernel for X
@@ -172,7 +174,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
         theta = 1 / (width ** 2)
 
         Kx, _ = kernel(X, X, (theta, 1))  # Gaussian kernel
-        H0 = np.mat(np.eye(T)) - np.mat(np.ones((T, T))) / (T)  # for centering of the data in feature space
+        H0 = np.mat(np.eye(T)) - np.mat(np.ones((T, T))) / T  # for centering of the data in feature space
         Kx = H0 * Kx * H0  # kernel matrix for X
 
         # eig_Kx, eix = eigdec((Kx + Kx.T)/2, np.min([400, math.floor(T/2)]), evals_only=False)   # /2
@@ -196,12 +198,12 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
             theta = 1 / (width ** 2)
             Kpa = np.multiply(Kpa, kernel(PA[:, m], PA[:, m], (theta, 1))[0])
 
-        H0 = np.mat(np.eye(T)) - np.mat(np.ones((T, T))) / (T)  # for centering of the data in feature space
+        H0 = np.mat(np.eye(T)) - np.mat(np.ones((T, T))) / T  # for centering of the data in feature space
         Kpa = H0 * Kpa * H0  # kernel matrix for PA
 
         CV = 0
         for kk in range(k):
-            if (kk == 0):
+            if kk == 0:
                 Kx_te = Kx[0:n0, 0:n0]
                 Kx_tr = Kx[n0: T, n0: T]
                 Kx_tr_te = Kx[n0: T, 0: n0]
@@ -209,7 +211,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
                 Kpa_tr = Kpa[n0: T, n0: T]
                 Kpa_tr_te = Kpa[n0: T, 0: n0]
                 nv = n0  # sample size of validated data
-            if (kk == k - 1):
+            elif kk == k - 1:
                 Kx_te = Kx[kk * n0:T, kk * n0: T]
                 Kx_tr = Kx[0:kk * n0, 0: kk * n0]
                 Kx_tr_te = Kx[0:kk * n0, kk * n0: T]
@@ -217,7 +219,7 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
                 Kpa_tr = Kpa[0: kk * n0, 0: kk * n0]
                 Kpa_tr_te = Kpa[0:kk * n0, kk * n0: T]
                 nv = T - kk * n0
-            if (kk < k - 1 and kk > 0):
+            elif kk < k - 1 and kk > 0:
                 Kx_te = Kx[kk * n0: (kk + 1) * n0, kk * n0: (kk + 1) * n0]
                 Kx_tr = Kx[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                   np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]))]
@@ -229,6 +231,8 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
                 Kpa_tr_te = Kpa[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                        np.arange(kk * n0, (kk + 1) * n0))]
                 nv = n0
+            else:
+                raise ValueError("Not cover all logic path")
 
             n1 = T - nv
             tmp1 = pdinv(Kpa_tr + n1 * var_lambda * np.mat(np.eye(n1)))
@@ -268,23 +272,25 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
 
         CV = 0
         for kk in range(k):
-            if (kk == 0):
+            if kk == 0:
                 Kx_te = Kx[kk * n0: (kk + 1) * n0, kk * n0: (kk + 1) * n0]
                 Kx_tr = Kx[(kk + 1) * n0:T, (kk + 1) * n0: T]
                 Kx_tr_te = Kx[(kk + 1) * n0:T, kk * n0: (kk + 1) * n0]
                 nv = n0
-            if (kk == k - 1):
+            elif kk == k - 1:
                 Kx_te = Kx[kk * n0: T, kk * n0: T]
                 Kx_tr = Kx[0: kk * n0, 0: kk * n0]
                 Kx_tr_te = Kx[0:kk * n0, kk * n0: T]
                 nv = T - kk * n0
-            if (kk < k - 1 and kk > 0):
+            elif 0 < kk < k - 1:
                 Kx_te = Kx[kk * n0: (kk + 1) * n0, kk * n0: (kk + 1) * n0]
                 Kx_tr = Kx[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                   np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]))]
                 Kx_tr_te = Kx[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                      np.arange(kk * n0, (kk + 1) * n0))]
                 nv = n0
+            else:
+                raise ValueError("Not cover all logic path")
 
             n1 = T - nv
             A = (Kx_te - 1 / (gamma * n1) * Kx_tr_te.T * pdinv(
@@ -302,8 +308,8 @@ def local_score_cv_general(Data, Xi, PAi, parameters):
     return score
 
 
-def local_score_cv_multi(Data, Xi, PAi, parameters):
-    '''
+def local_score_cv_multi(Data: ndarray, Xi: int, PAi: List[int], parameters: Dict[str, Any]) -> float:
+    """
     Calculate the local score
     using negative k-fold cross-validated log likelihood as the score
     based on a regression model in RKHS
@@ -312,7 +318,7 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
     Parameters
     ----------
     Data: (sample, features)
-    i: current index
+    Xi: current index
     PAi: parent indexes
     parameters:
                   kfold: k-fold cross validation
@@ -323,7 +329,7 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
     Returns
     -------
     score: local score
-    '''
+    """
 
     T = Data.shape[0]
     X = Data[:, parameters['dlabel'][Xi]]
@@ -333,7 +339,7 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
     gamma = 0.01
     Thresh = 1E-5
 
-    if (len(PAi)):
+    if len(PAi):
         # set the kernel for X
         GX = np.sum(np.multiply(X, X), axis=1)
         Q = np.tile(GX, (1, T))
@@ -370,7 +376,7 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
 
         CV = 0
         for kk in range(k):
-            if (kk == 0):
+            if kk == 0:
                 Kx_te = Kx[0:n0, 0:n0]
                 Kx_tr = Kx[n0: T, n0: T]
                 Kx_tr_te = Kx[n0: T, 0: n0]
@@ -378,7 +384,7 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
                 Kpa_tr = Kpa[n0: T, n0: T]
                 Kpa_tr_te = Kpa[n0: T, 0: n0]
                 nv = n0  # sample size of validated data
-            if (kk == k - 1):
+            elif kk == k - 1:
                 Kx_te = Kx[kk * n0:T, kk * n0: T]
                 Kx_tr = Kx[0:kk * n0, 0: kk * n0]
                 Kx_tr_te = Kx[0:kk * n0, kk * n0: T]
@@ -386,7 +392,7 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
                 Kpa_tr = Kpa[0: kk * n0, 0: kk * n0]
                 Kpa_tr_te = Kpa[0:kk * n0, kk * n0: T]
                 nv = T - kk * n0
-            if (kk < k - 1 and kk > 0):
+            elif 0 < kk < k - 1:
                 Kx_te = Kx[kk * n0: (kk + 1) * n0, kk * n0: (kk + 1) * n0]
                 Kx_tr = Kx[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                   np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]))]
@@ -398,6 +404,8 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
                 Kpa_tr_te = Kpa[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                        np.arange(kk * n0, (kk + 1) * n0))]
                 nv = n0
+            else:
+                raise ValueError("Not cover all logic path")
 
             n1 = T - nv
             tmp1 = pdinv(Kpa_tr + n1 * var_lambda * np.mat(np.eye(n1)))
@@ -433,23 +441,25 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
 
         CV = 0
         for kk in range(k):
-            if (kk == 0):
+            if kk == 0:
                 Kx_te = Kx[kk * n0: (kk + 1) * n0, kk * n0: (kk + 1) * n0]
                 Kx_tr = Kx[(kk + 1) * n0:T, (kk + 1) * n0: T]
                 Kx_tr_te = Kx[(kk + 1) * n0:T, kk * n0: (kk + 1) * n0]
                 nv = n0
-            if (kk == k - 1):
+            elif kk == k - 1:
                 Kx_te = Kx[kk * n0: T, kk * n0: T]
                 Kx_tr = Kx[0: kk * n0, 0: kk * n0]
                 Kx_tr_te = Kx[0:kk * n0, kk * n0: T]
                 nv = T - kk * n0
-            if (kk < k - 1 and kk > 0):
+            elif 0 < kk < k - 1:
                 Kx_te = Kx[kk * n0: (kk + 1) * n0, kk * n0: (kk + 1) * n0]
                 Kx_tr = Kx[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                   np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]))]
                 Kx_tr_te = Kx[np.ix_(np.concatenate([np.arange(0, kk * n0), np.arange((kk + 1) * n0, T)]),
                                      np.arange(kk * n0, (kk + 1) * n0))]
                 nv = n0
+            else:
+                raise ValueError("Not cover all logic path")
 
             n1 = T - nv
             A = (Kx_te - 1 / (gamma * n1) * Kx_tr_te.T * pdinv(
@@ -467,22 +477,22 @@ def local_score_cv_multi(Data, Xi, PAi, parameters):
     return score
 
 
-def local_score_marginal_general(Data, Xi, PAi, parameters):
-    '''
+def local_score_marginal_general(Data: ndarray, Xi: int, PAi: List[int], parameters=None) -> float:
+    """
     Calculate the local score by negative marginal likelihood
     based on a regression model in RKHS
 
     Parameters
     ----------
     Data: (sample, features)
-    i: current index
+    Xi: current index
     PAi: parent indexes
     parameters: None
 
     Returns
     -------
     score: local score
-    '''
+    """
 
     T = Data.shape[0]
     X = Data[:, Xi]
@@ -508,7 +518,7 @@ def local_score_marginal_general(Data, Xi, PAi, parameters):
     eig_Kx = eig_Kx[IIx]
     eix = eix[:, IIx]
 
-    if (len(PAi)):
+    if len(PAi):
         PA = Data[:, PAi]
 
         widthPA = np.mat(np.empty((PA.shape[1], 1)))
@@ -545,8 +555,8 @@ def local_score_marginal_general(Data, Xi, PAi, parameters):
     return score
 
 
-def local_score_marginal_multi(Data, Xi, PAi, parameters):
-    '''
+def local_score_marginal_multi(Data: ndarray, Xi: int, PAi: List[int], parameters: Dict[str, Any]) -> float:
+    """
     Calculate the local score by negative marginal likelihood
     based on a regression model in RKHS
     for variables with multi-variate dimensions
@@ -554,7 +564,7 @@ def local_score_marginal_multi(Data, Xi, PAi, parameters):
     Parameters
     ----------
     Data: (sample, features)
-    i: current index
+    Xi: current index
     PAi: parent indexes
     parameters:
                   dlabel: for variables with multi-dimensions,
@@ -563,7 +573,7 @@ def local_score_marginal_multi(Data, Xi, PAi, parameters):
     Returns
     -------
     score: local score
-    '''
+    """
     T = Data.shape[0]
     X = Data[:, parameters['dlabel'][Xi]]
     dX = X.shape[1]
@@ -588,7 +598,7 @@ def local_score_marginal_multi(Data, Xi, PAi, parameters):
     eig_Kx = eig_Kx[IIx]
     eix = eix[:, IIx]
 
-    if (len(PAi)):
+    if len(PAi):
         widthPA_all = np.mat(np.empty((1, 0)))
         # set the kernel for PA
         PA_all = np.mat(np.empty((Data.shape[0], 0)))
