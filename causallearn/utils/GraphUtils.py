@@ -509,16 +509,36 @@ class GraphUtils:
         return graphviz_g
 
     @staticmethod
-    def to_pydot(G: Graph, edges: List[Edge] | None = None, title: str = "", dpi: int = 200):
+    def to_pydot(G: Graph, edges: List[Edge] | None = None, labels: List[str] | None = None, title: str = "", dpi: float = 200):
+        '''
+        Convert a graph object to a DOT object.
+
+        Parameters
+        ----------
+        G : Graph
+            A graph object of causal-learn
+        edges : list, optional (default=None)
+            Edges list of graph G
+        labels : list, optional (default=None)
+            Nodes labels of graph G
+        title : str, optional (default="")
+            The name of graph G
+        dpi : float, optional (default=200)
+            The dots per inch of dot object
+        Returns
+        -------
+        pydot_g : Dot
+        '''
         pydot_g = pydot.Dot(title, graph_type="digraph", fontsize=18)
         pydot_g.obj_dict["attributes"]["dpi"] = dpi
         nodes = G.get_nodes()
         for i, node in enumerate(nodes):
+            node_name = labels[i] if labels is not None and len(labels) > i else node.get_name()
             pydot_g.add_node(pydot.Node(i, label=node.get_name()))
             if node.get_node_type() == NodeType.LATENT:
-                pydot_g.add_node(pydot.Node(i, label=node.get_name(), shape='square'))
+                pydot_g.add_node(pydot.Node(i, label=node_name, shape='square'))
             else:
-                pydot_g.add_node(pydot.Node(i, label=node.get_name()))
+                pydot_g.add_node(pydot.Node(i, label=node_name))
 
         def get_g_arrow_type(endpoint):
             if endpoint == Endpoint.TAIL:

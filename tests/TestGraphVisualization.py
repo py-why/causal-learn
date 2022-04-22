@@ -102,3 +102,21 @@ class testGraphVisualization(unittest.TestCase):
         edges = [edge]
         pyd = GraphUtils.to_pydot(pag, edges)
         pyd.write_png('green.png')
+
+    def test_plot_with_labels(self):
+        nodes = []
+        for i in range(3):
+            nodes.append(GraphNode(f"X{i + 1}"))
+        dag1 = Dag(nodes)
+
+        dag1.add_directed_edge(nodes[0], nodes[1])
+        dag1.add_directed_edge(nodes[0], nodes[2])
+        dag1.add_directed_edge(nodes[1], nodes[2])
+
+        pyd = GraphUtils.to_pydot(dag1, labels=["A", "B", "C"])
+        tmp_png = pyd.create_png(f="png")
+        fp = io.BytesIO(tmp_png)
+        img = mpimg.imread(fp, format='png')
+        plt.axis('off')
+        plt.imshow(img)
+        plt.show()
