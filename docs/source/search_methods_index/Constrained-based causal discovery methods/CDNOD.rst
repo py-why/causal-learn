@@ -21,6 +21,9 @@ Usage
     # note that the last node is the c_indx
     cg.draw_pydot_graph()
 
+Visualization using pydot is recommended. If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/e4e73f8b58510a3cd5a9125ba50c0ac62a425ef3/tests/TestGraphVisualization.py#L106>`_ (e.g., GraphUtils.to_pydot(cg.G, labels=["A", "B", "C"]).
+
+
 Parameters
 -------------------
 **data**:  numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
