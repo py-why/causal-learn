@@ -23,9 +23,8 @@ from causallearn.utils.cit import kci
 
 def fisher_test(pvals):
     pvals = [pval if pval >= 1e-5 else 1e-5 for pval in pvals]
-    return min(pvals)
-    # fisher_stat = -2.0 * np.sum(np.log(pvals))
-    # return 1 - chi2.cdf(fisher_stat, 2 * len(pvals))
+    fisher_stat = -2.0 * np.sum(np.log(pvals))
+    return 1 - chi2.cdf(fisher_stat, 2 * len(pvals))
 
 
 def GIN(data, indep_test=kci, alpha=0.05):
