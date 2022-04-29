@@ -1,10 +1,13 @@
 import random
 import sys
+import io
 
 sys.path.append("")
 import unittest
 
 import numpy as np
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
 from causallearn.search.HiddenCausal.GIN.GIN import GIN
 
@@ -24,6 +27,16 @@ class TestGIN(unittest.TestCase):
         data = (data - np.mean(data, axis=0)) / np.std(data, axis=0)
         g, k = GIN(data)
         print(g, k)
+
+        # Visualization using pydot
+        from causallearn.utils.GraphUtils import GraphUtils
+        pyd = GraphUtils.to_pydot(g)
+        tmp_png = pyd.create_png(f="png")
+        fp = io.BytesIO(tmp_png)
+        img = mpimg.imread(fp, format='png')
+        plt.axis('off')
+        plt.imshow(img)
+        plt.show()
 
     def test_case2(self):
         sample_size = 1000
@@ -47,6 +60,16 @@ class TestGIN(unittest.TestCase):
         g, k = GIN(data)
         print(g, k)
 
+        # Visualization using pydot
+        from causallearn.utils.GraphUtils import GraphUtils
+        pyd = GraphUtils.to_pydot(g)
+        tmp_png = pyd.create_png(f="png")
+        fp = io.BytesIO(tmp_png)
+        img = mpimg.imread(fp, format='png')
+        plt.axis('off')
+        plt.imshow(img)
+        plt.show()
+
     def test_case3(self):
         sample_size = 1000
         random.seed(42)
@@ -69,3 +92,13 @@ class TestGIN(unittest.TestCase):
         data = (data - np.mean(data, axis=0)) / np.std(data, axis=0)
         g, k = GIN(data)
         print(g, k)
+
+        # Visualization using pydot
+        from causallearn.utils.GraphUtils import GraphUtils
+        pyd = GraphUtils.to_pydot(g)
+        tmp_png = pyd.create_png(f="png")
+        fp = io.BytesIO(tmp_png)
+        img = mpimg.imread(fp, format='png')
+        plt.axis('off')
+        plt.imshow(img)
+        plt.show()

@@ -18,6 +18,10 @@ Usage
 
     # Visualization using pydot
     from causallearn.utils.GraphUtils import GraphUtils
+    import matplotlib.image as mpimg
+    import matplotlib.pyplot as plt
+    import io
+
     pyd = GraphUtils.to_pydot(Record['G'])
     tmp_png = pyd.create_png(f="png")
     fp = io.BytesIO(tmp_png)
