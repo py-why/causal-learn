@@ -17,6 +17,7 @@ Usage
     Record = ges(X, score_func, maxP, parameters)
 
     # Visualization using pydot
+    from causallearn.utils.GraphUtils import GraphUtils
     pyd = GraphUtils.to_pydot(Record['G'])
     tmp_png = pyd.create_png(f="png")
     fp = io.BytesIO(tmp_png)
