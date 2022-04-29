@@ -63,7 +63,7 @@ Contributors
 
 **Team Leaders**: Kun Zhang, Joseph Ramsey, Mingming Gong, Ruichu Cai, Shohei Shimizu, Peter Spirtes, Clark Glymour
 
-**Coordinators**: Biwei Huang, Yujia Zheng, Wei Chen
+**Coordinators**: Yujia Zheng, Biwei Huang, Wei Chen
 
 **Developers**:
 
