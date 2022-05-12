@@ -10,20 +10,7 @@ from causallearn.score.LocalScoreFunction import *
 
 
 def feval(parameters: list):
-    if parameters[0] == 'local_score_CV_general':
-        return local_score_cv_general(parameters[1], parameters[2], parameters[3], parameters[4])
-    elif parameters[0] == 'local_score_marginal_general':
-        return local_score_marginal_general(parameters[1], parameters[2], parameters[3], parameters[4])
-    elif parameters[0] == 'local_score_CV_multi':
-        return local_score_cv_multi(parameters[1], parameters[2], parameters[3], parameters[4])
-    elif parameters[0] == 'local_score_marginal_multi':
-        return local_score_marginal_multi(parameters[1], parameters[2], parameters[3], parameters[4])
-    elif parameters[0] == 'local_score_BIC':
-        return local_score_BIC(parameters[1], parameters[2], parameters[3], parameters[4])
-    elif parameters[0] == 'local_score_BDeu':
-        return local_score_BDeu(parameters[1], parameters[2], parameters[3], parameters[4])
-    else:
-        raise Exception('Undefined function')
+    return parameters[0].score(parameters[2], parameters[3])
 
 
 def kernel(x, xKern, theta):

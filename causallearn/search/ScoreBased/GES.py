@@ -1,5 +1,5 @@
 from typing import Optional
-
+from causallearn.score.LocalScoreFunctionClass import LocalScoreClass
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.DAG2CPDAG import dag2cpdag
@@ -46,12 +46,14 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         if maxP is None:
             maxP = X.shape[1] / 2  # maximum number of parents
         N = X.shape[1]  # number of variables
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_cv_general, parameters=parameters)
 
     elif score_func == 'local_score_marginal_general':  # negative marginal likelihood based on regression in RKHS
         parameters = {}
         if maxP is None:
             maxP = X.shape[1] / 2  # maximum number of parents
         N = X.shape[1]  # number of variables
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_marginal_general, parameters=parameters)
 
     elif score_func == 'local_score_CV_multi':  # k-fold negative cross validated likelihood based on regression in RKHS
         # for data with multi-variate dimensions
@@ -62,6 +64,7 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         if maxP is None:
             maxP = len(parameters['dlabel']) / 2
         N = len(parameters['dlabel'])
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_cv_multi, parameters=parameters)
 
     elif score_func == 'local_score_marginal_multi':  # negative marginal likelihood based on regression in RKHS
         # for data with multi-variate dimensions
@@ -72,19 +75,23 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         if maxP is None:
             maxP = len(parameters['dlabel']) / 2
         N = len(parameters['dlabel'])
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_marginal_multi, parameters=parameters)
 
     elif score_func == 'local_score_BIC':  # Greedy equivalence search with BIC score
         if maxP is None:
             maxP = X.shape[1] / 2
         N = X.shape[1]  # number of variables
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BIC, parameters=None)
 
     elif score_func == 'local_score_BDeu':  # Greedy equivalence search with BDeu score
         if maxP is None:
             maxP = X.shape[1] / 2
         N = X.shape[1]  # number of variables
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BDeu, parameters=None)
 
     else:
         raise Exception('Unknown function!')
+    score_func = localScoreClass
 
     node_names = [("x%d" % i) for i in range(N)]
     nodes = []
