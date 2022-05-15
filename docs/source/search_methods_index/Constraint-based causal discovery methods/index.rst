@@ -1,6 +1,6 @@
-Constrained-based causal discovery methods
+Constraint-based causal discovery methods
 ====================================================
-In this section, we would like to introduce constrained-based causal discovery methods, including PC [1]_, FCI [2]_, and CD-NOD [3]_.
+In this section, we would like to introduce constraint-based causal discovery methods, including PC [1]_, FCI [2]_, and CD-NOD [3]_.
 
 
 Contents:

@@ -8,7 +8,7 @@ The package is actively being developed. Feedbacks (issues, suggestions, etc.) a
 
 Our causal-learn implements methods for causal discovery:
 
-* Constrained-based causal discovery methods.
+* Constraint-based causal discovery methods.
 * Score-based causal discovery methods.
 * Causal discovery methods based on constrained functional causal models.
 * Hidden causal representation learning.
