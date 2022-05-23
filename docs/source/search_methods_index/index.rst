@@ -8,7 +8,7 @@ Contents:
 .. toctree::
     :maxdepth: 3
 
-    Constrained-based causal discovery methods/index
+    Constraint-based causal discovery methods/index
     Score-based causal discovery methods/index
     Causal discovery methods based on constrained functional causal models/index
     Hidden causal representation learning/index
