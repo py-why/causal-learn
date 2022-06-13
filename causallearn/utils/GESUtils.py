@@ -47,7 +47,8 @@ def score_g(Data, G, score_func, parameters):  # calculate the score for the cur
     score = 0
     for i, node in enumerate(G.get_nodes()):
         PA = G.get_parents(node)
-        delta_score = feval([score_func, Data, i, PA, parameters])
+        PAi = list(map(lambda node_PA: G.node_map[node_PA], PA))
+        delta_score = feval([score_func, Data, i, PAi, parameters])
         score = score + delta_score
     return score
 
