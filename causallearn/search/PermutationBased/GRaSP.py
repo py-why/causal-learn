@@ -1,9 +1,11 @@
+import os
 import random
 import sys
 import time
 from typing import Any, Dict, List, Optional
 
 import numpy as np
+
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.score.LocalScoreFunction import (
@@ -86,9 +88,6 @@ def grasp(
 
     Parameters
     ----------
-
-    REQUIRES UPDATE
-
     X : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     score_func : the string name of score function. (str(one of 'local_score_CV_general', 'local_score_marginal_general',
                     'local_score_CV_multi', 'local_score_marginal_multi', 'local_score_BIC', 'local_score_BDeu')).
@@ -233,7 +232,11 @@ def grasp(
         for x in order.get_parents(y):
             G.add_directed_edge(nodes[x], nodes[y])
 
-    G = dag2cpdag(G)
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        G = dag2cpdag(G)
+        sys.stdout = old_stdout
 
     return G
 
