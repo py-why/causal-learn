@@ -79,7 +79,7 @@ def local_score_BIC_from_cov(
 
     yX = np.mat(cov[np.ix_([i], PAi)])
     XX = np.mat(cov[np.ix_(PAi, PAi)])
-    H = np.log(cov[i, i] - yX * pdinv(XX) * yX.T)
+    H = np.log(cov[i, i] - yX * np.linalg.inv(XX) * yX.T)
 
     return n * H + np.log(n) * len(PAi) * lambda_value
 

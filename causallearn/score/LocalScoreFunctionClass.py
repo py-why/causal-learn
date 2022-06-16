@@ -29,10 +29,12 @@ class LocalScoreClass(object):
         self.score_cache = {}
 
     def score(self, i: int, PAi: List[int]) -> float:
-        hash_key = f"i_{str(i)}_PAi_{str(PAi)}"
-        if self.score_cache.__contains__(hash_key):
-            return self.score_cache[hash_key]
-        else:
-            res = self.local_score_fun(self.data, i, PAi, self.parameters)
-            self.score_cache[hash_key] = res
-            return res
+        if i not in self.score_cache:
+            self.score_cache[i] = {}
+
+        hash_key = tuple(sorted(PAi))
+
+        if not self.score_cache[i].__contains__(hash_key):
+            self.score_cache[i][hash_key] = self.local_score_fun(self.data, i, PAi, self.parameters)
+
+        return self.score_cache[i][hash_key]

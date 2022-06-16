@@ -1,11 +1,9 @@
-import os
 import random
 import sys
 import time
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.score.LocalScoreFunction import (
@@ -220,7 +218,7 @@ def grasp(
         order.bump_edges(len(y_parents))
 
     while dfs(depth - 1, set(), [], order, score):
-        sys.stdout.write("\rGRaSP edge count: %i   " % order.get_edges())
+        sys.stdout.write("\rGRaSP edge count: %i    " % order.get_edges())
         sys.stdout.flush()
 
     runtime = time.perf_counter() - runtime
@@ -232,11 +230,7 @@ def grasp(
         for x in order.get_parents(y):
             G.add_directed_edge(nodes[x], nodes[y])
 
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        G = dag2cpdag(G)
-        sys.stdout = old_stdout
+    G = dag2cpdag(G)
 
     return G
 
@@ -272,11 +266,13 @@ def dfs(depth: int, flipped: set, history: List[set], order, score):
             tuck(i, j, order)
             edge_bump, score_bump = update(i, j, order, score)
 
-            if score_bump > 0:
+            # because things that should be zero sometimes are not
+            if score_bump > 1e-6:
                 order.bump_edges(edge_bump)
                 return True
 
-            if score_bump == 0:
+            # ibid
+            if score_bump > -1e-6:
                 flipped = flipped ^ set(
                     [
                         tuple(sorted([x, z]))

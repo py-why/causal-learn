@@ -1,8 +1,6 @@
-import os
-import sys
+import unittest
 
 import numpy as np
-
 from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
 from causallearn.graph.ArrowConfusion import ArrowConfusion
 from causallearn.graph.GeneralGraph import GeneralGraph
@@ -49,14 +47,12 @@ def parameterize_dag(g):
     # e = |edges|
     e = np.sum(g)
 
-    # generate variance terms (variance parameters uniformly sampled [1.0, 2.0])
+    # generate variance terms
     o = np.diag(np.ones(p))
-    # o = np.diag(np.random.uniform(0.3,2.0,p))
 
-    # generate edge weights (edge parameters uniformly sampled +/-[0.3, 0.7])
+    # generate edge weights (edge parameters uniformly sampled [-1.0, 1.0])
     b = np.zeros([p, p])
     b[np.where(g == 1)] = np.random.uniform(-1, 1, e)
-    # b[np.where(g==1)] = np.random.choice([-1,1], e) * np.random.uniform(0.2,1.0, e)
 
     # calculate covariance
     s = np.dot(np.dot(np.linalg.inv(np.eye(p) - b), o), np.linalg.inv(np.eye(p) - b).T)
@@ -64,61 +60,72 @@ def parameterize_dag(g):
     return s
 
 
-ps = [60]
-ds = [0.17]
-n = 1000
-reps = 5
+class TestGRaSP(unittest.TestCase):
+    def test_grasp(self):
+        ps = [30, 60]
+        ds = [0.1, 0.15]
+        n = 1000
+        reps = 5
 
-for p in ps:
-    for d in ds:
-        stats = [0, 0, 0, 0]
-        for rep in range(1, reps + 1):
-            g0 = random_dag(p, d)
-            print(
-                "Nodes:",
-                p,
-                "| Edges:",
-                np.sum(g0),
-                "| Avg Degree:",
-                2 * np.sum(g0) / p,
-                "| Rep:",
-                rep,
-            )
-            cov = parameterize_dag(g0)
-            X = np.random.multivariate_normal(np.zeros(p), cov, n)
+        for p in ps:
+            for d in ds:
+                stats = [[], [], [], []]
+                for rep in range(1, reps + 1):
+                    g0 = random_dag(p, d)
+                    print(
+                        "\nNodes:",
+                        p,
+                        "| Edges:",
+                        np.sum(g0),
+                        "| Avg Degree:",
+                        2 * np.sum(g0) / p,
+                        "| Rep:",
+                        rep,
+                    )
+                    cov = parameterize_dag(g0)
+                    X = np.random.multivariate_normal(np.zeros(p), cov, n)
 
-            node_names = [("x%d" % i) for i in range(p)]
-            nodes = []
+                    node_names = [("x%d" % i) for i in range(p)]
+                    nodes = []
 
-            for name in node_names:
-                node = GraphNode(name)
-                nodes.append(node)
+                    for name in node_names:
+                        node = GraphNode(name)
+                        nodes.append(node)
 
-            G0 = GeneralGraph(nodes)
-            for y in range(p):
-                for x in np.where(g0[y] == 1)[0]:
-                    G0.add_directed_edge(nodes[x], nodes[y])
+                    G0 = GeneralGraph(nodes)
+                    for y in range(p):
+                        for x in np.where(g0[y] == 1)[0]:
+                            G0.add_directed_edge(nodes[x], nodes[y])
 
-            with open(os.devnull, "w") as devnull:
-                old_stdout = sys.stdout
-                sys.stdout = devnull
-                G0 = dag2cpdag(G0)
-                sys.stdout = old_stdout
+                    G0 = dag2cpdag(G0)
 
-            G = grasp(X)
-            print()
+                    G = grasp(X)
 
-            AdjC = AdjacencyConfusion(G0, G)
-            stats[0] += AdjC.get_adj_precision() / reps
-            stats[1] += AdjC.get_adj_recall() / reps
+                    AdjC = AdjacencyConfusion(G0, G)
+                    stats[0].append(AdjC.get_adj_precision())
+                    stats[1].append(AdjC.get_adj_recall())
 
-            ArrC = ArrowConfusion(G0, G)
-            stats[2] += ArrC.get_arrows_precision() / reps
-            stats[3] += ArrC.get_arrows_recall() / reps
+                    ArrC = ArrowConfusion(G0, G)
+                    stats[2].append(ArrC.get_arrows_precision())
+                    stats[3].append(ArrC.get_arrows_recall())
 
-        print(
-            [
-                ["AP", "AR", "AHP", "AHR"][i] + ": " + str(round(stats[i], 2))
-                for i in range(4)
-            ]
-        )
+                    print(
+                        [
+                            ["AP", "AR", "AHP", "AHR"][i]
+                            + ": "
+                            + str(round(stats[i][-1], 2))
+                            for i in range(4)
+                        ]
+                    )
+
+                print(
+                    "\nOverall Stats: \n",
+                    [
+                        ["AP", "AR", "AHP", "AHR"][i]
+                        + ": "
+                        + str(round(np.sum(stats[i]) / reps, 2))
+                        for i in range(4)
+                    ],
+                )
+
+        print("finish")

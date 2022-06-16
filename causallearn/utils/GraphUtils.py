@@ -275,7 +275,7 @@ class GraphUtils:
         while len(not_found) > 0:
             sub_not_found: List[Node] = []
             for node in not_found:
-                print(node)
+                # print(node)
                 parents = graph.get_parents(node)
                 sub_parents: List[Node] = []
                 for node1 in parents:
