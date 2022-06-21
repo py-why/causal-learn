@@ -162,7 +162,7 @@ def mvpc_alg(data: ndarray, alpha: float, indep_test, correction_name: str, stab
     start = time.time()
 
     ## Step 1: detect the direct causes of missingness indicators
-    prt_m = get_prt_mpairs(data, alpha, indep_test, stable)
+    prt_m = get_parent_missingness_pairs(data, alpha, indep_test, stable)
     # print('Finish detecting the parents of missingness indicators.  ')
 
     ## Step 2:
@@ -216,7 +216,7 @@ def mvpc_alg(data: ndarray, alpha: float, indep_test, correction_name: str, stab
 
 #######################################################################################################################
 ## *********** Functions for Step 1 ***********
-def get_prt_mpairs(data: ndarray, alpha: float, indep_test, stable: bool = True) -> Dict[str, list]:
+def get_parent_missingness_pairs(data: ndarray, alpha: float, indep_test, stable: bool = True) -> Dict[str, list]:
     """
     Detect the parents of missingness indicators
     If a missingness indicator has no parent, it will not be included in the result
@@ -229,21 +229,19 @@ def get_prt_mpairs(data: ndarray, alpha: float, indep_test, stable: bool = True)
     :return:
     cg: a CausalGraph object
     """
-    prt_m = {'prt': [], 'm': []}
+    parent_missingness_pairs = {'prt': [], 'm': []}
 
     ## Get the index of missingness indicators
-    m_indx = get_mindx(data)
+    missingness_index = get_missingness_index(data)
 
     ## Get the index of parents of missingness indicators
     # If the missingness indicator has no parent, then it will not be collected in prt_m
-    for r in m_indx:
-        prt_r = detect_parent(r, data, alpha, indep_test, stable)
-        if isempty(prt_r):
-            pass
-        else:
-            prt_m['prt'].append(prt_r)
-            prt_m['m'].append(r)
-    return prt_m
+    for missingness_i in missingness_index:
+        parent_of_missingness_i = detect_parent(missingness_i, data, alpha, indep_test, stable)
+        if not isempty(parent_of_missingness_i):
+            parent_missingness_pairs['prt'].append(parent_of_missingness_i)
+            parent_missingness_pairs['m'].append(missingness_i)
+    return parent_missingness_pairs
 
 
 def isempty(prt_r) -> bool:
@@ -251,19 +249,19 @@ def isempty(prt_r) -> bool:
     return len(prt_r) == 0
 
 
-def get_mindx(data: ndarray) -> List[int]:
+def get_missingness_index(data: ndarray) -> List[int]:
     """Detect the parents of missingness indicators
     :param data: data set (numpy ndarray)
     :return:
-    m_indx: list, the index of missingness indicators
+    missingness_index: list, the index of missingness indicators
     """
 
-    m_indx = []
+    missingness_index = []
     _, ncol = np.shape(data)
     for i in range(ncol):
         if np.isnan(data[:, i]).any():
-            m_indx.append(i)
-    return m_indx
+            missingness_index.append(i)
+    return missingness_index
 
 
 def detect_parent(r: int, data_: ndarray, alpha: float, indep_test, stable: bool = True) -> ndarray:
