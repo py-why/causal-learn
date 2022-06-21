@@ -88,7 +88,7 @@ def mv_fisherz(mvdata, X, Y, condition_set, sample_size=None):
     r = -inv[0, 1] / sqrt(inv[0, 0] * inv[1, 1])
     Z = 0.5 * log((1 + r) / (1 - r))
     X = sqrt(sample_size - len(condition_set) - 3) * abs(Z)
-    p = 1 - norm.cdf(abs(X))
+    p = 2*(1 - norm.cdf(abs(X)))
     return p
 
 
@@ -413,6 +413,7 @@ def get_index_mv_rows(mvdata):
 
 def get_sub_correlation_matrix(mvdata):
     indxRows = get_index_mv_rows(mvdata)
+    assert len(indxRows) != 0, "A test-wise deletion fisher-z test appears no overlapping data of involved variables. Please check the input data."
     submatrix = np.corrcoef(mvdata[indxRows, :], rowvar=False)
     sample_size = len(indxRows)
     return submatrix, sample_size
