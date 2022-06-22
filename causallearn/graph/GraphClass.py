@@ -60,7 +60,7 @@ class CausalGraph:
         """Define the conditional independence test"""
         # assert i != j and not i in S and not j in S
         if self.mvpc:
-            return self.test(self.data, self.nx_skel, self.prt_m, i, j, S, self.data.shape[0])
+            return self.test(self.data, self.nx_skel, self.prt_m, i, j, S)
 
         i, j = (i, j) if (i < j) else (j, i)
         ijS_key = (i, j, frozenset(S), self.data_hash_key, self.ci_test_hash_key)

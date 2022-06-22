@@ -68,7 +68,7 @@ def kci_ci(X, Y, Z, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian', 
     return pvalue
 
 
-def mv_fisherz(mvdata, X, Y, condition_set, sample_size=None):
+def mv_fisherz(mvdata, X, Y, condition_set):
     """
     Perform an independence test using Fisher-Z's test for data with missing values
 
@@ -82,17 +82,13 @@ def mv_fisherz(mvdata, X, Y, condition_set, sample_size=None):
     p : the p-value of the test
     """
     var = list((X, Y) + condition_set)
-    sub_corr_matrix, del_sample_size = get_sub_correlation_matrix(mvdata[:, var])  # the columns represent variables
-    sample_size = del_sample_size
-    inv = np.linalg.inv(sub_corr_matrix)
-    r = -inv[0, 1] / sqrt(inv[0, 0] * inv[1, 1])
-    Z = 0.5 * log((1 + r) / (1 - r))
-    X = sqrt(sample_size - len(condition_set) - 3) * abs(Z)
-    p = 2*(1 - norm.cdf(abs(X)))
-    return p
+    test_wise_deletion_XYcond_rows_index = get_index_no_mv_rows(mvdata[:, var])
+    assert len(test_wise_deletion_XYcond_rows_index) != 0, "A test-wise deletion fisher-z test appears no overlapping data of involved variables. Please check the input data."
+    test_wise_deleted_data = mvdata[test_wise_deletion_XYcond_rows_index,:]
+    return fisherz(test_wise_deleted_data, X, Y, condition_set)
 
 
-def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
+def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set):
     """Perform an independent test using Fisher-Z's test with test-wise deletion and missingness correction
     If it is not the case which requires a correction, then call function mvfisherZ(...)
     :param prt_m: dictionary, with elements:
@@ -102,7 +98,7 @@ def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
 
     ## Check whether whether there is at least one common child of X and Y
     if not Helper.cond_perm_c(X, Y, condition_set, prt_m, skel):
-        return mv_fisherz(mdata, X, Y, condition_set, sample_size)
+        return mv_fisherz(mdata, X, Y, condition_set)
 
     ## *********** Step 1 ***********
     # Learning generaive model for {X, Y, S} to impute X, Y, and S
@@ -112,7 +108,7 @@ def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
     W_indx_ = Helper.get_prt_mvars(var=list((X, Y) + condition_set), prt_m=prt_m)
 
     if len(W_indx_) == 0:  # When there is no variable can be used for correction
-        return mv_fisherz(mdata, X, Y, condition_set, sample_size)
+        return mv_fisherz(mdata, X, Y, condition_set)
 
     ## Get the parents of W missingness indicators
     W_indx = Helper.get_prt_mw(W_indx_, prt_m)
@@ -124,7 +120,7 @@ def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
     W_indx = list(set(W_indx) - set(var))
 
     if len(W_indx) == 0:  # When there is no variable can be used for correction
-        return mv_fisherz(mdata, X, Y, condition_set, sample_size)
+        return mv_fisherz(mdata, X, Y, condition_set)
 
     ## Learn regression models with test-wise deleted data
     involve_vars = var + W_indx
@@ -134,10 +130,12 @@ def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
 
     ## *********** Step 2 ***********
     # Get the data of the predictors, Ws
+    # The sample size of Ws is the same as the effective sample size
     Ws = Helper.get_predictor_ws(mdata[:, involve_vars], num_test_var=len(var), effective_sz=effective_sz)
 
     ## *********** Step 3 ***********
     # Generate the virtual data follows the full data distribution P(X, Y, S)
+    # The sample size of data_vir is the same as the effective sample size
     data_vir = Helper.gen_vir_data(regMs, rss, Ws, len(var), effective_sz)
 
     if len(var) > 2:
@@ -145,7 +143,7 @@ def mc_fisherz(mdata, skel, prt_m, X, Y, condition_set, sample_size):
     else:
         cond_set_bgn_0 = []
 
-    return mv_fisherz(data_vir, 0, 1, tuple(cond_set_bgn_0), effective_sz)
+    return mv_fisherz(data_vir, 0, 1, tuple(cond_set_bgn_0))
 
 
 def fisherz(data, X, Y, condition_set, correlation_matrix=None):
@@ -401,7 +399,7 @@ def cartesian_product(lists):
     return result
 
 
-def get_index_mv_rows(mvdata):
+def get_index_no_mv_rows(mvdata):
     nrow, ncol = np.shape(mvdata)
     bindxRows = np.ones((nrow,), dtype=bool)
     indxRows = np.array(list(range(nrow)))
@@ -409,11 +407,3 @@ def get_index_mv_rows(mvdata):
         bindxRows = np.logical_and(bindxRows, ~np.isnan(mvdata[:, i]))
     indxRows = indxRows[bindxRows]
     return indxRows
-
-
-def get_sub_correlation_matrix(mvdata):
-    indxRows = get_index_mv_rows(mvdata)
-    assert len(indxRows) != 0, "A test-wise deletion fisher-z test appears no overlapping data of involved variables. Please check the input data."
-    submatrix = np.corrcoef(mvdata[indxRows, :], rowvar=False)
-    sample_size = len(indxRows)
-    return submatrix, sample_size
