@@ -46,8 +46,15 @@ class Test_test_wise_deletion_PC(unittest.TestCase):
         stop = timeit.default_timer()
         t_test_wise_pc = stop - start
 
-        print(f'Time comparison:\n pc: {t_pc}s, test-wise pc: {t_test_wise_pc}')
-        print(f'Result differences (0 means no difference between the results of different methods):\n pc and test-wise pc:{causal_graph_diff(cg_pc, cg_test_wise_pc)}')
+        print('Running MVPC')
+        start = timeit.default_timer()
+        cg_mvpc = pc(data, 0.05, mv_fisherz, True, 0,-1, True)  # Run PC and obtain the estimated graph (CausalGraph object)
+        stop = timeit.default_timer()
+        t_mvpc = stop - start
+
+        print(f'Time comparison:\n pc: {t_pc}s, test-wise pc: {t_test_wise_pc}, mvpc: {t_mvpc}')
+        print(f'Result differences (0 means no difference between the results of different methods):\n pc and test-wise pc: {causal_graph_diff(cg_pc, cg_test_wise_pc)}')
+        print(f'Result differences (0 means no difference between the results of different methods):\n pc and mvpc: {causal_graph_diff(cg_pc, cg_mvpc)}')
 
     def test_pc_with_mv_fisherz_MCAR_data(self):
         data_path = "data_linear_10.txt"
@@ -72,9 +79,15 @@ class Test_test_wise_deletion_PC(unittest.TestCase):
         stop = timeit.default_timer()
         t_test_wise_pc = stop - start
 
-        print(f'Time comparison:\n pc: {t_pc}s, test-wise pc: {t_test_wise_pc}')
-        print(f'Result differences (0 means no difference between the results of different methods):\n pc and test-wise pc:{causal_graph_diff(cg_pc, cg_test_wise_pc)}')
+        print('Running MVPC')
+        start = timeit.default_timer()
+        cg_mvpc = pc(mdata, 0.05, mv_fisherz, True, 0,-1, True)  # Run PC and obtain the estimated graph (CausalGraph object)
+        stop = timeit.default_timer()
+        t_mvpc = stop - start
 
+        print(f'Time comparison:\n pc: {t_pc}s, test-wise pc: {t_test_wise_pc}, mvpc: {t_mvpc}')
+        print(f'Result differences (0 means no difference between the results of different methods):\n pc and test-wise pc: {causal_graph_diff(cg_pc, cg_test_wise_pc)}')
+        print(f'Result differences (0 means no difference between the results of different methods):\n pc and mvpc: {causal_graph_diff(cg_pc, cg_mvpc)}')
         
     
     def test_pc_with_mv_fisherz_MCAR_data_assertion(self):
@@ -98,10 +111,10 @@ class Test_test_wise_deletion_PC(unittest.TestCase):
 if __name__ == '__main__':
     test = Test_test_wise_deletion_PC()
     print('------------------------------')
-    print('Test test-wise deletion PC on full datatsets.')
+    print('Test test-wise deletion PC and MVPC on full datatsets.')
     test.test_pc_with_mv_fisherz_full_data()
     print('------------------------------')
-    print('Test test-wise deletion PC on MCAR datatsets.')
+    print('Test test-wise deletion PC and MVPC on MCAR datatsets.')
     test.test_pc_with_mv_fisherz_MCAR_data()
     print('------------------------------')
     print('Test test-wise deletion PC on MCAR datatsets where most values are missing.')
