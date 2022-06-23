@@ -6,6 +6,8 @@ from scipy.stats import chi2, norm
 from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
 from causallearn.utils.PCUtils import Helper
 
+CONST_BINCOUNT_UNIQUE_THRESHOLD = 1e5
+
 
 def kci(data, X, Y, condition_set=None, kernelX='Gaussian', kernelY='Gaussian', kernelZ='Gaussian',
         est_width='empirical', polyd=2, kwidthx=None, kwidthy=None, kwidthz=None):
@@ -223,7 +225,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
         yMarginalCounts = np.sum(xyJointCounts, axis=0)
         return xyJointCounts, xMarginalCounts, yMarginalCounts
 
-    def _Fill3DCountTable_by_bincount(dataSXY, cardSXY):
+    def _Fill3DCountTableByBincount(dataSXY, cardSXY):
         cardX, cardY = cardSXY[-2:]
         cardS = np.prod(cardSXY[:-2])
         cardCumProd = np.ones_like(cardSXY)
@@ -240,7 +242,7 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
         SyJointCounts = np.sum(SxyJointCounts, axis=1)
         return SxyJointCounts, SMarginalCounts, SxJointCounts, SyJointCounts
 
-    def _Fill3DCountTable_by_unique(dataSXY, cardSXY):
+    def _Fill3DCountTableByUnique(dataSXY, cardSXY):
         # Sometimes when the conditioning set contains many variables and each variable's cardinality is large
         # e.g. consider an extreme case where
         # S contains 7 variables and each's cardinality=20, then cardS = np.prod(cardSXY[:-2]) would be 1280000000
@@ -271,8 +273,8 @@ def chisq_or_gsq_test(dataSXY, cardSXY, G_sq=False):
     def _Fill3DCountTable(dataSXY, cardSXY):
         # about the threshold 1e5, see a rough performance example at:
         # https://gist.github.com/MarkDana/e7d9663a26091585eb6882170108485e#file-count-unique-in-array-performance-md
-        if np.prod(cardSXY) < 1e5: return _Fill3DCountTable_by_bincount(dataSXY, cardSXY)
-        return _Fill3DCountTable_by_unique(dataSXY, cardSXY)
+        if np.prod(cardSXY) < CONST_BINCOUNT_UNIQUE_THRESHOLD: return _Fill3DCountTableByBincount(dataSXY, cardSXY)
+        return _Fill3DCountTableByUnique(dataSXY, cardSXY)
 
     def _CalculatePValue(cTables, eTables):
         """
