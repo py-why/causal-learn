@@ -47,9 +47,5 @@ class TestANM(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestANM()
-<<<<<<< HEAD
     test.test_anm_simul()
     test.test_anm_pair()
-=======
-    test.test_anm_pair()
->>>>>>> 8443c497f18ad0894ca9e86790cc630631680cb0
