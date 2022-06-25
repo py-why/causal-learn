@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io
 import warnings
 from itertools import permutations
@@ -199,14 +201,15 @@ class CausalGraph:
         plt.draw()
         plt.show()
 
-    def draw_pydot_graph(self):
+    def draw_pydot_graph(self, labels: List[str] | None = None):
         """Draw nx_graph if skel = False and draw nx_skel otherwise"""
         warnings.filterwarnings("ignore", category=UserWarning)
-        pyd = GraphUtils.to_pydot(self.G)
+        pyd = GraphUtils.to_pydot(self.G, labels=labels)
         tmp_png = pyd.create_png(f="png")
-        pyd.write_png("result.png")
         fp = io.BytesIO(tmp_png)
         img = mpimg.imread(fp, format='png')
+        plt.rcParams["figure.figsize"] = [20, 12]
+        plt.rcParams["figure.autolayout"] = True
         plt.axis('off')
         plt.imshow(img)
         plt.show()
