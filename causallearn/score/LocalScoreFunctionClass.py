@@ -6,7 +6,7 @@ import pandas as pd
 from causallearn.score.LocalScoreFunction import (
     local_score_BDeu,
     local_score_BIC,
-    local_score_BIC_from_cov,
+    # local_score_BIC_from_cov,
     local_score_cv_general,
     local_score_cv_multi,
     local_score_marginal_general,

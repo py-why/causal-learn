@@ -81,7 +81,9 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         if maxP is None:
             maxP = X.shape[1] / 2
         N = X.shape[1]  # number of variables
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BIC, parameters=None)
+        parameters = {}
+        parameters["lambda_value"] = 2
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BIC, parameters=parameters)
 
     elif score_func == 'local_score_BDeu':  # Greedy equivalence search with BDeu score
         if maxP is None:

@@ -22,52 +22,9 @@ def local_score_BIC(Data: ndarray, i: int, PAi: List[int], parameters=None) -> f
     score: local BIC score
     """
 
-    if parameters is None:
-        lambda_value = 1
-    else:
-        lambda_value = parameters["lambda_value"]
-
-    Data = np.mat(Data)
-    T = Data.shape[0]
-    X = Data[:, i]
-
-    if len(PAi) != 0:
-        PA = Data[:, PAi]
-        D = PA.shape[1]
-        # derive the parameters by maximum likelihood
-        H = PA * pdinv(PA.T * PA) * PA.T
-        E = X - H * X
-        sigma2 = np.sum(np.power(E, 2)) / T
-        # BIC
-        score = T * np.log(sigma2) + lambda_value * D * np.log(T)
-    else:
-        sigma2 = np.sum(np.power(X, 2)) / T
-        # BIC
-        score = T * np.log(sigma2)
-
-    return score
-
-
-def local_score_BIC_from_cov(
-    Data: Tuple[ndarray, int], i: int, PAi: List[int], parameters=None
-) -> float:
-    """
-    Calculate the *negative* local score with BIC for the linear Gaussian continue data case
-    from the covariance matrix
-
-    Parameters
-    ----------
-    Data: covariance matrix, number of instances
-    i: current index
-    PAi: parent indexes
-    parameters: lambda_value, the penalty discount of bic
-
-    Returns
-    -------
-    score: proportional to -2x BIC
-    """
-
-    cov, n = Data
+    cov = np.corrcoef(Data.T)
+    n = Data.shape[0]
+    # cov, n = Data
 
     if parameters is None:
         lambda_value = 1

@@ -1,6 +1,7 @@
 import random
 import sys
 import time
+import warnings
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -9,7 +10,6 @@ from causallearn.graph.GraphNode import GraphNode
 from causallearn.score.LocalScoreFunction import (
     local_score_BDeu,
     local_score_BIC,
-    local_score_BIC_from_cov,
     local_score_cv_general,
     local_score_cv_multi,
     local_score_marginal_general,
@@ -164,24 +164,12 @@ def grasp(
         )
 
     elif score_func == "local_score_BIC":  # Greedy equivalence search with BIC score
-        if maxP is None:
-            maxP = X.shape[1] / 2
-        localScoreClass = LocalScoreClass(
-            data=X, local_score_fun=local_score_BIC, parameters=None
-        )
-
-    elif (
-        score_func == "local_score_BIC_from_cov"
-    ):  # Greedy equivalence search with BIC score
-        if maxP is None:
-            maxP = X.shape[1] / 2
-        cov = np.corrcoef(X.T)
         parameters = {}
         parameters["lambda_value"] = 2
+        if maxP is None:
+            maxP = X.shape[1] / 2
         localScoreClass = LocalScoreClass(
-            data=(cov, n),
-            local_score_fun=local_score_BIC_from_cov,
-            parameters=parameters,
+            data=X, local_score_fun=local_score_BIC, parameters=parameters
         )
 
     elif score_func == "local_score_BDeu":  # Greedy equivalence search with BDeu score
