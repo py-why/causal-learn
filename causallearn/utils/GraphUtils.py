@@ -529,11 +529,16 @@ class GraphUtils:
         -------
         pydot_g : Dot
         '''
+
+        nodes = G.get_nodes()
+        if labels is not None:
+            assert len(labels) == len(nodes)
+
         pydot_g = pydot.Dot(title, graph_type="digraph", fontsize=18)
         pydot_g.obj_dict["attributes"]["dpi"] = dpi
         nodes = G.get_nodes()
         for i, node in enumerate(nodes):
-            node_name = labels[i] if labels is not None and len(labels) > i else node.get_name()
+            node_name = labels[i] if labels is not None else node.get_name()
             pydot_g.add_node(pydot.Node(i, label=node.get_name()))
             if node.get_node_type() == NodeType.LATENT:
                 pydot_g.add_node(pydot.Node(i, label=node_name, shape='square'))

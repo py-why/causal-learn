@@ -120,3 +120,9 @@ class testGraphVisualization(unittest.TestCase):
         plt.axis('off')
         plt.imshow(img)
         plt.show()
+
+    def test_draw_graph_with_labels(self):
+        data_path = "data_linear_10.txt"
+        data = np.loadtxt(data_path, skiprows=1)
+        cg = pc(data, 0.05, fisherz, True, 0, -1)
+        cg.draw_pydot_graph(labels=[f"Node_{i + 1}" for i in range(data.shape[1])])
