@@ -4,6 +4,7 @@ from itertools import combinations
 
 import numpy as np
 from numpy import ndarray
+from typing import List
 from tqdm.auto import tqdm
 
 from causallearn.graph.GraphClass import CausalGraph
@@ -12,9 +13,16 @@ from causallearn.utils.cit import chisq, gsq
 from causallearn.utils.PCUtils.Helper import append_value
 
 
-def skeleton_discovery(data: ndarray, alpha: float, indep_test, stable: bool = True,
-                       background_knowledge: BackgroundKnowledge | None = None, verbose: bool = False,
-                       show_progress: bool = True) -> CausalGraph:
+def skeleton_discovery(
+    data: ndarray, 
+    alpha: float, 
+    indep_test,
+    stable: bool = True,
+    background_knowledge: BackgroundKnowledge | None = None, 
+    verbose: bool = False,
+    show_progress: bool = True,
+    node_names: List[str] | None = None, 
+) -> CausalGraph:
     """
     Perform skeleton discovery
 
@@ -34,6 +42,7 @@ def skeleton_discovery(data: ndarray, alpha: float, indep_test, stable: bool = T
     background_knowledge : background knowledge
     verbose : True iff verbose output should be printed.
     show_progress : True iff the algorithm progress should be show in console.
+    node_names: Shape [n_features]. The name for each feature (each feature is represented as a Node in the graph, so it's also the node name)
 
     Returns
     -------
@@ -47,7 +56,7 @@ def skeleton_discovery(data: ndarray, alpha: float, indep_test, stable: bool = T
     assert 0 < alpha < 1
 
     no_of_var = data.shape[1]
-    cg = CausalGraph(no_of_var)
+    cg = CausalGraph(no_of_var, node_names)
     cg.set_ind_test(indep_test)
     cg.data_hash_key = hash(str(data))
     if indep_test == chisq or indep_test == gsq:

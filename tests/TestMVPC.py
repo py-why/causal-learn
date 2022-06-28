@@ -8,9 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from causallearn.search.ConstraintBased.PC import (get_adjacancy_matrix,
-                                                   mvpc_alg, pc, pc_alg)
-from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz
+from causallearn.search.ConstraintBased.PC import get_adjacancy_matrix, pc
+from causallearn.utils.cit import fisherz, mv_fisherz
 
 
 def load(filename):
