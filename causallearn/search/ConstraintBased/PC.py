@@ -18,7 +18,6 @@ from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
 
 def pc(
     data: ndarray, 
-    node_names: List[str] | None = None, 
     alpha=0.05, 
     indep_test=fisherz, 
     stable: bool = True, 
@@ -29,6 +28,7 @@ def pc(
     background_knowledge: BackgroundKnowledge | None = None, 
     verbose: bool = False, 
     show_progress: bool = True,
+    node_names: List[str] | None = None, 
 ):
     if data.shape[0] < data.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
@@ -64,7 +64,8 @@ def pc_alg(
     Parameters
     ----------
     data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
-    alpha : float, desired significance level of independence tests (p_value) in (0,1)
+    node_names: Shape [n_features]. The name for each feature (each feature is represented as a Node in the graph, so it's also the node name)
+    alpha : float, desired significance level of independence tests (p_value) in (0, 1)
     indep_test : the function of the independence test being used
             [fisherz, chisq, gsq, kci]
            - fisherz: Fisher's Z conditional independence test
@@ -152,6 +153,7 @@ def mvpc_alg(
     Parameters
     ----------
     data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    node_names: Shape [n_features]. The name for each feature (each feature is represented as a Node in the graph, so it's also the node name)
     alpha :  float, desired significance level of independence tests (p_value) in (0,1)
     indep_test : name of the test-wise deletion independence test being used
             [mv_fisherz, mv_g_sq]

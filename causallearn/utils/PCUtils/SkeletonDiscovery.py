@@ -42,6 +42,7 @@ def skeleton_discovery(
     background_knowledge : background knowledge
     verbose : True iff verbose output should be printed.
     show_progress : True iff the algorithm progress should be show in console.
+    node_names: Shape [n_features]. The name for each feature (each feature is represented as a Node in the graph, so it's also the node name)
 
     Returns
     -------
