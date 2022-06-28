@@ -16,29 +16,48 @@ from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
     orient_by_background_knowledge
 
 
-def pc(data: ndarray, alpha=0.05, indep_test=fisherz, stable: bool = True, uc_rule: int = 0, uc_priority: int = 2,
-       mvpc: bool = False, correction_name: str = 'MV_Crtn_Fisher_Z',
-       background_knowledge: BackgroundKnowledge | None = None, verbose: bool = False, show_progress: bool = True):
+def pc(
+    data: ndarray, 
+    node_names: List[str] | None = None, 
+    alpha=0.05, 
+    indep_test=fisherz, 
+    stable: bool = True, 
+    uc_rule: int = 0, 
+    uc_priority: int = 2,
+    mvpc: bool = False, 
+    correction_name: str = 'MV_Crtn_Fisher_Z',
+    background_knowledge: BackgroundKnowledge | None = None, 
+    verbose: bool = False, 
+    show_progress: bool = True,
+):
     if data.shape[0] < data.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
 
     if mvpc:  # missing value PC
         if indep_test == fisherz:
             indep_test = mv_fisherz
-        return mvpc_alg(data=data, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
+        return mvpc_alg(data=data, node_names=node_names, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
                         uc_rule=uc_rule, uc_priority=uc_priority, background_knowledge=background_knowledge,
                         verbose=verbose,
                         show_progress=show_progress)
     else:
-        return pc_alg(data=data, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
+        return pc_alg(data=data, node_names=node_names, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
                       uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose,
                       show_progress=show_progress)
 
 
-def pc_alg(data: ndarray, alpha: float, indep_test, stable: bool, uc_rule: int, uc_priority: int,
-           background_knowledge: BackgroundKnowledge | None = None,
-           verbose: bool = False,
-           show_progress: bool = True) -> CausalGraph:
+def pc_alg(
+    data: ndarray,
+    node_names: List[str] | None, 
+    alpha: float, 
+    indep_test, 
+    stable: bool, 
+    uc_rule: int, 
+    uc_priority: int,
+    background_knowledge: BackgroundKnowledge | None = None,
+    verbose: bool = False,
+    show_progress: bool = True,
+) -> CausalGraph:
     """
     Perform Peter-Clark (PC) algorithm for causal discovery
 
@@ -79,7 +98,7 @@ def pc_alg(data: ndarray, alpha: float, indep_test, stable: bool, uc_rule: int, 
     start = time.time()
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose,
-                                                show_progress=show_progress)
+                                                show_progress=show_progress, node_names=node_names)
 
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_1, background_knowledge)
@@ -114,10 +133,19 @@ def pc_alg(data: ndarray, alpha: float, indep_test, stable: bool, uc_rule: int, 
     return cg
 
 
-def mvpc_alg(data: ndarray, alpha: float, indep_test, correction_name: str, stable: bool, uc_rule: int,
-             uc_priority: int, background_knowledge: BackgroundKnowledge | None = None,
-             verbose: bool = False,
-             show_progress: bool = True) -> CausalGraph:
+def mvpc_alg(
+    data: ndarray, 
+    node_names: List[str] | None, 
+    alpha: float, 
+    indep_test, 
+    correction_name: str, 
+    stable: bool, 
+    uc_rule: int,
+    uc_priority: int, 
+    background_knowledge: BackgroundKnowledge | None = None,
+    verbose: bool = False,
+    show_progress: bool = True,
+) -> CausalGraph:
     """
     Perform missing value Peter-Clark (PC) algorithm for causal discovery
 
@@ -169,7 +197,7 @@ def mvpc_alg(data: ndarray, alpha: float, indep_test, correction_name: str, stab
     ## a) Run PC algorithm with the 1st step skeleton;
     cg_pre = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
                                                   background_knowledge=background_knowledge,
-                                                  verbose=verbose, show_progress=show_progress)
+                                                  verbose=verbose, show_progress=show_progress, node_names=node_names)
     if background_knowledge is not None:
         orient_by_background_knowledge(cg_pre, background_knowledge)
 

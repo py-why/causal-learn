@@ -21,8 +21,11 @@ from causallearn.utils.PCUtils.Helper import list_union, powerset
 
 
 class CausalGraph:
-    def __init__(self, no_of_var: int):
-        node_names: List[str] = [("X%d" % (i + 1)) for i in range(no_of_var)]
+    def __init__(self, no_of_var: int, node_names: List[str] | None = None):
+        if node_names is None:
+            node_names = [("X%d" % (i + 1)) for i in range(no_of_var)]
+        assert len(node_names) == no_of_var, "number of node_names must match number of variables"
+        assert len(node_names) == len(set(node_names)), "node_names must be unique"
         nodes: List[Node] = []
         for name in node_names:
             node = GraphNode(name)
