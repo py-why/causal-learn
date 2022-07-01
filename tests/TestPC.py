@@ -4,7 +4,6 @@ sys.path.append("")
 import unittest
 import hashlib
 import numpy as np
-np.random.seed(42)
 from causallearn.search.ConstraintBased.PC import pc
 from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz
 from causallearn.graph.SHD import SHD
@@ -28,6 +27,7 @@ BENCHMARK_TXTFILE_TO_MD5 = {
     "./TestData/data_linear_10.txt": "95a17e15038d4cade0845140b67c05a6",
     "./TestData/data_discrete_10.txt": "ccb51c6c1946d8524a8b29a49aef2cc4",
     "./TestData/data_linear_missing_10.txt": "4e3ee59becd0fbe5fdb818154457a558",
+    "./TestData/test_pc_simulated_linear_gaussian_data.txt": "ac1f99453f7e038857b692b1b3c42f3c",
     "./TestData/graph.10.txt": "4970d4ecb8be999a82a665e5f5e0825b",
     "./TestData/benchmark_returned_results/discrete_10_pc_chisq_0.05_stable_0_-1.txt": "87ebf9d830d75a5161b3a3a34ad6921f",
     "./TestData/benchmark_returned_results/discrete_10_pc_gsq_0.05_stable_0_-1.txt": "87ebf9d830d75a5161b3a3a34ad6921f",
@@ -170,19 +170,23 @@ class TestPC(unittest.TestCase):
         # Then by Meek rule 2: 2 -> 4.
         # Then by Meek rule 3: 1 -> 3.
 
-        # Simulation configuration.
-        linear_weight_minabs, linear_weight_maxabs, linear_weight_netative_prob = 0.5, 0.9, 0.5
-        sample_size = 10000
-        adjacency_matrix = np.zeros((num_of_nodes, num_of_nodes))
-        adjacency_matrix[tuple(zip(*truth_DAG_directed_edges))] = 1
-        adjacency_matrix = adjacency_matrix.T
-        weight_mask = np.random.uniform(linear_weight_minabs, linear_weight_maxabs, (num_of_nodes, num_of_nodes))
-        weight_mask[np.unravel_index(np.random.choice(np.arange(weight_mask.size), replace=False,
-                                   size=int(weight_mask.size * linear_weight_netative_prob)), weight_mask.shape)] *= -1.
-        adjacency_matrix = adjacency_matrix * weight_mask
-        mixing_matrix = np.linalg.inv(np.eye(num_of_nodes) - adjacency_matrix)
-        exogenous_noise = np.random.normal(0, 1, (num_of_nodes, sample_size))
-        data = (mixing_matrix @ exogenous_noise).T
+        ###### Simulation configuration: code to generate "./TestData/test_pc_simulated_linear_gaussian_data.txt" ######
+        # np.random.seed(42)
+        # linear_weight_minabs, linear_weight_maxabs, linear_weight_netative_prob = 0.5, 0.9, 0.5
+        # sample_size = 10000
+        # adjacency_matrix = np.zeros((num_of_nodes, num_of_nodes))
+        # adjacency_matrix[tuple(zip(*truth_DAG_directed_edges))] = 1
+        # adjacency_matrix = adjacency_matrix.T
+        # weight_mask = np.random.uniform(linear_weight_minabs, linear_weight_maxabs, (num_of_nodes, num_of_nodes))
+        # weight_mask[np.unravel_index(np.random.choice(np.arange(weight_mask.size), replace=False,
+        #                            size=int(weight_mask.size * linear_weight_netative_prob)), weight_mask.shape)] *= -1.
+        # adjacency_matrix = adjacency_matrix * weight_mask
+        # mixing_matrix = np.linalg.inv(np.eye(num_of_nodes) - adjacency_matrix)
+        # exogenous_noise = np.random.normal(0, 1, (num_of_nodes, sample_size))
+        # data = (mixing_matrix @ exogenous_noise).T
+        ###### Simulation configuration: code to generate "./TestData/test_pc_simulated_linear_gaussian_data.txt" ######
+
+        data = np.loadtxt("./TestData/test_pc_simulated_linear_gaussian_data.txt", skiprows=1)
 
         # Run PC with deafult parameters: stable=True, uc_rule=0 (uc_sepset), uc_priority=2 (prioritize existing colliders)
         cg = pc(data, 0.05, fisherz)
