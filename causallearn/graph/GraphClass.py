@@ -18,6 +18,7 @@ from causallearn.graph.GraphNode import GraphNode
 from causallearn.graph.Node import Node
 from causallearn.utils.GraphUtils import GraphUtils
 from causallearn.utils.PCUtils.Helper import list_union, powerset
+from causallearn.utils.cit import CIT
 
 
 class CausalGraph:
@@ -34,10 +35,7 @@ class CausalGraph:
         for i in range(no_of_var):
             for j in range(i + 1, no_of_var):
                 self.G.add_edge(Edge(nodes[i], nodes[j], Endpoint.TAIL, Endpoint.TAIL))
-
-        self.data = None  # store the data
-        self.test = None  # store the name of the conditional independence test
-        self.corr_mat = None  # store the correlation matrix of the data
+        self.test: CIT | None = None
         self.sepset = np.empty((no_of_var, no_of_var), object)  # store the collection of sepsets
         self.definite_UC = []  # store the list of definite unshielded colliders
         self.definite_non_UC = []  # store the list of definite unshielded non-colliders
@@ -47,35 +45,17 @@ class CausalGraph:
         self.nx_skel = nx.Graph()  # store the undirected graph
         self.labels = {}
         self.prt_m = {}  # store the parents of missingness indicators
-        self.mvpc = False
-        self.cardinalities = None  # only works when self.data is discrete, i.e. self.test is chisq or gsq
-        self.is_discrete = False
-        self.citest_cache = dict()
-        self.data_hash_key = None
-        self.ci_test_hash_key = None
 
-    def set_ind_test(self, indep_test, mvpc=False):
+
+    def set_ind_test(self, indep_test):
         """Set the conditional independence test that will be used"""
-        # assert name_of_test in ["Fisher_Z", "Chi_sq", "G_sq"]
-        self.mvpc = mvpc
         self.test = indep_test
-        self.ci_test_hash_key = hash(indep_test)
 
     def ci_test(self, i: int, j: int, S) -> float:
         """Define the conditional independence test"""
         # assert i != j and not i in S and not j in S
-        if self.mvpc:
-            return self.test(self.data, self.nx_skel, self.prt_m, i, j, S)
-
-        i, j = (i, j) if (i < j) else (j, i)
-        ijS_key = (i, j, frozenset(S), self.data_hash_key, self.ci_test_hash_key)
-        if ijS_key in self.citest_cache:
-            return self.citest_cache[ijS_key]
-        # if discrete, assert self.test is chisq or gsq, pass into cardinalities
-        pValue = self.test(self.data, i, j, S, self.cardinalities) if self.is_discrete \
-            else self.test(self.data, i, j, S)
-        self.citest_cache[ijS_key] = pValue
-        return pValue
+        if self.test.method == 'mc_fisherz': return self.test(i, j, S, self.nx_skel, self.prt_m)
+        return self.test(i, j, S)
 
     def neighbors(self, i: int):
         """Find the neighbors of node i in adjmat"""
