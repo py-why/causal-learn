@@ -9,14 +9,14 @@ from tqdm.auto import tqdm
 
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-from causallearn.utils.cit import chisq, gsq
 from causallearn.utils.PCUtils.Helper import append_value
+from causallearn.utils.cit import CIT
 
 
 def skeleton_discovery(
     data: ndarray, 
     alpha: float, 
-    indep_test,
+    indep_test: CIT,
     stable: bool = True,
     background_knowledge: BackgroundKnowledge | None = None, 
     verbose: bool = False,
@@ -31,7 +31,7 @@ def skeleton_discovery(
     data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of
             samples and n_features is the number of features.
     alpha: float, desired significance level of independence tests (p_value) in (0,1)
-    indep_test : the function of the independence test being used
+    indep_test : class CIT, the independence test being used
             [fisherz, chisq, gsq, mv_fisherz, kci]
            - fisherz: Fisher's Z conditional independence test
            - chisq: Chi-squared conditional independence test
@@ -58,22 +58,6 @@ def skeleton_discovery(
     no_of_var = data.shape[1]
     cg = CausalGraph(no_of_var, node_names)
     cg.set_ind_test(indep_test)
-    cg.data_hash_key = hash(str(data))
-    if indep_test == chisq or indep_test == gsq:
-        # if dealing with discrete data, data is numpy.ndarray with n rows m columns,
-        # for each column, translate the discrete values to int indexs starting from 0,
-        #   e.g. [45, 45, 6, 7, 6, 7] -> [2, 2, 0, 1, 0, 1]
-        #        ['apple', 'apple', 'pear', 'peach', 'pear'] -> [0, 0, 2, 1, 2]
-        # in old code, its presumed that discrete `data` is already indexed,
-        # but here we make sure it's in indexed form, so allow more user input e.g. 'apple' ..
-        def _unique(column):
-            return np.unique(column, return_inverse=True)[1]
-
-        cg.is_discrete = True
-        cg.data = np.apply_along_axis(_unique, 0, data).astype(np.int64)
-        cg.cardinalities = np.max(cg.data, axis=0) + 1
-    else:
-        cg.data = data
 
     depth = -1
     pbar = tqdm(total=no_of_var) if show_progress else None
