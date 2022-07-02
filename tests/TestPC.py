@@ -4,7 +4,6 @@ sys.path.append("")
 import unittest
 import hashlib
 import numpy as np
-np.random.seed(42)
 from causallearn.search.ConstraintBased.PC import pc
 from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz
 from causallearn.graph.SHD import SHD
@@ -84,7 +83,7 @@ BENCHMARK_TXTFILE_TO_MD5 = {
     "./TestData/bnlearn_discrete_10000/benchmark_returned_results/win95pts_pc_chisq_0.05_stable_0_-1.txt": "1168e7c6795df8063298fc2f727566be",
 }
 INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit 94d1536."
-
+UNROBUST_RESULT_GRAPH_ERRMSG = "Returned graph is much too different from the benchmark. Please check the randomness in your algorithm."
 # verify files integrity first
 for file_path, expected_MD5 in BENCHMARK_TXTFILE_TO_MD5.items():
     with open(file_path, 'rb') as fin:
@@ -239,10 +238,22 @@ class TestPC(unittest.TestCase):
         truth_cpdag = dag2cpdag(truth_dag)
         num_edges_in_truth = truth_dag.get_num_edges()
 
-        cg = pc(data, 0.05, mv_fisherz, True, 0, 4, mvpc=True)
+        # since there is randomness in mvpc (np.random.shuffle in get_predictor_ws of utils/PCUtils/Helper.py),
+        # we need to get two results respectively:
+        #  - one with randomness to ensure that randomness is not a big problem for robustness of the algorithm end-to-end
+        #  - one with no randomness (deterministic) to ensure that logic of the algorithm is consistent after any further changes
+        #    (i.e., to ensure that the little difference in the results is caused by randomness, not by the logic change).
+        cg_with_randomness = pc(data, 0.05, mv_fisherz, True, 0, 4, mvpc=True)
+        state = np.random.get_state() # save the current random state
+        np.random.seed(42) # set the random state to 42 temporarily, just for the following line
+        cg_without_randomness = pc(data, 0.05, mv_fisherz, True, 0, 4, mvpc=True)
+        np.random.set_state(state) # restore the random state
+
         benchmark_returned_graph = np.loadtxt("./TestData/benchmark_returned_results/linear_missing_10_mvpc_fisherz_0.05_stable_0_4.txt")
-        assert np.all(cg.G.graph == benchmark_returned_graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
-        shd = SHD(truth_cpdag, cg.G)
+        assert np.all(cg_without_randomness.G.graph == benchmark_returned_graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
+        assert np.all(cg_with_randomness.G.graph != benchmark_returned_graph) / benchmark_returned_graph.size < 0.02,\
+                UNROBUST_RESULT_GRAPH_ERRMSG # 0.05 is an empiric value we find here
+        shd = SHD(truth_cpdag, cg_with_randomness.G)
         print(f"    pc(data, 0.05, mv_fisherz, True, 0, 4, mvpc=True)\tSHD: {shd.get_shd()} of {num_edges_in_truth}")
 
         print('test_pc_load_linear_missing_10_with_mv_fisher_z passed!\n')
