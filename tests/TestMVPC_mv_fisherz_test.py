@@ -10,7 +10,7 @@ sys.path.append(path)
 
 import unittest
 import numpy as np
-from causallearn.utils.cit import fisherz, mv_fisherz
+from causallearn.utils.cit import CIT
 
 
 class TestCIT_mv_fisherz(unittest.TestCase):
@@ -34,11 +34,12 @@ class TestCIT_mv_fisherz(unittest.TestCase):
             # Z -->R_Y   
 
             mdata[Z > 0, 1] = np.nan
-
-            mv_pvalues_t1.append(mv_fisherz(mdata, 0, 1, ()))
-            pvalues_t1.append(fisherz(data, 0, 1, ()))
-            mv_pvalues_t2.append(mv_fisherz(mdata, 0, 1, (2,)))
-            pvalues_t2.append(fisherz(data, 0, 1, (2,)))
+            indep_test = CIT(data, method='fisherz')
+            mv_indep_test = CIT(mdata, method='mv_fisherz')
+            mv_pvalues_t1.append(mv_indep_test(0, 1, ()))
+            pvalues_t1.append(indep_test(0, 1, ()))
+            mv_pvalues_t2.append(mv_indep_test(0, 1, (2,)))
+            pvalues_t2.append(indep_test(0, 1, (2,)))
 
         print('mv_fisherz: X and Y are not independent, pvalue is mean {:.3f}'.format(np.mean(mv_pvalues_t1)) + ' std: {:.3f}'.format(np.std(mv_pvalues_t1)))
         print('fisherz: X and Y are not independent, pvalue is mean {:.3f}'.format(np.mean(pvalues_t1)) + ' std: {:.3f}'.format(np.std(pvalues_t1)))
@@ -68,10 +69,13 @@ class TestCIT_mv_fisherz(unittest.TestCase):
 
             mdata[Z > 0, 1] = np.nan
 
-            mv_pvalues_t1.append(mv_fisherz(mdata, 0, 1, ()))
-            pvalues_t1.append(fisherz(data, 0, 1, ()))
-            mv_pvalues_t2.append(mv_fisherz(mdata, 0, 1, (2,)))
-            pvalues_t2.append(fisherz(data, 0, 1, (2,)))
+            indep_test = CIT(data, method='fisherz')
+            mv_indep_test = CIT(mdata, method='mv_fisherz')
+
+            mv_pvalues_t1.append(mv_indep_test(0, 1, ()))
+            pvalues_t1.append(indep_test(0, 1, ()))
+            mv_pvalues_t2.append(mv_indep_test(0, 1, (2,)))
+            pvalues_t2.append(indep_test(0, 1, (2,)))
 
         print('mv_fisherz: X and Y are not independent, pvalue is mean {:.3f}'.format(np.mean(mv_pvalues_t1)) + ' std: {:.3f}'.format(np.std(mv_pvalues_t1)))
         print('fisherz: X and Y are not independent, pvalue is mean {:.3f}'.format(np.mean(pvalues_t1)) + ' std: {:.3f}'.format(np.std(pvalues_t1)))
@@ -101,10 +105,13 @@ class TestCIT_mv_fisherz(unittest.TestCase):
 
             mdata[Z > 0, 1] = np.nan
 
-            mv_pvalues_t1.append(mv_fisherz(mdata, 0, 1, ()))
-            pvalues_t1.append(fisherz(data, 0, 1, ()))
-            mv_pvalues_t2.append(mv_fisherz(mdata, 0, 1, (2,)))
-            pvalues_t2.append(fisherz(data, 0, 1, (2,)))
+            indep_test = CIT(data, method='fisherz')
+            mv_indep_test = CIT(mdata, method='mv_fisherz')
+
+            mv_pvalues_t1.append(mv_indep_test(0, 1, ()))
+            pvalues_t1.append(indep_test(0, 1, ()))
+            mv_pvalues_t2.append(mv_indep_test(0, 1, (2,)))
+            pvalues_t2.append(indep_test(0, 1, (2,)))
 
         print('mv_fisherz: X and Y are independent, pvalue is mean {:.3f}'.format(np.mean(mv_pvalues_t1)) + ' std: {:.3f}'.format(np.std(mv_pvalues_t1)))
         print('fisherz: X and Y are independent, pvalue is mean {:.3f}'.format(np.mean(pvalues_t1)) + ' std: {:.3f}'.format(np.std(pvalues_t1)))
@@ -133,10 +140,13 @@ class TestCIT_mv_fisherz(unittest.TestCase):
 
             mdata[Y > 0, 2] = np.nan
 
-            mv_pvalues_t1.append(mv_fisherz(mdata, 0, 1, ()))
-            pvalues_t1.append(fisherz(data, 0, 1, ()))
-            mv_pvalues_t2.append(mv_fisherz(mdata, 0, 1, (2,)))
-            pvalues_t2.append(fisherz(data, 0, 1, (2,)))
+            indep_test = CIT(data, method='fisherz')
+            mv_indep_test = CIT(mdata, method='mv_fisherz')
+
+            mv_pvalues_t1.append(mv_indep_test(0, 1, ()))
+            pvalues_t1.append(indep_test(0, 1, ()))
+            mv_pvalues_t2.append(mv_indep_test(0, 1, (2,)))
+            pvalues_t2.append(indep_test(0, 1, (2,)))
 
         print('mv_fisherz: X and Y are independent, pvalue is mean {:.3f}'.format(np.mean(mv_pvalues_t1)) + ' std: {:.3f}'.format(np.std(mv_pvalues_t1)))
         print('fisherz: X and Y are independent, pvalue is mean {:.3f}'.format(np.mean(pvalues_t1)) + ' std: {:.3f}'.format(np.std(pvalues_t1)))

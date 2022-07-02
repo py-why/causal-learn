@@ -4,11 +4,14 @@ sys.path.append("")
 import unittest
 import hashlib
 import numpy as np
+np.random.seed(42)
 from causallearn.search.ConstraintBased.PC import pc
 from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz
 from causallearn.graph.SHD import SHD
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
+
+
 
 ######################################### Test Notes ###########################################
 # All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
