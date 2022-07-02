@@ -99,7 +99,7 @@ class TestFCI(unittest.TestCase):
             "andes"
         ]
 
-        bnlearn_path = './TestData/bnlearn_discrete_10000'
+        bnlearn_path = './TestData/bnlearn_discrete_10000/data'
         for bname in benchmark_names:
             data = np.loadtxt(os.path.join(bnlearn_path, f'{bname}.txt'), skiprows=1)
             G, edges = fci(data, chisq, 0.05, verbose=False)

@@ -6,6 +6,7 @@ from itertools import combinations, permutations
 from typing import Dict, List, Tuple
 
 import networkx as nx
+import numpy as np
 from numpy import ndarray
 
 from causallearn.graph.GraphClass import CausalGraph
@@ -48,11 +49,11 @@ def pc(
 
 def pc_alg(
     data: ndarray,
-    node_names: List[str] | None, 
-    alpha: float, 
-    indep_test, 
-    stable: bool, 
-    uc_rule: int, 
+    node_names: List[str] | None,
+    alpha: float,
+    indep_test: str,
+    stable: bool,
+    uc_rule: int,
     uc_priority: int,
     background_knowledge: BackgroundKnowledge | None = None,
     verbose: bool = False,
@@ -66,12 +67,12 @@ def pc_alg(
     data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     node_names: Shape [n_features]. The name for each feature (each feature is represented as a Node in the graph, so it's also the node name)
     alpha : float, desired significance level of independence tests (p_value) in (0, 1)
-    indep_test : the function of the independence test being used
-            [fisherz, chisq, gsq, kci]
-           - fisherz: Fisher's Z conditional independence test
-           - chisq: Chi-squared conditional independence test
-           - gsq: G-squared conditional independence test
-           - kci: Kernel-based conditional independence test
+    indep_test : str, the name of the independence test being used
+            ["fisherz", "chisq", "gsq", "kci"]
+           - "fisherz": Fisher's Z conditional independence test
+           - "chisq": Chi-squared conditional independence test
+           - "gsq": G-squared conditional independence test
+           - "kci": Kernel-based conditional independence test
     stable : run stabilized skeleton discovery if True (default = True)
     uc_rule : how unshielded colliders are oriented
            0: run uc_sepset
@@ -97,6 +98,7 @@ def pc_alg(
     """
 
     start = time.time()
+    indep_test = CIT(data, indep_test)
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose,
                                                 show_progress=show_progress, node_names=node_names)
@@ -135,14 +137,14 @@ def pc_alg(
 
 
 def mvpc_alg(
-    data: ndarray, 
-    node_names: List[str] | None, 
-    alpha: float, 
-    indep_test, 
-    correction_name: str, 
-    stable: bool, 
+    data: ndarray,
+    node_names: List[str] | None,
+    alpha: float,
+    indep_test: str,
+    correction_name: str,
+    stable: bool,
     uc_rule: int,
-    uc_priority: int, 
+    uc_priority: int,
     background_knowledge: BackgroundKnowledge | None = None,
     verbose: bool = False,
     show_progress: bool = True,
@@ -155,8 +157,8 @@ def mvpc_alg(
     data : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     node_names: Shape [n_features]. The name for each feature (each feature is represented as a Node in the graph, so it's also the node name)
     alpha :  float, desired significance level of independence tests (p_value) in (0,1)
-    indep_test : name of the test-wise deletion independence test being used
-            [mv_fisherz, mv_g_sq]
+    indep_test : str, name of the test-wise deletion independence test being used
+            ["mv_fisherz", "mv_g_sq"]
             - mv_fisherz: Fisher's Z conditional independence test
             - mv_g_sq: G-squared conditional independence test (TODO: under development)
     correction_name : correction_name: name of the missingness correction
@@ -190,7 +192,7 @@ def mvpc_alg(
     """
 
     start = time.time()
-
+    indep_test = CIT(data, indep_test)
     ## Step 1: detect the direct causes of missingness indicators
     prt_m = get_parent_missingness_pairs(data, alpha, indep_test, stable)
     # print('Finish detecting the parents of missingness indicators.  ')
@@ -329,9 +331,7 @@ def detect_parent(r: int, data_: ndarray, alpha: float, indep_test, stable: bool
 
     no_of_var = data.shape[1]
     cg = CausalGraph(no_of_var)
-    cg.data = data
-    cg.set_ind_test(indep_test)
-    cg.corr_mat = np.corrcoef(data, rowvar=False) if indep_test == fisherz else []
+    cg.set_ind_test(CIT(data, indep_test.method))
 
     node_ids = range(no_of_var)
     pair_of_variables = list(permutations(node_ids, 2))
@@ -427,11 +427,9 @@ def skeleton_correction(data: ndarray, alpha: float, test_with_correction_name: 
     ## Initialize the graph with the result of test-wise deletion skeletion search
     cg = init_cg
 
-    cg.data = data
     if test_with_correction_name in ["MV_Crtn_Fisher_Z", "MV_Crtn_G_sq"]:
-        cg.set_ind_test(mc_fisherz, True)
+        cg.set_ind_test(CIT(data, "mc_fisherz"))
     # No need of the correlation matrix if using test-wise deletion test
-    cg.corr_mat = np.corrcoef(data, rowvar=False) if test_with_correction_name == "MV_Crtn_Fisher_Z" else []
     cg.prt_m = prt_m
     ## *********** Adaption 1 ***********
 
