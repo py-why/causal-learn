@@ -12,14 +12,13 @@ from causallearn.graph.GraphNode import GraphNode
 from causallearn.graph.Node import Node
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 from causallearn.utils.cit import *
-from causallearn.utils.Fas import citest_cache, fas
+from causallearn.utils.Fas import fas
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 
 class SepsetsPossibleDsep:
     def __init__(self, data: ndarray, graph: Graph, independence_test, alpha: float,
-                 knowledge: BackgroundKnowledge | None, depth: int, maxPathLength: int, verbose: bool,
-                 cache_variables_map=None):
+                 knowledge: BackgroundKnowledge | None, depth: int, maxPathLength: int, verbose: bool):
 
         def _unique(column):
             return np.unique(column, return_inverse=True)[1]
@@ -36,18 +35,6 @@ class SepsetsPossibleDsep:
         self.maxPathLength = maxPathLength
         self.verbose = verbose
 
-        if cache_variables_map is None:
-            if independence_test == chisq or independence_test == gsq:
-                cardinalities = np.max(data, axis=0) + 1
-            else:
-                cardinalities = None
-            cache_variables_map = {"data_hash_key": hash(str(data)),
-                                   "ci_test_hash_key": hash(independence_test),
-                                   "cardinalities": cardinalities}
-
-        self.data_hash_key = cache_variables_map["data_hash_key"]
-        self.ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
-        self.cardinalities = cache_variables_map["cardinalities"]
 
     def traverseSemiDirected(self, node: Node, edge: Edge) -> Node | None:
         if node == edge.get_node1():
@@ -214,15 +201,7 @@ class SepsetsPossibleDsep:
                 choice = cg.next()
 
                 X, Y = self.graph.get_node_map()[node_1], self.graph.get_node_map()[node_2]
-                X, Y = (X, Y) if (X < Y) else (Y, X)
-                XYS_key = (X, Y, frozenset(condSet), self.data_hash_key, self.ci_test_hash_key)
-                if XYS_key in citest_cache:
-                    p_value = citest_cache[XYS_key]
-                else:
-                    p_value = self.independence_test(self.data, X, Y, tuple(condSet)) if self.cardinalities is None \
-                        else self.independence_test(self.data, X, Y, tuple(condSet), self.cardinalities)
-
-                    citest_cache[XYS_key] = p_value
+                p_value = self.independence_test(X, Y, tuple(condSet))
                 independent = p_value > self.alpha
 
                 if independent and noEdgeRequired:
@@ -465,43 +444,22 @@ def getPath(node_c: Node, previous) -> List[Node]:
 
 def doDdpOrientation(node_d: Node, node_a: Node, node_b: Node, node_c: Node, previous, graph: Graph, data,
                      independence_test_method, alpha: float, sep_sets: Dict[Tuple[int, int], Set[int]],
-                     change_flag: bool, bk, cache_variables_map, verbose: bool = False) -> (bool, bool):
+                     change_flag: bool, bk, verbose: bool = False) -> (bool, bool):
     if graph.is_adjacent_to(node_d, node_c):
         raise Exception("illegal argument!")
     path = getPath(node_d, previous)
 
     X, Y = graph.get_node_map()[node_d], graph.get_node_map()[node_c]
-    X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.get_node_map()[nn] for nn in path])
-
-    data_hash_key = cache_variables_map["data_hash_key"]
-    ci_test_hash_key = cache_variables_map["ci_test_hash_key"]
-    cardinalities = cache_variables_map["cardinalities"]
-
-    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
-    if XYS_key in citest_cache:
-        p_value = citest_cache[XYS_key]
-    else:
-        p_value = independence_test_method(data, X, Y, condSet) if cardinalities is None \
-            else independence_test_method(data, X, Y, condSet, cardinalities)
-
-        citest_cache[XYS_key] = p_value
+    p_value = independence_test_method(X, Y, condSet)
     ind = p_value > alpha
 
     path2 = list(path)
     path2.remove(node_b)
 
     X, Y = graph.get_node_map()[node_d], graph.get_node_map()[node_c]
-    X, Y = (X, Y) if (X < Y) else (Y, X)
     condSet = tuple([graph.get_node_map()[nn2] for nn2 in path2])
-    XYS_key = (X, Y, frozenset(condSet), data_hash_key, ci_test_hash_key)
-    if XYS_key in citest_cache:
-        p_value2 = citest_cache[XYS_key]
-    else:
-        p_value2 = independence_test_method(data, X, Y, condSet) if cardinalities is None \
-            else independence_test_method(data, X, Y, condSet, cardinalities)
-
-        citest_cache[XYS_key] = p_value2
+    p_value2 = independence_test_method(X, Y, condSet)
     ind2 = p_value2 > alpha
 
     if not ind and not ind2:
@@ -559,7 +517,7 @@ def doDdpOrientation(node_d: Node, node_a: Node, node_b: Node, node_c: Node, pre
 
 def ddpOrient(node_a: Node, node_b: Node, node_c: Node, graph: Graph, maxPathLength: int, data: ndarray,
               independence_test_method, alpha: float, sep_sets: Dict[Tuple[int, int], Set[int]], change_flag: bool,
-              bk: BackgroundKnowledge | None, cache_variables_map, verbose: bool = False) -> bool:
+              bk: BackgroundKnowledge | None, verbose: bool = False) -> bool:
     Q = Queue()
     V = set()
     e = None
@@ -599,8 +557,7 @@ def ddpOrient(node_a: Node, node_b: Node, node_c: Node, graph: Graph, maxPathLen
             if not graph.is_adjacent_to(node_d, node_c) and node_d != node_c:
                 res, change_flag = \
                     doDdpOrientation(node_d, node_a, node_b, node_c, previous, graph, data,
-                                     independence_test_method, alpha, sep_sets, change_flag, bk,
-                                     cache_variables_map, verbose)
+                                     independence_test_method, alpha, sep_sets, change_flag, bk, verbose)
 
                 if res:
                     return change_flag
@@ -614,7 +571,6 @@ def ddpOrient(node_a: Node, node_b: Node, node_c: Node, graph: Graph, maxPathLen
 def ruleR4B(graph: Graph, maxPathLength: int, data: ndarray, independence_test_method, alpha: float,
             sep_sets: Dict[Tuple[int, int], Set[int]],
             change_flag: bool, bk: BackgroundKnowledge | None,
-            cache_variables_map,
             verbose: bool = False) -> bool:
     nodes = graph.get_nodes()
 
@@ -631,7 +587,7 @@ def ruleR4B(graph: Graph, maxPathLength: int, data: ndarray, independence_test_m
                     continue
 
                 change_flag = ddpOrient(node_a, node_b, node_c, graph, maxPathLength, data, independence_test_method,
-                                        alpha, sep_sets, change_flag, bk, cache_variables_map, verbose)
+                                        alpha, sep_sets, change_flag, bk, verbose)
     return change_flag
 
 
@@ -772,9 +728,8 @@ def get_color_edges(graph: Graph) -> List[Edge]:
     return edges
 
 
-def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05, depth: int = -1,
-        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None,
-        cache_variables_map=None) -> Tuple[Graph, List[Edge]]:
+def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 0.05, depth: int = -1,
+        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None) -> Tuple[Graph, List[Edge]]:
     """
     Perform Fast Causal Inference (FCI) algorithm for causal discovery
 
@@ -782,7 +737,7 @@ def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05,
     ----------
     dataset: data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of
             samples and n_features is the number of features.
-    independence_test_method: the function of the independence test being used
+    independence_test_method: str, name of the function of the independence test being used
             [fisherz, chisq, gsq, kci]
            - fisherz: Fisher's Z conditional independence test
            - chisq: Chi-squared conditional independence test
@@ -793,8 +748,6 @@ def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05,
     max_path_length: the maximum length of any discriminating path, or -1 if unlimited.
     verbose: True is verbose output should be printed or logged
     background_knowledge: background knowledge
-    cache_variables_map: This variable a map which contains the variables relate with cache. If it is not None,
-                            it should contain 'data_hash_key' 、'ci_test_hash_key' and 'cardinalities'.
 
     Returns
     -------
@@ -813,11 +766,7 @@ def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05,
     if dataset.shape[0] < dataset.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
 
-    def _unique(column):
-        return np.unique(column, return_inverse=True)[1]
-
-    if independence_test_method == chisq or independence_test_method == gsq:
-        dataset = np.apply_along_axis(_unique, 0, dataset).astype(np.int64)
+    independence_test_method = CIT(dataset, method=independence_test_method)
 
     ## ------- check parameters ------------
     if (depth is None) or type(depth) != int:
@@ -828,14 +777,6 @@ def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05,
         raise TypeError("'max_path_length' must be 'int' type!")
     ## ------- end check parameters ------------
 
-    if cache_variables_map is None:
-        if independence_test_method == chisq or independence_test_method == gsq:
-            cardinalities = np.max(dataset, axis=0) + 1
-        else:
-            cardinalities = None
-        cache_variables_map = {"data_hash_key": hash(str(dataset)),
-                               "ci_test_hash_key": hash(independence_test_method),
-                               "cardinalities": cardinalities}
 
     nodes = []
     for i in range(dataset.shape[1]):
@@ -845,8 +786,7 @@ def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05,
 
     # FAS (“Fast Adjacency Search”) is the adjacency search of the PC algorithm, used as a first step for the FCI algorithm.
     graph, sep_sets = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha,
-                          knowledge=background_knowledge, depth=depth, verbose=verbose,
-                          cache_variables_map=cache_variables_map)
+                          knowledge=background_knowledge, depth=depth, verbose=verbose)
 
     # reorient all edges with CIRCLE Endpoint
     ori_edges = graph.get_graph_edges()
@@ -857,7 +797,7 @@ def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05,
         graph.add_edge(ori_edge)
 
     sp = SepsetsPossibleDsep(dataset, graph, independence_test_method, alpha, background_knowledge, depth,
-                             max_path_length, verbose, cache_variables_map=cache_variables_map)
+                             max_path_length, verbose)
 
     rule0(graph, nodes, sep_sets, background_knowledge, verbose)
 
@@ -901,7 +841,7 @@ def fci(dataset: ndarray, independence_test_method=fisherz, alpha: float = 0.05,
                            len(background_knowledge.tier_map.keys()) > 0):
             change_flag = ruleR4B(graph, max_path_length, dataset, independence_test_method, alpha, sep_sets,
                                   change_flag,
-                                  background_knowledge, cache_variables_map, verbose)
+                                  background_knowledge, verbose)
 
             first_time = False
 
