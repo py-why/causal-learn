@@ -13,9 +13,9 @@ from causallearn.utils.cit import *
 from causallearn.search.ConstraintBased.PC import get_parent_missingness_pairs, skeleton_correction
 
 
-def cdnod(data: ndarray, c_indx: ndarray, alpha: float = 0.05, indep_test: str = fisherz, stable: bool = True,
-          uc_rule: int = 0, uc_priority: int = 2, mvcdnod: bool = False, correction_name: str = 'MV_Crtn_Fisher_Z',
-          background_knowledge: Optional[BackgroundKnowledge] = None, verbose: bool = False,
+def cdnod(data: ndarray, c_indx: ndarray, alpha: float=0.05, indep_test: str=fisherz, stable: bool=True,
+          uc_rule: int=0, uc_priority: int=2, mvcdnod: bool=False, correction_name: str='MV_Crtn_Fisher_Z',
+          background_knowledge: Optional[BackgroundKnowledge]=None, verbose: bool=False,
           show_progress: bool = True) -> CausalGraph:
     """
     Causal discovery from nonstationary/heterogeneous data

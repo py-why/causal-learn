@@ -35,7 +35,8 @@ def pc(
         warnings.warn("The number of features is much larger than the sample size!")
 
     if mvpc:  # missing value PC
-        if indep_test == fisherz: indep_test = mv_fisherz
+        if indep_test == fisherz:
+            indep_test = mv_fisherz
         return mvpc_alg(data=data, node_names=node_names, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
                         uc_rule=uc_rule, uc_priority=uc_priority, background_knowledge=background_knowledge,
                         verbose=verbose,
