@@ -1,20 +1,20 @@
 .. _ges:
 
-GES with the BIC score or generalized score
+GRaSP
 ==============================================
 
 Algorithm Introduction
 --------------------------------------
 
-Greedy Equivalence Search (GES) algorithm with BIC score [1]_ and generalized score [2]_.
+Greedy relaxation of the sparsest permutation (GRaSP) algorithm [1]_.
 
 
 Usage
 ----------------------------
 .. code-block:: python
 
-    from causallearn.search.ScoreBased.GES import ges
-    Record = ges(X, score_func, maxP, parameters)
+    from causallearn.search.PermutationBased.GRaSP import grasp
+    G = grasp(X, score_func, depth, maxP, parameters)
 
     # Visualization using pydot
     from causallearn.utils.GraphUtils import GraphUtils
@@ -22,7 +22,7 @@ Usage
     import matplotlib.pyplot as plt
     import io
 
-    pyd = GraphUtils.to_pydot(Record['G'])
+    pyd = GraphUtils.to_pydot(G)
     tmp_png = pyd.create_png(f="png")
     fp = io.BytesIO(tmp_png)
     img = mpimg.imread(fp, format='png')
@@ -30,7 +30,7 @@ Usage
     plt.imshow(img)
     plt.show()
 
-Visualization using pydot is recommended (`usage example <https://github.com/cmu-phil/causal-learn/blob/e4e73f8b58510a3cd5a9125ba50c0ac62a425ef3/tests/TestGES.py#L16>`_). If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/e4e73f8b58510a3cd5a9125ba50c0ac62a425ef3/tests/TestGraphVisualization.py#L106>`_ (e.g., GraphUtils.to_pydot(Record['G'], labels=["A", "B", "C"]).
+Visualization using pydot is recommended (`usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGRaSP.py>`_). If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/e4e73f8b58510a3cd5a9125ba50c0ac62a425ef3/tests/TestGraphVisualization.py#L106>`_ (e.g., GraphUtils.to_pydot(G, labels=["A", "B", "C"]).
 
 Parameters
 -------------------
@@ -68,7 +68,7 @@ Returns
 
 - **Record['score']**: the score of the learned graph.
 
-.. [1] Chickering, D. M. (2002). Optimal structure identification with greedy search. Journal of machine learning research, 3(Nov), 507-554.
+.. [1] Lam, W. Y., Andrews, B., & Ramsey, J. (2022, February). Greedy Relaxations of the Sparsest Permutation Algorithm. In The 38th Conference on Uncertainty in Artificial Intelligence.
 .. [2] Huang, B., Zhang, K., Lin, Y., Schölkopf, B., & Glymour, C. (2018, July). Generalized score functions for causal discovery. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (pp. 1551-1560).
 .. [3] Schwarz, G. (1978). Estimating the dimension of a model. The annals of statistics, 461-464.
 .. [4] Buntine, W. (1991). Theory refinement on Bayesian networks. In Uncertainty proceedings 1991 (pp. 52-60). Morgan Kaufmann.

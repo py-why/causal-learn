@@ -76,7 +76,7 @@ class Order:
 
 def grasp(
     X: np.ndarray,
-    score_func: str = "local_score_BIC_from_cov",
+    score_func: str = "local_score_BIC",
     depth: Optional[int] = 3,
     maxP: Optional[float] = None,
     parameters: Optional[Dict[str, Any]] = None,

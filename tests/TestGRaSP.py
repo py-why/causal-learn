@@ -7,6 +7,10 @@ from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.search.PermutationBased.GRaSP import grasp
 from causallearn.utils.DAG2CPDAG import dag2cpdag
+from causallearn.utils.GraphUtils import GraphUtils
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import io
 
 
 def random_dag(p, d):
@@ -100,6 +104,14 @@ class TestGRaSP(unittest.TestCase):
                     G0 = dag2cpdag(G0)
 
                     G = grasp(X)
+
+                    pyd = GraphUtils.to_pydot(G)
+                    tmp_png = pyd.create_png(f="png")
+                    fp = io.BytesIO(tmp_png)
+                    img = mpimg.imread(fp, format='png')
+                    plt.axis('off')
+                    plt.imshow(img)
+                    plt.show()
 
                     AdjC = AdjacencyConfusion(G0, G)
                     stats[0].append(AdjC.get_adj_precision())
