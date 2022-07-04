@@ -44,8 +44,8 @@ and n_features is the number of features.
 
 **uc_rule**: how unshielded colliders are oriented. Default: 0.
        - 0: run uc_sepset.
-       - 1: run maxP. Orient an unshielded triple X-Y-Z as a collider with an aditional CI test.
-       - 2: run definiteMaxP. Orient only the definite colliders in the skeleton and keep track of all the definite non-colliders as well.
+       - 1: run maxP [2]_. Orient an unshielded triple X-Y-Z as a collider with an aditional CI test.
+       - 2: run definiteMaxP [2]_. Orient only the definite colliders in the skeleton and keep track of all the definite non-colliders as well.
 
 **uc_priority**: rule of resolving conflicts between unshielded colliders. Default: 2.
        - -1: whatever is default in uc_rule.
@@ -71,3 +71,4 @@ Returns
 **cg** : a CausalGraph object, where cg.G.graph[j,i]=1 and cg.G.graph[i,j]=-1 indicate  i --> j; cg.G.graph[i,j] = cg.G.graph[j,i] = -1 indicates i --- j; cg.G.graph[i,j] = cg.G.graph[j,i] = 1 indicates i <-> j.
 
 .. [1] Huang, B., Zhang, K., Zhang, J., Ramsey, J. D., Sanchez-Romero, R., Glymour, C., & Schölkopf, B. (2020). Causal Discovery from Heterogeneous/Nonstationary Data. J. Mach. Learn. Res., 21(89), 1-53.
+.. [2] Ramsey, J. (2016). Improving accuracy and scalability of the pc algorithm by maximizing p-value. arXiv preprint arXiv:1610.00378.

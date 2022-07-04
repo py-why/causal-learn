@@ -46,8 +46,8 @@ and n_features is the number of features.
 
 **uc_rule**: how unshielded colliders are oriented. Default: 0.
        - 0: run uc_sepset.
-       - 1: run maxP. Orient an unshielded triple X-Y-Z as a collider with an aditional CI test.
-       - 2: run definiteMaxP. Orient only the definite colliders in the skeleton and keep track of all the definite non-colliders as well.
+       - 1: run maxP [3]_. Orient an unshielded triple X-Y-Z as a collider with an aditional CI test.
+       - 2: run definiteMaxP [3]_. Orient only the definite colliders in the skeleton and keep track of all the definite non-colliders as well.
 
 **uc_priority**: rule of resolving conflicts between unshielded colliders. Default: 2.
        - -1: whatever is default in uc_rule.
@@ -75,3 +75,4 @@ Returns
 
 .. [1] Spirtes, P., Glymour, C. N., Scheines, R., & Heckerman, D. (2000). Causation, prediction, and search. MIT press.
 .. [2] Tu, R., Zhang, C., Ackermann, P., Mohan, K., Kjellström, H., & Zhang, K. (2019, April). Causal discovery in the presence of missing data. In The 22nd International Conference on Artificial Intelligence and Statistics (pp. 1762-1770). PMLR.
+.. [3] Ramsey, J. (2016). Improving accuracy and scalability of the pc algorithm by maximizing p-value. arXiv preprint arXiv:1610.00378.
