@@ -1,4 +1,4 @@
-Hidden causal representation learning
+Permutation-based causal discovery methods
 ==============================================
 In this section, we would like to introduce methods based on permutations, such as GRaSP [1]_.
 
