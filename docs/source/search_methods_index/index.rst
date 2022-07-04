@@ -12,4 +12,5 @@ Contents:
     Score-based causal discovery methods/index
     Causal discovery methods based on constrained functional causal models/index
     Hidden causal representation learning/index
+    Permutation-based causal discovery methods/index
     Granger causality/index
