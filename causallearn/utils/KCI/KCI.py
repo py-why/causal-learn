@@ -26,7 +26,6 @@ class KCI_UInd(object):
     [2] A. Gretton, K. Fukumizu, C.-H. Teo, L. Song, B. Schölkopf, and A. Smola, "A kernel
        Statistical test of independence." In NIPS 21, 2007.
     """
-
     def __init__(self, kernelX='Gaussian', kernelY='Gaussian', null_ss=1000, approx=True, est_width='empirical',
                  polyd=2, kwidthx=None, kwidthy=None):
         """
@@ -73,10 +72,15 @@ class KCI_UInd(object):
         _________
         pvalue: p value (scalar)
         test_stat: test statistic (scalar)
+
+        [Notes for speedup optimization]
+            Kx, Ky are both symmetric with diagonals equal to 1 (no matter what the kernel is)
+            Kxc, Kyc are both symmetric
         """
 
         Kx, Ky = self.kernel_matrix(data_x, data_y)
         test_stat, Kxc, Kyc = self.HSIC_V_statistic(Kx, Ky)
+
         if self.approx:
             k_appr, theta_appr = self.get_kappa(Kxc, Kyc)
             pvalue = 1 - stats.gamma.cdf(test_stat, k_appr, 0, theta_appr)
@@ -210,10 +214,18 @@ class KCI_UInd(object):
         _________
         k_appr, theta_appr: approximated parameters of the gamma distribution
 
+        [Updated @Haoyue 06/24/2022]
+        equivalent to:
+            var_appr = 2 * np.trace(Kx.dot(Kx)) * np.trace(Ky.dot(Ky)) / T / T
+        based on the fact that:
+            np.trace(K.dot(K)) == np.sum(K * K.T), where here K is symmetric
+        we can save time on the dot product by only considering the diagonal entries of K.dot(K)
+        time complexity is reduced from O(n^3) (matrix dot) to O(n^2) (traverse each element),
+        where n is usually big (sample size).
         """
         T = Kx.shape[0]
-        mean_appr = np.trace(Kx) * np.trace(Ky) / T
-        var_appr = 2 * np.trace(Kx.dot(Kx)) * np.trace(Ky.dot(Ky)) / T / T
+        mean_appr = np.diag(Kx).sum() * np.diag(Ky).sum() / T # same as np.trace(Kx) * np.trace(Ky) / T. a bit faster
+        var_appr = 2 * np.sum(Kx ** 2) * np.sum(Ky ** 2) / T / T # same as np.sum(Kx * Kx.T) ..., here Kx is symmetric
         k_appr = mean_appr ** 2 / var_appr
         theta_appr = var_appr / mean_appr
         return k_appr, theta_appr
@@ -426,11 +438,11 @@ class KCI_CInd(object):
                 # construct Gaussian kernels according to learned hyperparameters
                 Kzy = gpy.kernel_.k1(data_z, data_z)
                 self.epsilon_y = np.exp(gpy.kernel_.theta[-1])
-        elif self.kernelY == 'Polynomial':
+        elif self.kernelZ == 'Polynomial':
             kernelZ = PolynomialKernel(self.polyd)
             Kzx = kernelZ.kernel(data_z)
             Kzy = Kzx
-        elif self.kernelY == 'Linear':
+        elif self.kernelZ == 'Linear':
             kernelZ = LinearKernel()
             Kzx = kernelZ.kernel(data_z)
             Kzy = Kzx
@@ -453,9 +465,21 @@ class KCI_CInd(object):
         Vstat: KCI v statistics
         KxR: centralized kernel matrix for data_x (nxn)
         KyR: centralized kernel matrix for data_y (nxn)
+
+        [Updated @Haoyue 06/24/2022]
+        1. Kx, Ky, Kzx, Kzy are all symmetric matrices.
+            - Kx, Ky are with diagonal elements of 1 (because of exp(-0.5 * sq_dists * self.width)).
+            - If (self.kernelZ == 'Gaussian' and self.use_gp), then Kzx (Kzy) has all the same diagonal elements (not necessarily 1).
+              Otherwise Kzx, Kzy are with diagonal elements of 1.
+        2. If not (self.kernelZ == 'Gaussian' and self.use_gp): assert (Kzx == Kzy).all()
+           With this we could save one repeated calculation of pinv(Kzy+\epsilonI), which consumes most time.
         """
-        KxR = Kernel.center_kernel_matrix_regression(Kx, Kzx, self.epsilon_x)
-        KyR = Kernel.center_kernel_matrix_regression(Ky, Kzy, self.epsilon_y)
+        KxR, Rzx = Kernel.center_kernel_matrix_regression(Kx, Kzx, self.epsilon_x)
+        if self.epsilon_x != self.epsilon_y or (self.kernelZ == 'Gaussian' and self.use_gp):
+            KyR, _ = Kernel.center_kernel_matrix_regression(Ky, Kzy, self.epsilon_y)
+        else:
+            # assert np.all(Kzx == Kzy), 'Kzx and Kzy are the same'
+            KyR = Rzx.dot(Ky.dot(Rzx))
         Vstat = np.sum(KxR * KyR)
         return Vstat, KxR, KyR
 
