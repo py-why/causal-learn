@@ -56,17 +56,8 @@ and n_features is the number of features.
 
 Returns
 -------------------
-- **Record['G']**: learned causal graph, where Record['G'].graph[j,i]=1 and Record['G'].graph[i,j]=-1 indicate i --> j; Record['G'].graph[i,j] = Record['G'].graph[j,i] = -1 indicates i --- j.
+- **G**: learned general graph, where G.graph[j,i]=1 and G.graph[i,j]=-1 indicate i --> j; G.graph[i,j] = G.graph[j,i] = -1 indicates i --- j.
 
-- **Record['update1']**: each update (Insert operator) in the forward step.
-
-- **Record['update2']**: each update (Delete operator) in the backward step.
-
-- **Record['G_step1']**: learned graph at each step in the forward step.
-
-- **Record['G_step2']**: learned graph at each step in the backward step.
-
-- **Record['score']**: the score of the learned graph.
 
 .. [1] Lam, W. Y., Andrews, B., & Ramsey, J. (2022, February). Greedy Relaxations of the Sparsest Permutation Algorithm. In The 38th Conference on Uncertainty in Artificial Intelligence.
 .. [2] Huang, B., Zhang, K., Lin, Y., Schölkopf, B., & Glymour, C. (2018, July). Generalized score functions for causal discovery. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (pp. 1551-1560).
