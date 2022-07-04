@@ -84,7 +84,7 @@ def get_gram_matrix(X, width):
     K_colsums = K.sum(axis=0)
     K_rowsums = K.sum(axis=1)
     K_allsum = K_rowsums.sum()
-    Kc = K - (K_colsums[None, :] + K_rowsums[:, None]) / n + np.ones((n, n)) * (K_allsum / n ** 2)
+    Kc = K - (K_colsums[None, :] + K_rowsums[:, None]) / n + (K_allsum / n ** 2)
     # equivalent to H @ K @ H, where H = np.eye(n) - 1 / n * np.ones((n, n)).
     return K, Kc
 
