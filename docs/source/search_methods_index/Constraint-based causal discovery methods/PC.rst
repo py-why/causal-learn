@@ -46,7 +46,7 @@ and n_features is the number of features.
 
 **uc_rule**: how unshielded colliders are oriented. Default: 0.
        - 0: run uc_sepset.
-       - 1: run maxP [3]_. Orient an unshielded triple X-Y-Z as a collider with an aditional CI test.
+       - 1: run maxP [3]_. Orient an unshielded triple X-Y-Z as a collider with an additional CI test.
        - 2: run definiteMaxP [3]_. Orient only the definite colliders in the skeleton and keep track of all the definite non-colliders as well.
 
 **uc_priority**: rule of resolving conflicts between unshielded colliders. Default: 2.
