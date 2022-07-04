@@ -224,7 +224,7 @@ class KCI_UInd(object):
         where n is usually big (sample size).
         """
         T = Kx.shape[0]
-        mean_appr = np.diag(Kx).sum() * np.diag(Ky).sum() / T # same as np.trace(Kx) * np.trace(Ky) / T. a bit faster
+        mean_appr = np.trace(Kx) * np.trace(Ky) / T
         var_appr = 2 * np.sum(Kx ** 2) * np.sum(Ky ** 2) / T / T # same as np.sum(Kx * Kx.T) ..., here Kx is symmetric
         k_appr = mean_appr ** 2 / var_appr
         theta_appr = var_appr / mean_appr
