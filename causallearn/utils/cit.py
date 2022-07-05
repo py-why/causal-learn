@@ -31,10 +31,13 @@ class CIT(object):
 
         if method == 'kci':
             # parse kwargs contained in the KCI method
-            kci_kwargs = {k: v for k, v in kwargs.items() if k in
-                          ['kernelX', 'kernelY', 'null_ss', 'approx', 'est_width', 'polyd', 'kwidthx', 'kwidthy']}
-            self.kci_ui = KCI_UInd(**kci_kwargs)
-            self.kci_ci = KCI_CInd(**kci_kwargs)
+            kci_ui_kwargs = {k: v for k, v in kwargs.items() if k in
+                             ['kernelX', 'kernelY', 'null_ss', 'approx', 'est_width', 'polyd', 'kwidthx', 'kwidthy']}
+            kci_ci_kwargs = {k: v for k, v in kwargs.items() if k in
+                             ['kernelX', 'kernelY', 'kernelZ', 'null_ss', 'approx', 'use_gp', 'est_width', 'polyd',
+                              'kwidthx', 'kwidthy', 'kwidthz']}
+            self.kci_ui = KCI_UInd(**kci_ui_kwargs)
+            self.kci_ci = KCI_CInd(**kci_ci_kwargs)
         elif method in ['fisherz', 'mv_fisherz', 'mc_fisherz']:
             self.correlation_matrix = np.corrcoef(data.T)
         elif method in ['chisq', 'gsq']:
