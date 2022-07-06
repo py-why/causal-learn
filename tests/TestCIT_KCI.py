@@ -1,30 +1,25 @@
-import os
-import sys
-# BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
-# sys.path.append(BASE_DIR)
 import unittest
 
 import numpy as np
 
-from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
+import causallearn.utils.cit as cit
 
-
-class TestKCI(unittest.TestCase):
+class TestCIT_KCI(unittest.TestCase):
     def test_Gaussian(self):
         X = np.random.randn(300, 1)
         X1 = np.random.randn(300, 1)
         Y = np.concatenate((X, X), axis=1) + 0.5 * np.random.randn(300, 2)
         Z = Y + 0.5 * np.random.randn(300, 2)
 
-        kci_uind = KCI_UInd()
-        pvalue, _ = kci_uind.compute_pvalue(X, X1)
+        cit_CIT = cit.CIT(data=np.hstack((X,X1,Y,Z)), method='kci')
+
+        pvalue = cit_CIT.kci(0, 1, {})
         self.assertTrue(pvalue > 0.01) # X and X1 are independent
 
-        pvalue, _ = kci_uind.compute_pvalue(X, Z)
+        pvalue = cit_CIT.kci(0, 3, {})
         self.assertTrue(pvalue <= 0.01) # X and Z are dependent
 
-        kci_cind = KCI_CInd()
-        pvalue, _ = kci_cind.compute_pvalue(X, Z, Y)
+        pvalue = cit_CIT.kci(0, 3, {2})
         self.assertTrue(pvalue > 0.01) # X and Z are independent conditional on Y
 
     def test_Polynomial(self):
@@ -33,15 +28,15 @@ class TestKCI(unittest.TestCase):
         Y = np.concatenate((X, X), axis=1) + 0.5 * np.random.randn(300, 2)
         Z = Y + 0.5 * np.random.randn(300, 2)
 
-        kci_uind = KCI_UInd(kernelX='Polynomial', kernelY='Polynomial')
-        pvalue, _ = kci_uind.compute_pvalue(X, X1)
+        cit_CIT = cit.CIT(data=np.hstack((X,X1,Y,Z)), method='kci', kernelX='Polynomial', kernelY='Polynomial', kernelZ='Polynomial')
+
+        pvalue = cit_CIT.kci(0, 1, {})
         self.assertTrue(pvalue > 0.01) # X and X1 are independent
 
-        pvalue, _ = kci_uind.compute_pvalue(X, Z)
+        pvalue = cit_CIT.kci(0, 3, {})
         self.assertTrue(pvalue <= 0.01) # X and Z are dependent
 
-        kci_cind = KCI_CInd(kernelX='Polynomial', kernelY='Polynomial', kernelZ='Polynomial')
-        pvalue, _ = kci_cind.compute_pvalue(X, Z, Y)
+        pvalue = cit_CIT.kci(0, 3, {2})
         self.assertTrue(pvalue > 0.01) # X and Z are independent conditional on Y
 
     def test_Linear(self):
@@ -50,15 +45,15 @@ class TestKCI(unittest.TestCase):
         Y = np.concatenate((X, X), axis=1) + 0.5 * np.random.randn(300, 2)
         Z = Y + 0.5 * np.random.randn(300, 2)
 
-        kci_uind = KCI_UInd(kernelX='Linear', kernelY='Linear')
-        pvalue, _ = kci_uind.compute_pvalue(X, X1)
+        cit_CIT = cit.CIT(data=np.hstack((X,X1,Y,Z)), method='kci', kernelX='Linear', kernelY='Linear', kernelZ='Linear')
+
+        pvalue = cit_CIT.kci(0, 1, {})
         self.assertTrue(pvalue > 0.01) # X and X1 are independent
 
-        pvalue, _ = kci_uind.compute_pvalue(X, Z)
+        pvalue = cit_CIT.kci(0, 3, {})
         self.assertTrue(pvalue <= 0.01) # X and Z are dependent
 
-        kci_cind = KCI_CInd(kernelX='Linear', kernelY='Linear', kernelZ='Linear')
-        pvalue, _ = kci_cind.compute_pvalue(X, Z, Y)
+        pvalue = cit_CIT.kci(0, 3, {2})
         self.assertTrue(pvalue > 0.01) # X and Z are independent conditional on Y
 
 if __name__ == '__main__':
