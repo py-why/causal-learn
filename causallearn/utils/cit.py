@@ -58,7 +58,6 @@ class CIT(object):
             'gsq': self.gsq
         }
 
-    # TODO (@aoqi): Modify the function to support the case where the non-conditional sets are multi-dimentional.
     def kci(self, X, Y, condition_set):
         if len(condition_set) == 0:
             return self.kci_ui.compute_pvalue(self.data[:, [X]], self.data[:, [Y]])[0]
