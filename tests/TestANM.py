@@ -8,44 +8,49 @@ import unittest
 from pickle import load
 
 import numpy as np
-import pandas as pd
 
 from causallearn.search.FCMBased.ANM.ANM import ANM
 
 
 class TestANM(unittest.TestCase):
-    def syn_data(self, b, n):
-        # x = np.abs(np.random.randn(n, 1) * np.sign(np.random.randn(n, 1)))
-        x = np.random.randn(n, 1)
-        x = x / np.std(x)
-        # e = np.abs(np.random.randn(n, 1) * np.sign(np.random.randn(n, 1)))
-        e = np.random.randn(n, 1)
-        e = e / np.std(e)
-        y = x + b * x**3 + e
-        return x, y
 
-    # example1
-    # simulated data y = x + bx^3 + e
-    def test_anm_simul(self):
+    # Test ANM by some simulated data
+    def test_anm_simulation(self):
+
         anm = ANM()
-        x, y = self.syn_data(1, 300)
-        p_value_foward, p_value_backward = anm.cause_or_effect(x, y)
-        print('pvalue for x->y is {:.4f}'.format(p_value_foward))
-        print('pvalue for y->x is {:.4f}'.format(p_value_backward))
 
-    # example2
+        # generate cause and noises
+        num_samples = 1000
+        x = np.random.randn(num_samples, 1)
+        x = x / np.std(x)
+        e = np.random.randn(num_samples, 1)
+        e = e / np.std(e)
+
+        # simulated data y = x + 2x^3 + e
+        y_1 = x + 2 * x**3 + e
+        p_value_1, _ = anm.cause_or_effect(x, y_1)
+        self.assertTrue(p_value_1 > 0.05)
+
+        # simulated data y = 3*exp(x) + e
+        y_2 = 3 * np.exp(x) + e
+        p_value_2, _ = anm.cause_or_effect(x, y_2)
+        self.assertTrue(p_value_2 > 0.05)
+
+        # simulated data y = 2 * Sigmoid(x) + e
+        y_3= 2/(1+np.exp(-x)) + e
+        p_value_3, _ = anm.cause_or_effect(x, y_3)
+        self.assertTrue(p_value_3 > 0.05)
+
     # data pair from the Tuebingen cause-effect pair dataset.
     def test_anm_pair(self):
-        df = pd.read_csv('TestData/pair0001.txt', sep=' ', header=None)
-        dataset = df.to_numpy()
+
+        dataset = np.loadtxt('TestData/pair0001.txt')
         anm = ANM()
-        n = dataset.shape[0]
-        p_value_foward, p_value_backward = anm.cause_or_effect(dataset[:, 0].reshape(n, 1), dataset[:, 1].reshape(n, 1))
-        print('pvalue for x->y is {:.4f}'.format(p_value_foward))
-        print('pvalue for y->x is {:.4f}'.format(p_value_backward))
+        p_value_forward, _ = anm.cause_or_effect(dataset[:, 0].reshape(-1, 1), dataset[:, 1].reshape(-1, 1))
+        self.assertTrue(p_value_forward > 0.05)
 
 
 if __name__ == '__main__':
     test = TestANM()
-    test.test_anm_simul()
+    test.test_anm_simulation()
     test.test_anm_pair()
