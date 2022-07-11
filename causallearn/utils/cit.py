@@ -59,9 +59,18 @@ class CIT(object):
         }
 
     def kci(self, X, Y, condition_set):
+        if condition_set == None:
+            condition_set = []
+        if type(X) == int:
+            X = [X]
+        if type(Y) == int:
+            Y = [Y]
+        if type(condition_set) == int:
+            condition_set = [condition_set]
+        
         if len(condition_set) == 0:
-            return self.kci_ui.compute_pvalue(self.data[:, [X]], self.data[:, [Y]])[0]
-        return self.kci_ci.compute_pvalue(self.data[:, [X]], self.data[:, [Y]], self.data[:, list(condition_set)])[0]
+            return self.kci_ui.compute_pvalue(self.data[:, X], self.data[:, Y])[0]
+        return self.kci_ci.compute_pvalue(self.data[:, X], self.data[:, Y], self.data[:, list(condition_set)])[0]
 
     def fisherz(self, X, Y, condition_set):
         """
