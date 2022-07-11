@@ -12,12 +12,12 @@ from causallearn.search.ScoreBased.GES import ges
 ######################################### Test Notes ###########################################
 # All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
 # are obtained from the code of causal-learn as of commit                                      #
-# https://github.com/cmu-phil/causal-learn/commit/f211557a (07-08-2022).                       #
+# https://github.com/cmu-phil/causal-learn/commit/b51d788 (07-08-2022).                        #
 #                                                                                              #
 # We are not sure if the results are completely "correct" (reflect ground truth graph) or not. #
 # So if you find your tests failed, it means that your modified code is logically inconsistent #
-# with the code as of f211557a, but not necessarily means that your code is "wrong".           #
-# If you are sure that your modification is "correct" (e.g. fixed some bugs in f211557a),      #
+# with the code as of b51d788, but not necessarily means that your code is "wrong".            #
+# If you are sure that your modification is "correct" (e.g. fixed some bugs in b51d788),       #
 # please report it to us. We will then modify these benchmark results accordingly. Thanks :)   #
 ######################################### Test Notes ###########################################
 
@@ -32,14 +32,14 @@ BENCHMARK_TXTFILE_TO_MD5 = {
     "./TestData/benchmark_returned_results/discrete_10_ges_local_score_BDeu_none_none.txt": "eebd11747c1b927b2fdd048a55c8c3a5",
 }
 
-INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit f211557a."
+INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit b51d788."
 INCONSISTENT_RESULT_GRAPH_WITH_CPDAG_ERRMSG = "Returned graph is inconsistent with the truth CPDAG."
 
 # verify files integrity first
 for file_path, expected_MD5 in BENCHMARK_TXTFILE_TO_MD5.items():
     with open(file_path, 'rb') as fin:
         assert hashlib.md5(fin.read()).hexdigest() == expected_MD5,\
-            f'{file_path} is corrupted. Please download it again from https://github.com/cmu-phil/causal-learn/blob/f211557a/tests/TestData'
+            f'{file_path} is corrupted. Please download it again from https://github.com/cmu-phil/causal-learn/blob/b51d788/tests/TestData'
 
 
 class TestGES(unittest.TestCase):
