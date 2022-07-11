@@ -151,7 +151,7 @@ class KCI_UInd(object):
             data_x = stats.zscore(data_x, axis=0)
 
         if (np.var(data_y)==0):
-            data_y-=np.average(data_y)
+            data_y -= np.average(data_y)
         else:
             data_y = stats.zscore(data_y, axis=0)
         
