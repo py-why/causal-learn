@@ -102,7 +102,7 @@ class TestPC(unittest.TestCase):
         truth_cpdag = dag2cpdag(truth_dag)
         num_edges_in_truth = truth_dag.get_num_edges()
 
-        # Run PC with deafult parameters: stable=True, uc_rule=0 (uc_sepset), uc_priority=2 (prioritize existing colliders)
+        # Run PC with default parameters: stable=True, uc_rule=0 (uc_sepset), uc_priority=2 (prioritize existing colliders)
         cg = pc(data, 0.05, fisherz)  # Run PC and obtain the estimated graph (cg is CausalGraph object)
         benchmark_returned_graph = np.loadtxt("./TestData/benchmark_returned_results/linear_10_pc_fisherz_0.05_stable_0_2.txt")
         assert np.all(cg.G.graph == benchmark_returned_graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
@@ -190,7 +190,7 @@ class TestPC(unittest.TestCase):
 
         data = np.loadtxt("./TestData/test_pc_simulated_linear_gaussian_data.txt", skiprows=1)
 
-        # Run PC with deafult parameters: stable=True, uc_rule=0 (uc_sepset), uc_priority=2 (prioritize existing colliders)
+        # Run PC with default parameters: stable=True, uc_rule=0 (uc_sepset), uc_priority=2 (prioritize existing colliders)
         cg = pc(data, 0.05, fisherz)
         returned_directed_edges = set(cg.find_fully_directed())
         returned_undirected_edges = set(cg.find_undirected())

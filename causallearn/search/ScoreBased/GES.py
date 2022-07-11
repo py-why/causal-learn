@@ -95,7 +95,7 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         raise Exception('Unknown function!')
     score_func = localScoreClass
 
-    node_names = [("x%d" % i) for i in range(N)]
+    node_names = [("X%d" % (i + 1)) for i in range(N)]
     nodes = []
 
     for name in node_names:
