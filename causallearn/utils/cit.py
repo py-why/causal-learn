@@ -63,10 +63,12 @@ class CIT(object):
             condition_set = []
         if type(X) == int:
             X = [X]
+        elif type(X) != list:
+            Y = list(X)
         if type(Y) == int:
             Y = [Y]
-        if type(condition_set) == int:
-            condition_set = [condition_set]
+        elif type(Y) != list:
+            Y = list(Y)
         
         if len(condition_set) == 0:
             return self.kci_ui.compute_pvalue(self.data[:, X], self.data[:, Y])[0]
