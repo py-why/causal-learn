@@ -59,8 +59,6 @@ class CIT(object):
         }
 
     def kci(self, X, Y, condition_set):
-        if condition_set == None:
-            condition_set = []
         if type(X) == int:
             X = [X]
         elif type(X) != list:
