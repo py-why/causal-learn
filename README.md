@@ -12,6 +12,7 @@ Our causal-learn implements methods for causal discovery:
 * Score-based causal discovery methods.
 * Causal discovery methods based on constrained functional causal models.
 * Hidden causal representation learning.
+* Permutation-based causal discovery methods.
 * Granger causality.
 * Multiple utilities for building your own method, such as independence tests, score functions, graph operations, and evaluations.
 
