@@ -73,11 +73,11 @@ class ANM(object):
         # test x->y
         pred_y = self.fit_gp(data_x, data_y)
         res_y = data_y - pred_y
-        pval_foward, _ = kci.compute_pvalue(data_x, res_y)
+        pval_forward, _ = kci.compute_pvalue(data_x, res_y)
 
         # test y->x
         pred_x = self.fit_gp(data_y, data_x)
         res_x = data_x - pred_x
         pval_backward, _ = kci.compute_pvalue(data_y, res_x)
 
-        return pval_foward, pval_backward
+        return pval_forward, pval_backward
