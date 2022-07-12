@@ -145,15 +145,11 @@ class KCI_UInd(object):
         else:
             raise Exception('Undefined kernel function')
 
-        if np.var(data_x) == 0:
-            data_x -= np.average(data_x)
-        else:
-            data_x = stats.zscore(data_x, axis=0)
-
-        if np.var(data_y) == 0:
-            data_y -= np.average(data_y)
-        else:
-            data_y = stats.zscore(data_y, axis=0)
+        data_x = stats.zscore(data_x, axis=0)
+        data_x[np.isnan(data_x)] = 0.
+        
+        data_y = stats.zscore(data_y, axis=0)
+        data_y[np.isnan(data_y)] = 0.
         
         Kx = kernelX.kernel(data_x)
         Ky = kernelY.kernel(data_y)
@@ -330,20 +326,14 @@ class KCI_CInd(object):
         kzy: centering kernel matrix for data_y (nxn)
         """
         # normalize the data
-        if np.var(data_x) == 0:
-            data_x -= np.average(data_x)
-        else:
-            data_x = stats.zscore(data_x, axis=0)
-
-        if np.var(data_y) == 0:
-            data_y -= np.average(data_y)
-        else:
-            data_y = stats.zscore(data_y, axis=0)
-
-        if np.var(data_z) == 0:
-            data_z -= np.average(data_z)
-        else:
-            data_z = stats.zscore(data_z, axis=0)
+        data_x = stats.zscore(data_x, axis=0)
+        data_x[np.isnan(data_x)] = 0.
+        
+        data_y = stats.zscore(data_y, axis=0)
+        data_y[np.isnan(data_y)] = 0.
+        
+        data_z = stats.zscore(data_z, axis=0)
+        data_z[np.isnan(data_z)] = 0.
 
         # concatenate x and z
         data_x = np.concatenate((data_x, 0.5 * data_z), axis=1)
