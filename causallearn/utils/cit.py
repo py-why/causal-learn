@@ -1,4 +1,5 @@
 from math import log, sqrt
+from collections.abc import Iterable
 
 import numpy as np
 from scipy.stats import chi2, norm
@@ -59,9 +60,18 @@ class CIT(object):
         }
 
     def kci(self, X, Y, condition_set):
+        if type(X) == int:
+            X = [X]
+        elif type(X) != list:
+            Y = list(X)
+        if type(Y) == int:
+            Y = [Y]
+        elif type(Y) != list:
+            Y = list(Y)
+        
         if len(condition_set) == 0:
-            return self.kci_ui.compute_pvalue(self.data[:, [X]], self.data[:, [Y]])[0]
-        return self.kci_ci.compute_pvalue(self.data[:, [X]], self.data[:, [Y]], self.data[:, list(condition_set)])[0]
+            return self.kci_ui.compute_pvalue(self.data[:, X], self.data[:, Y])[0]
+        return self.kci_ci.compute_pvalue(self.data[:, X], self.data[:, Y], self.data[:, list(condition_set)])[0]
 
     def fisherz(self, X, Y, condition_set):
         """
@@ -326,7 +336,23 @@ class CIT(object):
         else:
             assert len(args) == 2, "Arguments other than skel and prt_m are provided for mc_fisherz."
         if condition_set is None: condition_set = tuple()
-        assert X not in condition_set and Y not in condition_set, "X, Y cannot be in condition_set."
+        
+        if type(X) == int and type(Y) == int:
+            assert X not in condition_set and Y not in condition_set, "X, Y cannot be in condition_set."
+        else:
+            if isinstance(X, Iterable):
+                assert len(set(condition_set).intersection(X)) == 0, "X cannot be in condition_set."
+            elif isinstance(X, int):
+                assert X not in condition_set, "X cannot be in condition_set."
+            else:
+                raise Exception("Undefined type of X, X should be int or Iterable")
+            if isinstance(Y, Iterable):
+                assert len(set(condition_set).intersection(Y)) == 0, "Y cannot be in condition_set."
+            elif isinstance(Y, int):
+                assert Y not in condition_set, "Y cannot be in condition_set."
+            else:
+                raise Exception("Undefined type of Y, Y should be int or Iterable")
+            
         i, j = (X, Y) if (X < Y) else (Y, X)
         cache_key = (i, j, frozenset(condition_set))
 
