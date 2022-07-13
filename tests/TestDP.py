@@ -13,7 +13,7 @@ from causallearn.utils.DAG2CPDAG import dag2cpdag
 ######################################### Test Notes ###########################################
 # All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
 # are obtained from the code of causal-learn as of commit                                      #
-# https://github.com/cmu-phil/causal-learn/commit/8badb41 (07-08-2022).                        #
+# https://github.com/cmu-phil/causal-learn/commit/8badb41 (07-12-2022).                        #
 #                                                                                              #
 # We are not sure if the results are completely "correct" (reflect ground truth graph) or not. #
 # So if you find your tests failed, it means that your modified code is logically inconsistent #
