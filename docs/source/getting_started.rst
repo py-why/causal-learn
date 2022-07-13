@@ -79,4 +79,7 @@ Contributors
 - Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
 
 
+**Quality control**: Yewen Fan, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
+
+
 
