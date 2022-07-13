@@ -46,7 +46,6 @@ class TestDP(unittest.TestCase):
         data = data - data.mean(axis=0, keepdims=True)    # Center the data
         # Iterate over different configurations of path extension to make sure they are working fine
         for use_path_extension in [False, True]:
-            print(use_path_extension)
             DAG_matrix, _ = bic_exact_search(data, search_method='dp', use_path_extension=use_path_extension)
             # Convert DAG adjacency matrix to Dag object
             nodes = [GraphNode(str(i)) for i in range(num_of_nodes)]

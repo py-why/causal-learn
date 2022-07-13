@@ -48,7 +48,6 @@ class TestAstar(unittest.TestCase):
         # Iterate over different configurations of path extension and k-cycle heuristic
         # to make sure they are working fine
         for use_path_extension, use_k_cycle_heuristic in itertools.product([False, True], repeat=2):
-            print(use_path_extension, use_k_cycle_heuristic)
             DAG_matrix, _ = bic_exact_search(data, search_method='astar', use_path_extension=use_path_extension,
                                              use_k_cycle_heuristic=use_k_cycle_heuristic, k=3)
             # Convert DAG adjacency matrix to Dag object
