@@ -13,13 +13,8 @@ class TestCIT(unittest.TestCase):
 
         cit = CIT(data=X, method='fisherz')
 
-        try:
+        with self.assertRaises(ValueError) as context:
             cit.fisherz(0, 1, tuple())
-        except ValueError:
-            print('Catch Singularity Problem')
-            return
-
-        assert False
 
 # def test_new_old_gsq_chisq_equivalent(self):
 #     def powerset(iterable):

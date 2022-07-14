@@ -91,7 +91,7 @@ class CIT(object):
         try:
             inv = np.linalg.inv(sub_corr_matrix)
         except np.linalg.LinAlgError:
-            raise ValueError('Singularity problem in fisherz tests.')
+            raise ValueError('Data correlation matrix is singular. Cannot run fisherz test. Please check your data.')
         r = -inv[0, 1] / sqrt(inv[0, 0] * inv[1, 1])
         Z = 0.5 * log((1 + r) / (1 - r))
         X = sqrt(self.sample_size - len(condition_set) - 3) * abs(Z)
