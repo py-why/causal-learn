@@ -11,12 +11,12 @@ from causallearn.utils.DAG2CPDAG import dag2cpdag
 ######################################### Test Notes ###########################################
 # All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
 # are obtained from the code of causal-learn as of commit                                      #
-# https://github.com/cmu-phil/causal-learn/commit/8badb41 (07-12-2022).                        #
+# https://github.com/cmu-phil/causal-learn/commit/129dcdf (07-14-2022).                        #
 #                                                                                              #
 # We are not sure if the results are completely "correct" (reflect ground truth graph) or not. #
 # So if you find your tests failed, it means that your modified code is logically inconsistent #
-# with the code as of 8badb41, but not necessarily means that your code is "wrong".            #
-# If you are sure that your modification is "correct" (e.g. fixed some bugs in 8badb41),       #
+# with the code as of 129dcdf, but not necessarily means that your code is "wrong".            #
+# If you are sure that your modification is "correct" (e.g. fixed some bugs in 129dcdf),       #
 # please report it to us. We will then modify these benchmark results accordingly. Thanks :)   #
 ######################################### Test Notes ###########################################
 
@@ -29,7 +29,7 @@ BENCHMARK_TXTFILE_TO_MD5 = {
 for file_path, expected_MD5 in BENCHMARK_TXTFILE_TO_MD5.items():
     with open(file_path, 'rb') as fin:
         assert hashlib.md5(fin.read()).hexdigest() == expected_MD5,\
-            f'{file_path} is corrupted. Please download it again from https://github.com/cmu-phil/causal-learn/blob/8badb41/tests/TestData'
+            f'{file_path} is corrupted. Please download it again from https://github.com/cmu-phil/causal-learn/blob/129dcdf/tests/TestData'
 
 
 class TestExactSearch(unittest.TestCase):
