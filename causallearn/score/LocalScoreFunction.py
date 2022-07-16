@@ -41,6 +41,40 @@ def local_score_BIC(Data: ndarray, i: int, PAi: List[int], parameters=None) -> f
     return n * H + np.log(n) * len(PAi) * lambda_value
 
 
+def local_score_BIC_from_cov(
+    Data: Tuple[ndarray, int], i: int, PAi: List[int], parameters=None
+) -> float:
+    """
+    Calculate the *negative* local score with BIC for the linear Gaussian continue data case
+    from the covariance matrix
+    Parameters
+    ----------
+    Data: covariance matrix, number of instances
+    i: current index
+    PAi: parent indexes
+    parameters: lambda_value, the penalty discount of bic
+    Returns
+    -------
+    score: proportional to -2x BIC
+    """
+
+    cov, n = Data
+
+    if parameters is None:
+        lambda_value = 1
+    else:
+        lambda_value = parameters["lambda_value"]
+
+    if len(PAi) == 0:
+        return n * np.log(cov[i, i])
+
+    yX = np.mat(cov[np.ix_([i], PAi)])
+    XX = np.mat(cov[np.ix_(PAi, PAi)])
+    H = np.log(cov[i, i] - yX * np.linalg.inv(XX) * yX.T)
+
+    return n * H + np.log(n) * len(PAi) * lambda_value
+
+
 def local_score_BDeu(Data: ndarray, i: int, PAi: List[int], parameters=None) -> float:
     """
     Calculate the *negative* local score with BDeu for the discrete case
