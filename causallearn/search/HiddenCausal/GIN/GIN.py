@@ -1,11 +1,3 @@
-'''
-    File name: GIN.py
-    Discription: Learning Hidden Causal Representation with GIN condition
-    Author: ZhiyiHuang@DMIRLab, RuichuCai@DMIRLab
-    From DMIRLab: https://dmir.gdut.edu.cn/
-'''
-
-import random
 from collections import deque
 from itertools import combinations
 
@@ -18,7 +10,7 @@ from causallearn.graph.NodeType import NodeType
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.search.FCMBased.lingam.hsic import hsic_test_gamma
-from causallearn.utils.cit import kci
+from causallearn.utils.KCI.KCI import KCI_UInd
 
 
 def fisher_test(pvals):
@@ -27,16 +19,15 @@ def fisher_test(pvals):
     return 1 - chi2.cdf(fisher_stat, 2 * len(pvals))
 
 
-def GIN(data, indep_test=kci, alpha=0.05):
+def GIN(data, indep_test_method='kci', alpha=0.05):
     '''
     Learning causal structure of Latent Variables for Linear Non-Gaussian Latent Variable Model
     with Generalized Independent Noise Condition
-
     Parameters
     ----------
     data : numpy ndarray
            data set
-    indep_test : callable, default=kci
+    indep_test : str, default='kci'
         the function of the independence test being used
     alpha : float, default=0.05
         desired significance level of independence tests (p_value) in (0,1)
@@ -50,6 +41,11 @@ def GIN(data, indep_test=kci, alpha=0.05):
     n = data.shape[1]
     cov = np.cov(data.T)
 
+    if indep_test_method == 'kci':
+        indep_test = KCI_UInd()
+    else:
+        raise NotImplementedError((f"Independent test method {indep_test_method} is not implemented."))
+
     var_set = set(range(n))
     cluster_size = 2
     clusters_list = []
@@ -59,9 +55,8 @@ def GIN(data, indep_test=kci, alpha=0.05):
             remain_var_set = var_set - set(cluster)
             e = cal_e_with_gin(data, cov, list(cluster), list(remain_var_set))
             pvals = []
-            tmp_data = np.concatenate([data[:, list(remain_var_set)], e.reshape(-1, 1)], axis=1)
             for z in range(len(remain_var_set)):
-                pvals.append(indep_test(tmp_data, z, - 1))
+                pvals.append(indep_test.compute_pvalue(data[:, [z]], e[:, None])[0])
             fisher_pval = fisher_test(pvals)
             if fisher_pval >= alpha:
                 tmp_clusters_list.append(cluster)
@@ -84,18 +79,15 @@ def GIN(data, indep_test=kci, alpha=0.05):
 
         for i, cluster_i in enumerate(clusters_list):
             is_root = True
-            random.shuffle(cluster_i)
             cluster_i1, cluster_i2 = array_split(cluster_i, 2)
             for j, cluster_j in enumerate(clusters_list):
                 if i == j:
                     continue
-                random.shuffle(cluster_j)
                 cluster_j1, cluster_j2 = array_split(cluster_j, 2)
                 e = cal_e_with_gin(data, cov, X + cluster_i1 + cluster_j1, Z + cluster_i2)
                 pvals = []
-                tmp_data = np.concatenate([data[:, Z + cluster_i2], e.reshape(-1, 1)], axis=1)
                 for z in range(len(Z + cluster_i2)):
-                    pvals.append(indep_test(tmp_data, z, - 1))
+                    pvals.append(indep_test.compute_pvalue(data[:, [z]], e[:, None])[0])
                 fisher_pval = fisher_test(pvals)
                 if fisher_pval < alpha:
                     is_root = False
@@ -220,7 +212,7 @@ def cal_e_with_gin(data, cov, X, Z):
     cov_m = cov[np.ix_(Z, X)]
     _, _, v = np.linalg.svd(cov_m)
     omega = v.T[:, -1]
-    return np.dot(omega, data[:, X].T)
+    return np.dot(data[:, X], omega.T)
 
 
 def cal_dep_for_gin(data, cov, X, Z):
@@ -251,14 +243,12 @@ def cal_dep_for_gin(data, cov, X, Z):
 def find_root(data, cov, clusters, K):
     '''
     Find the causal order by statistics of dependence
-
     Parameters
     ----------
     data : data set (numpy ndarray)
     cov : covariance matrix
     clusters : clusters of observed variables
     K : causal order
-
     Returns
     -------
     root : latent root cause
