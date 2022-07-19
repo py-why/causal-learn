@@ -154,6 +154,7 @@ class FisherZ(CIT_Base):
         Z = 0.5 * log((1 + r) / (1 - r))
         X = sqrt(self.sample_size - len(condition_set) - 3) * abs(Z)
         p = 2 * (1 - norm.cdf(abs(X)))
+        self.pvalue_cache[cache_key] = p
         return p
 
 class KCI(CIT_Base):
@@ -173,9 +174,10 @@ class KCI(CIT_Base):
         # Kernel-based conditional independence test.
         Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
         if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
-        if len(condition_set) == 0:
-            return self.kci_ui.compute_pvalue(self.data[:, Xs], self.data[:, Ys])[0]
-        return self.kci_ci.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
+        p = self.kci_ui.compute_pvalue(self.data[:, Xs], self.data[:, Ys])[0] if len(condition_set) == 0 else \
+            self.kci_ci.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
+        self.pvalue_cache[cache_key] = p
+        return p
 
 class Chisq_or_Gsq(CIT_Base):
     def __init__(self, data, method_name, **kwargs):
@@ -324,7 +326,9 @@ class Chisq_or_Gsq(CIT_Base):
         Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
         if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
         indexs = condition_set + Xs + Ys
-        return self.chisq_or_gsq_test(self.data[:, indexs].T, self.cardinalities[indexs], G_sq=self.method_name == 'gsq')
+        p = self.chisq_or_gsq_test(self.data[:, indexs].T, self.cardinalities[indexs], G_sq=self.method_name == 'gsq')
+        self.pvalue_cache[cache_key] = p
+        return p
 
 class MV_FisherZ(CIT_Base):
     def __init__(self, data, **kwargs):
@@ -369,6 +373,7 @@ class MV_FisherZ(CIT_Base):
         Z = 0.5 * log((1 + r) / (1 - r))
         X = sqrt(len(test_wise_deletion_XYcond_rows_index) - len(condition_set) - 3) * abs(Z)
         p = 2 * (1 - norm.cdf(abs(X)))
+        self.pvalue_cache[cache_key] = p
         return p
 
 class MC_FisherZ(CIT_Base):
