@@ -9,6 +9,7 @@ from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz
 from causallearn.graph.SHD import SHD
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
+from utils_simulate_data import simulate_discrete_data, simulate_linear_continuous_data
 
 
 
@@ -173,19 +174,7 @@ class TestPC(unittest.TestCase):
         # Then by Meek rule 3: 1 -> 3.
 
         ###### Simulation configuration: code to generate "./TestData/test_pc_simulated_linear_gaussian_data.txt" ######
-        # np.random.seed(42)
-        # linear_weight_minabs, linear_weight_maxabs, linear_weight_netative_prob = 0.5, 0.9, 0.5
-        # sample_size = 10000
-        # adjacency_matrix = np.zeros((num_of_nodes, num_of_nodes))
-        # adjacency_matrix[tuple(zip(*truth_DAG_directed_edges))] = 1
-        # adjacency_matrix = adjacency_matrix.T
-        # weight_mask = np.random.uniform(linear_weight_minabs, linear_weight_maxabs, (num_of_nodes, num_of_nodes))
-        # weight_mask[np.unravel_index(np.random.choice(np.arange(weight_mask.size), replace=False,
-        #                            size=int(weight_mask.size * linear_weight_netative_prob)), weight_mask.shape)] *= -1.
-        # adjacency_matrix = adjacency_matrix * weight_mask
-        # mixing_matrix = np.linalg.inv(np.eye(num_of_nodes) - adjacency_matrix)
-        # exogenous_noise = np.random.normal(0, 1, (num_of_nodes, sample_size))
-        # data = (mixing_matrix @ exogenous_noise).T
+        # data = simulate_linear_continuous_data(num_of_nodes, 10000, truth_DAG_directed_edges, "gaussian", 42)
         ###### Simulation configuration: code to generate "./TestData/test_pc_simulated_linear_gaussian_data.txt" ######
 
         data = np.loadtxt("./TestData/test_pc_simulated_linear_gaussian_data.txt", skiprows=1)
@@ -201,6 +190,61 @@ class TestPC(unittest.TestCase):
         print(f"    pc(data, 0.05, fisherz)\treturns exactly the same CPDAG as the truth.")
         # cg.draw_pydot_graph(labels=list(map(str, range(num_of_nodes))))
         print('test_pc_simulate_linear_gaussian_with_fisher_z passed!\n')
+
+    # Simulate linear non-Gaussian data. Run PC with kci test with default parameters.
+    def test_pc_simulate_linear_nongaussian_with_kci(self):
+        print('Now start test_pc_simulate_linear_nongaussian_with_kci ...')
+        print('!! It will take around 17 mins to run this test (on M1 Max chip) ... !!')
+        print('!! You may also reduce the sample size (<2500), but the result will then not be totally correct ... !!')
+
+        # Graph specification.
+        num_of_nodes = 5
+        truth_DAG_directed_edges = {(0, 1), (0, 3), (1, 2), (1, 3), (2, 3), (2, 4), (3, 4)}
+        truth_CPDAG_directed_edges = {(0, 3), (1, 3), (2, 3), (2, 4), (3, 4)}
+        truth_CPDAG_undirected_edges = {(0, 1), (1, 2), (2, 1), (1, 0)}
+        # this simple graph is the same as in test_pc_simulate_linear_gaussian_with_fisher_z.
+
+        data = simulate_linear_continuous_data(num_of_nodes, 2500, truth_DAG_directed_edges, "exponential", 42)
+        # there is no randomness in data generation (with seed fixed for simulate_data).
+        # however, there still exists randomness in KCI (null_sample_spectral).
+        # for this simple test, we can assume that KCI always returns the correct result (despite randomness).
+
+        # Run PC with default parameters: stable=True, uc_rule=0 (uc_sepset), uc_priority=2 (prioritize existing colliders)
+        cg = pc(data, 0.05, kci)
+        returned_directed_edges = set(cg.find_fully_directed())
+        returned_undirected_edges = set(cg.find_undirected())
+        returned_bidirected_edges = set(cg.find_bi_directed())
+        self.assertEqual(truth_CPDAG_directed_edges, returned_directed_edges, "Directed edges are not correct.")
+        self.assertEqual(truth_CPDAG_undirected_edges, returned_undirected_edges, "Undirected edges are not correct.")
+        self.assertEqual(0, len(returned_bidirected_edges), "There should be no bi-directed edges.")
+        print(f"    pc(data, 0.05, kci)\treturns exactly the same CPDAG as the truth.")
+        # cg.draw_pydot_graph(labels=list(map(str, range(num_of_nodes))))
+        print('test_pc_simulate_linear_nongaussian_with_kci passed!\n')
+
+    # Simulate discrete data using forward sampling. Run PC with chisq test with default parameters.
+    def test_pc_simulate_discrete_with_chisq(self):
+        print('Now start test_pc_simulate_discrete_with_chisq ...')
+
+        # Graph specification.
+        num_of_nodes = 5
+        truth_DAG_directed_edges = {(0, 1), (0, 3), (1, 2), (1, 3), (2, 3), (2, 4), (3, 4)}
+        truth_CPDAG_directed_edges = {(0, 3), (1, 3), (2, 3), (2, 4), (3, 4)}
+        truth_CPDAG_undirected_edges = {(0, 1), (1, 2), (2, 1), (1, 0)}
+        # this simple graph is the same as in test_pc_simulate_linear_gaussian_with_fisher_z.
+
+        data = simulate_discrete_data(num_of_nodes, 10000, truth_DAG_directed_edges, 42)
+
+        # Run PC with default parameters: stable=True, uc_rule=0 (uc_sepset), uc_priority=2 (prioritize existing colliders)
+        cg = pc(data, 0.05, chisq)
+        returned_directed_edges = set(cg.find_fully_directed())
+        returned_undirected_edges = set(cg.find_undirected())
+        returned_bidirected_edges = set(cg.find_bi_directed())
+        self.assertEqual(truth_CPDAG_directed_edges, returned_directed_edges, "Directed edges are not correct.")
+        self.assertEqual(truth_CPDAG_undirected_edges, returned_undirected_edges, "Undirected edges are not correct.")
+        self.assertEqual(0, len(returned_bidirected_edges), "There should be no bi-directed edges.")
+        print(f"    pc(data, 0.05, chisq)\treturns exactly the same CPDAG as the truth.")
+        # cg.draw_pydot_graph(labels=list(map(str, range(num_of_nodes))))
+        print('test_pc_simulate_discrete_with_chisq passed!\n')
 
     # Load data from file "data_discrete_10.txt". Run PC with gsq or chisq test.
     def test_pc_load_discrete_10_with_gsq_chisq(self):
@@ -257,7 +301,6 @@ class TestPC(unittest.TestCase):
         print(f"    pc(data, 0.05, mv_fisherz, True, 0, 4, mvpc=True)\tSHD: {shd.get_shd()} of {num_edges_in_truth}")
 
         print('test_pc_load_linear_missing_10_with_mv_fisher_z passed!\n')
-
 
     # Load data from data in bnlearn repository. Run PC with chisq. Test speed.
     def test_pc_load_bnlearn_discrete_datasets(self):
