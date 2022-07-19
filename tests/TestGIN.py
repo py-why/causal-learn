@@ -120,6 +120,7 @@ class TestGIN(unittest.TestCase):
         _, causal_order = GIN(data, indep_test_method='kci')
         causal_order = [sorted(cluster_i) for cluster_i in causal_order]
         ground_truth = [[0, 1, 2, 3], [4, 5], [6, 7]]
+        assert len(causal_order) == len(ground_truth)
         for i in range(len(causal_order)):
             assert np.isclose(causal_order[i], ground_truth[i]).all()
 
@@ -148,5 +149,6 @@ class TestGIN(unittest.TestCase):
         _, causal_order = GIN(data, indep_test_method='hsic')
         causal_order = [sorted(cluster_i) for cluster_i in causal_order]
         ground_truth = [[0, 1, 2, 3], [4, 5], [6, 7]]
+        assert len(causal_order) == len(ground_truth)
         for i in range(len(causal_order)):
             assert np.isclose(causal_order[i], ground_truth[i]).all()

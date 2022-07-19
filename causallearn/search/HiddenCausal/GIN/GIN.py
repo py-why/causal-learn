@@ -27,8 +27,8 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
     ----------
     data : numpy ndarray
            data set
-    indep_test : str, default='kci'
-        the function of the independence test being used
+    indep_test_method : str, default='kci'
+        the name of the independence test being used
     alpha : float, default=0.05
         desired significance level of independence tests (p_value) in (0,1)
     Returns
@@ -47,7 +47,7 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
     if indep_test_method not in ['kci', 'hsic']:
         raise NotImplementedError((f"Independent test method {indep_test_method} is not implemented."))
 
-    def indep_test(x, y, method=indep_test_method):
+    def indep_test(x, y, method):
         if method == 'kci':
             return kci.compute_pvalue(x, y)[0]
         elif method == 'hsic':
@@ -65,7 +65,7 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
             e = cal_e_with_gin(data, cov, list(cluster), list(remain_var_set))
             pvals = []
             for z in range(len(remain_var_set)):
-                pvals.append(indep_test(data[:, [z]], e[:, None]))
+                pvals.append(indep_test(data[:, [z]], e[:, None], method=indep_test_method))
             fisher_pval = fisher_test(pvals)
             if fisher_pval >= alpha:
                 tmp_clusters_list.append(cluster)
@@ -96,7 +96,7 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
                 e = cal_e_with_gin(data, cov, X + cluster_i1 + cluster_j1, Z + cluster_i2)
                 pvals = []
                 for z in range(len(Z + cluster_i2)):
-                    pvals.append(indep_test(data[:, [z]], e[:, None]))
+                    pvals.append(indep_test(data[:, [z]], e[:, None], method=indep_test_method))
                 fisher_pval = fisher_test(pvals)
                 if fisher_pval < alpha:
                     is_root = False
