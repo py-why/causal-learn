@@ -35,16 +35,25 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
     -------
     G : general graph
         causal graph
-    K : list
+    causal_order : list
         causal order
     '''
     n = data.shape[1]
     cov = np.cov(data.T)
 
     if indep_test_method == 'kci':
-        indep_test = KCI_UInd()
-    else:
+        kci = KCI_UInd()
+
+    if indep_test_method not in ['kci', 'hsic']:
         raise NotImplementedError((f"Independent test method {indep_test_method} is not implemented."))
+
+    def indep_test(x, y, method=indep_test_method):
+        if method == 'kci':
+            return kci.compute_pvalue(x, y)[0]
+        elif method == 'hsic':
+            return hsic_test_gamma(x, y)[1]
+        else:
+            raise NotImplementedError((f"Independent test method {indep_test_method} is not implemented."))
 
     var_set = set(range(n))
     cluster_size = 2
@@ -56,7 +65,7 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
             e = cal_e_with_gin(data, cov, list(cluster), list(remain_var_set))
             pvals = []
             for z in range(len(remain_var_set)):
-                pvals.append(indep_test.compute_pvalue(data[:, [z]], e[:, None])[0])
+                pvals.append(indep_test(data[:, [z]], e[:, None]))
             fisher_pval = fisher_test(pvals)
             if fisher_pval >= alpha:
                 tmp_clusters_list.append(cluster)
@@ -66,13 +75,13 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
             var_set -= set(cluster)
         cluster_size += 1
 
-    K = []
+    causal_order = [] # this variable corresponds to K in paper
     updated = True
     while updated:
         updated = False
         X = []
         Z = []
-        for cluster_k in K:
+        for cluster_k in causal_order:
             cluster_k1, cluster_k2 = array_split(cluster_k, 2)
             X += cluster_k1
             Z += cluster_k2
@@ -87,13 +96,13 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
                 e = cal_e_with_gin(data, cov, X + cluster_i1 + cluster_j1, Z + cluster_i2)
                 pvals = []
                 for z in range(len(Z + cluster_i2)):
-                    pvals.append(indep_test.compute_pvalue(data[:, [z]], e[:, None])[0])
+                    pvals.append(indep_test(data[:, [z]], e[:, None]))
                 fisher_pval = fisher_test(pvals)
                 if fisher_pval < alpha:
                     is_root = False
                     break
             if is_root:
-                K.append(cluster_i)
+                causal_order.append(cluster_i)
                 clusters_list.remove(cluster_i)
                 updated = True
                 break
@@ -106,7 +115,7 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
     latent_id = 1
     l_nodes = []
 
-    for cluster in K:
+    for cluster in causal_order:
         l_node = GraphNode(f"L{latent_id}")
         l_node.set_node_type(NodeType.LATENT)
         G.add_node(l_node)
@@ -140,7 +149,7 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
             G.add_directed_edge(l_node, o_node)
         latent_id += 1
 
-    return G, K
+    return G, causal_order
 
 
 def GIN_MI(data):
@@ -157,7 +166,7 @@ def GIN_MI(data):
     -------
     G : general graph
         causal graph
-    K : list
+    causal_order : list
         causal order
     '''
     v_labels = list(range(data.shape[1]))
@@ -182,16 +191,16 @@ def GIN_MI(data):
     cluster_list = merge_overlaping_cluster(cluster_list)
 
     # Step 2: Learning the Causal Order of Latent Variables
-    K = []
+    causal_order = [] # this variable corresponds to K in paper
     while (len(cluster_list) != 0):
-        root = find_root(data, cov, cluster_list, K)
-        K.append(root)
+        root = find_root(data, cov, cluster_list, causal_order)
+        causal_order.append(root)
         cluster_list.remove(root)
 
     latent_id = 1
     l_nodes = []
     G = GeneralGraph([])
-    for cluster in K:
+    for cluster in causal_order:
         l_node = GraphNode(f"L{latent_id}")
         l_node.set_node_type(NodeType.LATENT)
         l_nodes.append(l_node)
@@ -205,14 +214,14 @@ def GIN_MI(data):
             G.add_directed_edge(l_node, o_node)
         latent_id += 1
 
-    return G, K
+    return G, causal_order
 
 
 def cal_e_with_gin(data, cov, X, Z):
     cov_m = cov[np.ix_(Z, X)]
     _, _, v = np.linalg.svd(cov_m)
     omega = v.T[:, -1]
-    return np.dot(data[:, X], omega.T)
+    return np.dot(data[:, X], omega)
 
 
 def cal_dep_for_gin(data, cov, X, Z):
@@ -240,7 +249,7 @@ def cal_dep_for_gin(data, cov, X, Z):
     return sta
 
 
-def find_root(data, cov, clusters, K):
+def find_root(data, cov, clusters, causal_order):
     '''
     Find the causal order by statistics of dependence
     Parameters
@@ -248,7 +257,7 @@ def find_root(data, cov, clusters, K):
     data : data set (numpy ndarray)
     cov : covariance matrix
     clusters : clusters of observed variables
-    K : causal order
+    causal_order : causal order
     Returns
     -------
     root : latent root cause
@@ -266,8 +275,8 @@ def find_root(data, cov, clusters, K):
             for k in range(1, len(i)):
                 Z.append(i[k])
 
-            if K:
-                for k in K:
+            if causal_order:
+                for k in causal_order:
                     X.append(k[0])
                     Z.append(k[1])
 
