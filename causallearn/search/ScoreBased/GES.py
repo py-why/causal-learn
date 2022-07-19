@@ -77,13 +77,13 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         N = len(parameters['dlabel'])
         localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_marginal_multi, parameters=parameters)
 
-    elif score_func == 'local_score_BIC':  # Greedy equivalence search with BIC score
+    elif score_func == 'local_score_BIC' or score_func == 'local_score_BIC_from_cov':  # Greedy equivalence search with BIC score
         if maxP is None:
             maxP = X.shape[1] / 2
         N = X.shape[1]  # number of variables
         parameters = {}
         parameters["lambda_value"] = 2
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BIC, parameters=parameters)
+        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters)
 
     elif score_func == 'local_score_BDeu':  # Greedy equivalence search with BDeu score
         if maxP is None:
