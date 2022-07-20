@@ -1,4 +1,4 @@
-import os, json, codecs, time
+import os, json, codecs, time, hashlib
 import numpy as np
 from math import log, sqrt
 from collections.abc import Iterable
@@ -49,7 +49,7 @@ class CIT_Base(object):
         '''
         assert isinstance(data, np.ndarray), "Input data must be a numpy array."
         self.data = data
-        self.data_hash = hash(str(data))
+        self.data_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
         self.sample_size, self.num_features = data.shape
         self.cache_path = cache_path
         self.SAVE_CACHE_CYCLE_SECONDS = 30
@@ -62,10 +62,14 @@ class CIT_Base(object):
                 assert self.pvalue_cache['data_hash'] == self.data_hash, "Data hash mismatch."
             else: os.makedirs(os.path.dirname(cache_path), exist_ok=True)
 
-    def check_cache_method_consistent(self, method_name):
+    def check_cache_method_consistent(self, method_name, parameters_hash):
         self.method = method_name
-        if method_name not in self.pvalue_cache: self.pvalue_cache['method_name'] = method_name # a newly created cache
-        else: assert self.pvalue_cache['method_name'] == method_name, "CI test method name mismatch." # a loaded cache
+        if method_name not in self.pvalue_cache:
+            self.pvalue_cache['method_name'] = method_name # a newly created cache
+            self.pvalue_cache['parameters_hash'] = parameters_hash
+        else:
+            assert self.pvalue_cache['method_name'] == method_name, "CI test method name mismatch." # a loaded cache
+            assert self.pvalue_cache['parameters_hash'] == parameters_hash, "CI test method parameters mismatch."
 
     def assert_input_data_is_valid(self, allow_nan=False, allow_inf=False):
         assert allow_nan or not np.isnan(self.data).any(), "Input data contains NaN. Please check."
@@ -73,7 +77,7 @@ class CIT_Base(object):
 
     def save_to_local_cache(self):
         if not self.cache_path is None and time.time() - self.last_time_cache_saved > self.SAVE_CACHE_CYCLE_SECONDS:
-            with codecs.open(self.cache_path, 'w') as fout: json.dump(self.pvalue_cache, fout)
+            with codecs.open(self.cache_path, 'w') as fout: fout.write(json.dumps(self.pvalue_cache, indent=2))
             self.last_time_cache_saved = time.time()
 
     def get_formatted_XYZ_and_cachekey(self, X, Y, condition_set):
@@ -95,23 +99,27 @@ class CIT_Base(object):
         Xs: List<int>, sorted. may swapped with Ys for cache key uniqueness.
         Ys: List<int>, sorted.
         condition_set: List<int>
-        cache_key: hashable tuple, with items in built-in types. Unique for <X,Y|S> in any input type or order.
-            (X: int, Y: int, condition_set: frozenset<int>) if X and Y are single index,
-            (Xs: frozenset<int>, Y: frozenset<int>, condition_set: frozenset<int>) otherwise (for kci only).
+        cache_key: string. Unique for <X,Y|S> in any input type or order.
         '''
+        def _stringize(ulist1, ulist2, clist):
+            # ulist1, ulist2, clist: list of ints, sorted.
+            _strlst  = lambda lst: '.'.join(map(str, lst))
+            return f'{_strlst(ulist1)};{_strlst(ulist2)}|{_strlst(clist)}' if len(clist) > 0 else \
+                   f'{_strlst(ulist1)};{_strlst(ulist2)}'
+
         # every time when cit is called, auto save to local cache.
         self.save_to_local_cache()
 
         METHODS_SUPPORTING_MULTIDIM_DATA = ["kci"]
         if condition_set is None: condition_set = []
-        # 'int' to convert np.*int* to built-in int; 'set' to remove duplicates
-        condition_set = list(set(map(int, condition_set)))
+        # 'int' to convert np.*int* to built-in int; 'set' to remove duplicates; sorted for hashing
+        condition_set = sorted(set(map(int, condition_set)))
 
         # usually, X and Y are 1-dimensional index (in constraint-based methods)
-        if self.pvalue_cache['method_name'] not in METHODS_SUPPORTING_MULTIDIM_DATA:
+        if self.method not in METHODS_SUPPORTING_MULTIDIM_DATA:
             X, Y = (int(X), int(Y)) if (X < Y) else (int(Y), int(X))
             assert X not in condition_set and Y not in condition_set, "X, Y cannot be in condition_set."
-            return [X], [Y], condition_set, (X, Y, frozenset(condition_set))
+            return [X], [Y], condition_set, _stringize([X], [Y], condition_set)
 
         # also to support multi-dimensional unconditional X, Y (usually in kernel-based tests)
         Xs = sorted(set(map(int, X))) if isinstance(X, Iterable) else [int(X)]  # sorted for comparison
@@ -119,14 +127,12 @@ class CIT_Base(object):
         Xs, Ys = (Xs, Ys) if (Xs < Ys) else (Ys, Xs)
         assert len(set(Xs).intersection(condition_set)) == 0 and \
                len(set(Ys).intersection(condition_set)) == 0, "X, Y cannot be in condition_set."
-        return Xs, Ys, condition_set, (frozenset(Xs) if len(Xs) > 1 else Xs[0], # for readability in json files
-                                       frozenset(Ys) if len(Ys) > 1 else Ys[0],
-                                       frozenset(condition_set))
+        return Xs, Ys, condition_set, _stringize(Xs, Ys, condition_set)
 
 class FisherZ(CIT_Base):
     def __init__(self, data, **kwargs):
         super().__init__(data, **kwargs)
-        self.check_cache_method_consistent('fisherz')
+        self.check_cache_method_consistent('fisherz', -1)   # -1: no parameters can be specified for fisherz
         self.assert_input_data_is_valid()
         self.correlation_matrix = np.corrcoef(data.T)
 
@@ -160,13 +166,14 @@ class FisherZ(CIT_Base):
 class KCI(CIT_Base):
     def __init__(self, data, **kwargs):
         super().__init__(data, **kwargs)
-        self.check_cache_method_consistent('kci')
-        self.assert_input_data_is_valid()
         kci_ui_kwargs = {k: v for k, v in kwargs.items() if k in
                          ['kernelX', 'kernelY', 'null_ss', 'approx', 'est_width', 'polyd', 'kwidthx', 'kwidthy']}
         kci_ci_kwargs = {k: v for k, v in kwargs.items() if k in
                          ['kernelX', 'kernelY', 'kernelZ', 'null_ss', 'approx', 'use_gp', 'est_width', 'polyd',
                           'kwidthx', 'kwidthy', 'kwidthz']}
+        self.check_cache_method_consistent(
+            'kci', hashlib.md5(json.dumps(kci_ci_kwargs, sort_keys=True).encode('utf-8')).hexdigest())
+        self.assert_input_data_is_valid()
         self.kci_ui = KCI_UInd(**kci_ui_kwargs)
         self.kci_ci = KCI_CInd(**kci_ci_kwargs)
 
@@ -185,8 +192,7 @@ class Chisq_or_Gsq(CIT_Base):
             return np.unique(column, return_inverse=True)[1]
         assert method_name in ['chisq', 'gsq']
         super().__init__(np.apply_along_axis(_unique, 0, data).astype(np.int64), **kwargs)
-        self.check_cache_method_consistent(method_name)
-        self.method_name = method_name
+        self.check_cache_method_consistent(method_name, -1)   # -1: no parameters can be specified for chisq/gsq
         self.assert_input_data_is_valid()
         self.cardinalities = np.max(self.data, axis=0) + 1
 
@@ -326,14 +332,14 @@ class Chisq_or_Gsq(CIT_Base):
         Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
         if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
         indexs = condition_set + Xs + Ys
-        p = self.chisq_or_gsq_test(self.data[:, indexs].T, self.cardinalities[indexs], G_sq=self.method_name == 'gsq')
+        p = self.chisq_or_gsq_test(self.data[:, indexs].T, self.cardinalities[indexs], G_sq=self.method == 'gsq')
         self.pvalue_cache[cache_key] = p
         return p
 
 class MV_FisherZ(CIT_Base):
     def __init__(self, data, **kwargs):
         super().__init__(data, **kwargs)
-        self.check_cache_method_consistent('mv_fisherz')
+        self.check_cache_method_consistent('mv_fisherz', -1)   # -1: no parameters can be specified for mv_fisherz
         self.assert_input_data_is_valid(allow_nan=True)
 
     def _get_index_no_mv_rows(self, mvdata):
@@ -380,7 +386,7 @@ class MC_FisherZ(CIT_Base):
     def __init__(self, data, **kwargs):
         # no cache for MC_FisherZ, since skel and prt_m is provided for each test.
         super().__init__(data, **kwargs)
-        self.check_cache_method_consistent('mc_fisherz')
+        self.check_cache_method_consistent('mc_fisherz', -1)   # -1: no parameters can be specified for mc_fisherz
         self.assert_input_data_is_valid(allow_nan=True)
         self.mv_fisherz = MV_FisherZ(data, **kwargs)
 
