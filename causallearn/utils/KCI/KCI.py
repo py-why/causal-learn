@@ -339,6 +339,9 @@ class KCI_CInd(object):
                 if self.est_width == 'median':
                     kernelX.set_width_median(data_x)
                 elif self.est_width == 'empirical':
+                    # kernelX's empirical width is determined by data_z's shape, please refer to the original code
+                    # (http://people.tuebingen.mpg.de/kzhang/KCI-test.zip) in the file CInd_test_new_withGP.m,
+                    # Line 37 to 52.
                     kernelX.set_width_empirical_kci(data_z)
                 else:
                     raise Exception('Undefined kernel width estimation method')
@@ -360,6 +363,9 @@ class KCI_CInd(object):
                 if self.est_width == 'median':
                     kernelY.set_width_median(data_y)
                 elif self.est_width == 'empirical':
+                    # kernelY's empirical width is determined by data_z's shape, please refer to the original code
+                    # (http://people.tuebingen.mpg.de/kzhang/KCI-test.zip) in the file CInd_test_new_withGP.m,
+                    # Line 37 to 52.
                     kernelY.set_width_empirical_kci(data_z)
                 else:
                     raise Exception('Undefined kernel width estimation method')
