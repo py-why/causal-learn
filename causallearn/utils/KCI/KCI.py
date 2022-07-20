@@ -339,7 +339,7 @@ class KCI_CInd(object):
                 if self.est_width == 'median':
                     kernelX.set_width_median(data_x)
                 elif self.est_width == 'empirical':
-                    kernelX.set_width_empirical_kci(data_x)
+                    kernelX.set_width_empirical_kci(data_z)
                 else:
                     raise Exception('Undefined kernel width estimation method')
         elif self.kernelX == 'Polynomial':
@@ -360,7 +360,7 @@ class KCI_CInd(object):
                 if self.est_width == 'median':
                     kernelY.set_width_median(data_y)
                 elif self.est_width == 'empirical':
-                    kernelY.set_width_empirical_kci(data_y)
+                    kernelY.set_width_empirical_kci(data_z)
                 else:
                     raise Exception('Undefined kernel width estimation method')
         elif self.kernelY == 'Polynomial':
