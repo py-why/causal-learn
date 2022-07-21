@@ -474,9 +474,12 @@ class KCI_CInd(object):
 
         [Updated @Haoyue 06/24/2022]
         1. Kx, Ky, Kzx, Kzy are all symmetric matrices.
-            - Kx, Ky are with diagonal elements of 1 (because of exp(-0.5 * sq_dists * self.width)).
-            - If (self.kernelZ == 'Gaussian' and self.use_gp), then Kzx (Kzy) has all the same diagonal elements (not necessarily 1).
-              Otherwise Kzx, Kzy are with diagonal elements of 1.
+            - * Kx's diagonal elements are not the same, because the kernel Kx is centered.
+              * Before centering, Kx's all diagonal elements are 1 (because of exp(-0.5 * sq_dists * self.width)).
+              * The same applies to Ky.
+            - * If (self.kernelZ == 'Gaussian' and self.use_gp), then Kzx has all the same diagonal elements (not necessarily 1).
+              * Otherwise Kzx are with diagonal elements of 1 (because Kzx is not centered yet).
+              * The same applies to Kzy.
         2. If not (self.kernelZ == 'Gaussian' and self.use_gp): assert (Kzx == Kzy).all()
            With this we could save one repeated calculation of pinv(Kzy+\epsilonI), which consumes most time.
         """
