@@ -8,6 +8,7 @@ from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
 from causallearn.utils.PCUtils import Helper
 
 CONST_BINCOUNT_UNIQUE_THRESHOLD = 1e5
+NO_SPECIFIED_PARAMETERS_MSG = "NO SPECIFIED PARAMETERS"
 fisherz = "fisherz"
 mv_fisherz = "mv_fisherz"
 mc_fisherz = "mc_fisherz"
@@ -55,7 +56,7 @@ class CIT_Base(object):
         self.SAVE_CACHE_CYCLE_SECONDS = 30
         self.last_time_cache_saved = time.time()
         self.pvalue_cache = {'data_hash': self.data_hash}
-        if not cache_path is None:
+        if cache_path is not None:
             assert cache_path.endswith('.json'), "Cache must be stored as .json file."
             if os.path.exists(cache_path):
                 with codecs.open(cache_path, 'r') as fin: self.pvalue_cache = json.load(fin)
@@ -90,8 +91,8 @@ class CIT_Base(object):
 
         Parameters
         ----------
-        X: int, or np.*int*
-        Y: int, or np.*int*
+        X: int, or np.*int*, or Iterable<int | np.*int*>
+        Y: int, or np.*int*, or Iterable<int | np.*int*>
         condition_set: Iterable<int | np.*int*>
 
         Returns
@@ -132,7 +133,7 @@ class CIT_Base(object):
 class FisherZ(CIT_Base):
     def __init__(self, data, **kwargs):
         super().__init__(data, **kwargs)
-        self.check_cache_method_consistent('fisherz', -1)   # -1: no parameters can be specified for fisherz
+        self.check_cache_method_consistent('fisherz', NO_SPECIFIED_PARAMETERS_MSG)
         self.assert_input_data_is_valid()
         self.correlation_matrix = np.corrcoef(data.T)
 
@@ -192,7 +193,7 @@ class Chisq_or_Gsq(CIT_Base):
             return np.unique(column, return_inverse=True)[1]
         assert method_name in ['chisq', 'gsq']
         super().__init__(np.apply_along_axis(_unique, 0, data).astype(np.int64), **kwargs)
-        self.check_cache_method_consistent(method_name, -1)   # -1: no parameters can be specified for chisq/gsq
+        self.check_cache_method_consistent(method_name, NO_SPECIFIED_PARAMETERS_MSG)
         self.assert_input_data_is_valid()
         self.cardinalities = np.max(self.data, axis=0) + 1
 
@@ -339,7 +340,7 @@ class Chisq_or_Gsq(CIT_Base):
 class MV_FisherZ(CIT_Base):
     def __init__(self, data, **kwargs):
         super().__init__(data, **kwargs)
-        self.check_cache_method_consistent('mv_fisherz', -1)   # -1: no parameters can be specified for mv_fisherz
+        self.check_cache_method_consistent('mv_fisherz', NO_SPECIFIED_PARAMETERS_MSG)
         self.assert_input_data_is_valid(allow_nan=True)
 
     def _get_index_no_mv_rows(self, mvdata):
@@ -386,7 +387,7 @@ class MC_FisherZ(CIT_Base):
     def __init__(self, data, **kwargs):
         # no cache for MC_FisherZ, since skel and prt_m is provided for each test.
         super().__init__(data, **kwargs)
-        self.check_cache_method_consistent('mc_fisherz', -1)   # -1: no parameters can be specified for mc_fisherz
+        self.check_cache_method_consistent('mc_fisherz', NO_SPECIFIED_PARAMETERS_MSG)
         self.assert_input_data_is_valid(allow_nan=True)
         self.mv_fisherz = MV_FisherZ(data, **kwargs)
 
@@ -447,119 +448,3 @@ class MC_FisherZ(CIT_Base):
 
         virtual_cit = MV_FisherZ(data_vir)
         return virtual_cit(0, 1, tuple(cond_set_bgn_0))
-
-
-
-
-#
-#
-# ######## below we save the original test (which is slower but easier-to-read) ###########
-# ######## logic of new test is exactly the same as old, so returns exactly same result ###
-# def chisq_notoptimized(data, X, Y, conditioning_set):
-#     return chisq_or_gsq_test_notoptimized(data=data, X=X, Y=Y, conditioning_set=conditioning_set)
-#
-#
-# def gsq_notoptimized(data, X, Y, conditioning_set):
-#     return chisq_or_gsq_test_notoptimized(data=data, X=X, Y=Y, conditioning_set=conditioning_set, G_sq=True)
-#
-#
-# def chisq_or_gsq_test_notoptimized(data, X, Y, conditioning_set, G_sq=False):
-#     """
-#     Perform an independence test using chi-square test or G-square test
-#
-#     Parameters
-#     ----------
-#     data : data matrices
-#     X, Y and condition_set : column indices of data
-#     G_sq : True means using G-square test;
-#            False means using chi-square test
-#
-#     Returns
-#     -------
-#     p : the p-value of the test
-#     """
-#
-#     # Step 1: Subset the data
-#     categories_list = [np.unique(data[:, i]) for i in
-#                        list(conditioning_set)]  # Obtain the categories of each variable in conditioning_set
-#     value_config_list = cartesian_product(
-#         categories_list)  # Obtain all the possible value configurations of the conditioning_set (e.g., [[]] if categories_list == [])
-#
-#     max_categories = int(
-#         np.max(data)) + 1  # Used to fix the size of the contingency table (before applying Fienberg's method)
-#
-#     sum_of_chi_square = 0  # initialize a zero chi_square statistic
-#     sum_of_df = 0  # initialize a zero degree of freedom
-#
-#     def recursive_and(L):
-#         "A helper function for subsetting the data using the conditions in L of the form [(variable, value),...]"
-#         if len(L) == 0:
-#             return data
-#         else:
-#             condition = data[:, L[0][0]] == L[0][1]
-#             i = 1
-#             while i < len(L):
-#                 new_conjunct = data[:, L[i][0]] == L[i][1]
-#                 condition = new_conjunct & condition
-#                 i += 1
-#             return data[condition]
-#
-#     for value_config in range(len(value_config_list)):
-#         L = list(zip(conditioning_set, value_config_list[value_config]))
-#         sub_data = recursive_and(L)[:, [X,
-#                                         Y]]  # obtain the subset dataset (containing only the X, Y columns) with only rows specifed in value_config
-#
-#         ############# Haoyue@12/18/2021  DEBUG: this line is a must:  #####################
-#         ########### not all value_config in cartesian product occurs in data ##############
-#         # e.g. S=(S0,S1), where S0 has categories {0,1}, S1 has {2,3}. But in combination,#
-#         ##### (S0,S1) only shows up with value pair (0,2), (0,3), (1,2) -> no (1,3). ######
-#         ########### otherwise #degree_of_freedom will add a spurious 1: (0-1)*(0-1) #######
-#         if len(sub_data) == 0: continue  #################################################
-#
-#         ###################################################################################
-#
-#         # Step 2: Generate contingency table (applying Fienberg's method)
-#         def make_ctable(D, cat_size):
-#             x = np.array(D[:, 0], dtype=np.dtype(int))
-#             y = np.array(D[:, 1], dtype=np.dtype(int))
-#             bin_count = np.bincount(cat_size * x + y)  # Perform linear transformation to obtain frequencies
-#             diff = (cat_size ** 2) - len(bin_count)
-#             if diff > 0:  # The number of cells generated by bin_count can possibly be less than cat_size**2
-#                 bin_count = np.concatenate(
-#                     (bin_count, np.zeros(diff)))  # In that case, we concatenate some zeros to fit cat_size**2
-#             ctable = bin_count.reshape(cat_size, cat_size)
-#             ctable = ctable[~np.all(ctable == 0, axis=1)]  # Remove rows consisted entirely of zeros
-#             ctable = ctable[:, ~np.all(ctable == 0, axis=0)]  # Remove columns consisted entirely of zeros
-#
-#             return ctable
-#
-#         ctable = make_ctable(sub_data, max_categories)
-#
-#         # Step 3: Calculate chi-square statistic and degree of freedom from the contingency table
-#         row_sum = np.sum(ctable, axis=1)
-#         col_sum = np.sum(ctable, axis=0)
-#         expected = np.outer(row_sum, col_sum) / sub_data.shape[0]
-#         if G_sq == False:
-#             chi_sq_stat = np.sum(((ctable - expected) ** 2) / expected)
-#         else:
-#             div = np.divide(ctable, expected)
-#             div[div == 0] = 1  # It guarantees that taking natural log in the next step won't cause any error
-#             chi_sq_stat = 2 * np.sum(ctable * np.log(div))
-#         df = (ctable.shape[0] - 1) * (ctable.shape[1] - 1)
-#
-#         sum_of_chi_square += chi_sq_stat
-#         sum_of_df += df
-#
-#     # Step 4: Compute p-value from chi-square CDF
-#     if sum_of_df == 0:
-#         return 1
-#     else:
-#         return chi2.sf(sum_of_chi_square, sum_of_df)
-#
-#
-# def cartesian_product(lists):
-#     "Return the Cartesian product of lists (List of lists)"
-#     result = [[]]
-#     for pool in lists:
-#         result = [x + [y] for x in result for y in pool]
-#     return result
