@@ -145,8 +145,10 @@ class KCI_UInd(object):
         else:
             raise Exception('Undefined kernel function')
 
-        data_x = stats.zscore(data_x, axis=0)
-        data_y = stats.zscore(data_y, axis=0)
+        data_x = stats.zscore(data_x, ddof=1, axis=0)
+        data_y = stats.zscore(data_y, ddof=1, axis=0)
+        # We set 'ddof=1' to conform to the normalization way in the original Matlab implementation in
+        # http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
         Kx = kernelX.kernel(data_x)
         Ky = kernelY.kernel(data_y)
         return Kx, Ky
@@ -274,8 +276,8 @@ class KCI_CInd(object):
         self.kwidthy = kwidthy
         self.kwidthz = kwidthz
         self.nullss = nullss
-        self.epsilon_x = 0.01
-        self.epsilon_y = 0.01
+        self.epsilon_x = 1e-3   # To conform to the original Matlab implementation.
+        self.epsilon_y = 1e-3
         self.use_gp = use_gp
         self.thresh = 1e-5
         self.approx = approx
@@ -322,9 +324,11 @@ class KCI_CInd(object):
         kzy: centering kernel matrix for data_y (nxn)
         """
         # normalize the data
-        data_x = stats.zscore(data_x, axis=0)
-        data_y = stats.zscore(data_y, axis=0)
-        data_z = stats.zscore(data_z, axis=0)
+        data_x = stats.zscore(data_x, ddof=1, axis=0)
+        data_y = stats.zscore(data_y, ddof=1, axis=0)
+        data_z = stats.zscore(data_z, ddof=1, axis=0)
+        # We set 'ddof=1' to conform to the normalization way in the original Matlab implementation in
+        # http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
 
         # concatenate x and z
         data_x = np.concatenate((data_x, 0.5 * data_z), axis=1)
@@ -340,8 +344,8 @@ class KCI_CInd(object):
                     kernelX.set_width_median(data_x)
                 elif self.est_width == 'empirical':
                     # kernelX's empirical width is determined by data_z's shape, please refer to the original code
-                    # (http://people.tuebingen.mpg.de/kzhang/KCI-test.zip) in the file CInd_test_new_withGP.m,
-                    # Line 37 to 52.
+                    # (http://people.tuebingen.mpg.de/kzhang/KCI-test.zip) in the file
+                    # 'algorithms/CInd_test_new_withGP.m', Line 37 to 52.
                     kernelX.set_width_empirical_kci(data_z)
                 else:
                     raise Exception('Undefined kernel width estimation method')
@@ -364,8 +368,8 @@ class KCI_CInd(object):
                     kernelY.set_width_median(data_y)
                 elif self.est_width == 'empirical':
                     # kernelY's empirical width is determined by data_z's shape, please refer to the original code
-                    # (http://people.tuebingen.mpg.de/kzhang/KCI-test.zip) in the file CInd_test_new_withGP.m,
-                    # Line 37 to 52.
+                    # (http://people.tuebingen.mpg.de/kzhang/KCI-test.zip) in the file
+                    # 'algorithms/CInd_test_new_withGP.m', Line 37 to 52.
                     kernelY.set_width_empirical_kci(data_z)
                 else:
                     raise Exception('Undefined kernel width estimation method')
@@ -397,6 +401,9 @@ class KCI_CInd(object):
                     elif self.est_width == 'empirical':
                         kernelZ.set_width_empirical_kci(data_z)
                 Kzx = kernelZ.kernel(data_z)
+                Kzx = Kernel.center_kernel_matrix(Kzx)
+                # centering kernel matrix to conform with the original Matlab implementation,
+                # specifically, Line 100 in the file 'algorithms/CInd_test_new_withGP.m'
                 Kzy = Kzx
             else:
                 # learning the kernel width of Kz using Gaussian process
