@@ -85,4 +85,4 @@ class TestGIN(unittest.TestCase):
     def validate_result(ground_truth, estimated_result):
         assert len(ground_truth) == len(estimated_result)
         for i in range(len(estimated_result)):
-            assert np.isclose(estimated_result[i], ground_truth[i]).all()
+            assert estimated_result[i] == ground_truth[i]
