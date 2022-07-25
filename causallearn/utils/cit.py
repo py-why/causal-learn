@@ -24,6 +24,8 @@ def CIT(data, method='fisherz', **kwargs):
     data: numpy.ndarray of shape (n_samples, n_features)
     method: str, in ["fisherz", "mv_fisherz", "mc_fisherz", "kci", "chisq", "gsq"]
     kwargs: placeholder for future arguments, or for KCI specific arguments now
+        TODO: utimately kwargs should be replaced by explicit named parameters.
+              check https://github.com/cmu-phil/causal-learn/pull/62#discussion_r927239028
     '''
     if method == fisherz:
         return FisherZ(data, **kwargs)
