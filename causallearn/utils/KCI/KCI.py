@@ -454,10 +454,12 @@ class KCI_CInd(object):
         elif self.kernelZ == 'Polynomial':
             kernelZ = PolynomialKernel(self.polyd)
             Kzx = kernelZ.kernel(data_z)
+            Kzx = Kernel.center_kernel_matrix(Kzx)
             Kzy = Kzx
         elif self.kernelZ == 'Linear':
             kernelZ = LinearKernel()
             Kzx = kernelZ.kernel(data_z)
+            Kzx = Kernel.center_kernel_matrix(Kzx)
             Kzy = Kzx
         else:
             raise Exception('Undefined kernel function')
@@ -485,7 +487,6 @@ class KCI_CInd(object):
               * Before centering, Kx's all diagonal elements are 1 (because of exp(-0.5 * sq_dists * self.width)).
               * The same applies to Ky.
             - * If (self.kernelZ == 'Gaussian' and self.use_gp), then Kzx has all the same diagonal elements (not necessarily 1).
-              * Otherwise Kzx are with diagonal elements of 1 (because Kzx is not centered yet).
               * The same applies to Kzy.
         2. If not (self.kernelZ == 'Gaussian' and self.use_gp): assert (Kzx == Kzy).all()
            With this we could save one repeated calculation of pinv(Kzy+\epsilonI), which consumes most time.
