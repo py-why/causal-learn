@@ -16,7 +16,7 @@ from causallearn.search.ConstraintBased.PC import get_parent_missingness_pairs, 
 def cdnod(data: ndarray, c_indx: ndarray, alpha: float=0.05, indep_test: str=fisherz, stable: bool=True,
           uc_rule: int=0, uc_priority: int=2, mvcdnod: bool=False, correction_name: str='MV_Crtn_Fisher_Z',
           background_knowledge: Optional[BackgroundKnowledge]=None, verbose: bool=False,
-          show_progress: bool = True) -> CausalGraph:
+          show_progress: bool = True, **kwargs) -> CausalGraph:
     """
     Causal discovery from nonstationary/heterogeneous data
     phase 1: learning causal skeleton,
@@ -37,16 +37,16 @@ def cdnod(data: ndarray, c_indx: ndarray, alpha: float=0.05, indep_test: str=fis
     if mvcdnod:
         return mvcdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, correction_name=correction_name,
                            stable=stable, uc_rule=uc_rule, uc_priority=uc_priority, verbose=verbose,
-                           show_progress=show_progress)
+                           show_progress=show_progress, **kwargs)
     else:
         return cdnod_alg(data=data_aug, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
                          uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose,
-                         show_progress=show_progress)
+                         show_progress=show_progress, **kwargs)
 
 
 def cdnod_alg(data: ndarray, alpha: float, indep_test: str, stable: bool, uc_rule: int, uc_priority: int,
               background_knowledge: Optional[BackgroundKnowledge] = None, verbose: bool = False,
-              show_progress: bool = True) -> CausalGraph:
+              show_progress: bool = True, **kwargs) -> CausalGraph:
     """
     Perform Peter-Clark algorithm for causal discovery on the augmented data set that captures the unobserved changing factors
 
@@ -85,7 +85,7 @@ def cdnod_alg(data: ndarray, alpha: float, indep_test: str, stable: bool, uc_rul
 
     """
     start = time.time()
-    indep_test = CIT(data, indep_test)
+    indep_test = CIT(data, indep_test, **kwargs)
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable)
 
     # orient the direction from c_indx to X, if there is an edge between c_indx and X
@@ -127,7 +127,7 @@ def cdnod_alg(data: ndarray, alpha: float, indep_test: str, stable: bool, uc_rul
 
 
 def mvcdnod_alg(data: ndarray, alpha: float, indep_test: str, correction_name: str, stable: bool, uc_rule: int,
-                uc_priority: int, verbose: bool, show_progress: bool) -> CausalGraph:
+                uc_priority: int, verbose: bool, show_progress: bool, **kwargs) -> CausalGraph:
     """
     :param data: data set (numpy ndarray)
     :param alpha: desired significance level (float) in (0, 1)
@@ -156,7 +156,7 @@ def mvcdnod_alg(data: ndarray, alpha: float, indep_test: str, correction_name: s
     """
 
     start = time.time()
-    indep_test = CIT(data, indep_test)
+    indep_test = CIT(data, indep_test, **kwargs)
     ## Step 1: detect the direct causes of missingness indicators
     prt_m = get_parent_missingness_pairs(data, alpha, indep_test, stable)
     # print('Finish detecting the parents of missingness indicators.  ')
