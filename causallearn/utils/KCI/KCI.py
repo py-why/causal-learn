@@ -146,9 +146,12 @@ class KCI_UInd(object):
             raise Exception('Undefined kernel function')
 
         data_x = stats.zscore(data_x, ddof=1, axis=0)
+        data_x[np.isnan(data_x)] = 0.   # in case some dim of data_x is constant
         data_y = stats.zscore(data_y, ddof=1, axis=0)
+        data_y[np.isnan(data_y)] = 0.
         # We set 'ddof=1' to conform to the normalization way in the original Matlab implementation in
         # http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
+
         Kx = kernelX.kernel(data_x)
         Ky = kernelY.kernel(data_y)
         return Kx, Ky
@@ -325,8 +328,13 @@ class KCI_CInd(object):
         """
         # normalize the data
         data_x = stats.zscore(data_x, ddof=1, axis=0)
+        data_x[np.isnan(data_x)] = 0.
+        
         data_y = stats.zscore(data_y, ddof=1, axis=0)
+        data_y[np.isnan(data_y)] = 0.
+        
         data_z = stats.zscore(data_z, ddof=1, axis=0)
+        data_z[np.isnan(data_z)] = 0.
         # We set 'ddof=1' to conform to the normalization way in the original Matlab implementation in
         # http://people.tuebingen.mpg.de/kzhang/KCI-test.zip
 
