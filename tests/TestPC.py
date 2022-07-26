@@ -5,7 +5,7 @@ import unittest
 import hashlib
 import numpy as np
 from causallearn.search.ConstraintBased.PC import pc
-from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz
+from causallearn.utils.cit import chisq, fisherz, gsq, kci, mv_fisherz, d_separation
 from causallearn.graph.SHD import SHD
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 from causallearn.utils.TXT2GeneralGraph import txt2generalgraph
@@ -353,3 +353,32 @@ class TestPC(unittest.TestCase):
         assert np.all(cg1.G.graph == cg2.G.graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
 
         print('test_pc_with_citest_local_checkpoint passed!\n')
+
+    # Test graphs in bnlearn repository with d-separation as cit. Ensure PC's correctness.
+    def test_pc_load_bnlearn_graphs_with_d_separation(self):
+        import networkx as nx
+        print('Now start test_pc_load_bnlearn_graphs_with_d_separation ...')
+        benchmark_names = [
+            "asia", "cancer", "earthquake", "sachs", "survey",
+            "alarm", "barley", "child", "insurance", "water",
+            "hailfinder", "hepar2", "win95pts",
+        ]
+        bnlearn_truth_dag_graph_dir = './TestData/bnlearn_discrete_10000/truth_dag_graph'
+        for bname in benchmark_names:
+            truth_dag = txt2generalgraph(os.path.join(bnlearn_truth_dag_graph_dir, f'{bname}.graph.txt'))
+            truth_cpdag = dag2cpdag(truth_dag)
+            num_edges_in_truth = truth_dag.get_num_edges()
+            num_nodes_in_truth = truth_dag.get_num_nodes()
+
+            true_dag_netx = nx.DiGraph()
+            true_dag_netx.add_nodes_from(list(range(num_nodes_in_truth)))
+            true_dag_netx.add_edges_from(set(map(tuple, np.argwhere(truth_dag.graph.T > 0))))
+
+            data = np.zeros((100, len(truth_dag.nodes)))  # just a placeholder
+            cg = pc(data, 0.05, d_separation, True, 0, -1, true_dag=true_dag_netx)
+            shd = SHD(truth_cpdag, cg.G)
+            print(f'{bname} ({num_nodes_in_truth} nodes/{num_edges_in_truth} edges): used {cg.PC_elapsed:.5f}s, SHD: {shd.get_shd()}')
+
+        print('test_pc_load_bnlearn_graphs_with_d_separation passed!\n')
+
+    
