@@ -29,7 +29,8 @@ def pc(
     background_knowledge: BackgroundKnowledge | None = None, 
     verbose: bool = False, 
     show_progress: bool = True,
-    node_names: List[str] | None = None, 
+    node_names: List[str] | None = None,
+    **kwargs
 ):
     if data.shape[0] < data.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
@@ -40,11 +41,11 @@ def pc(
         return mvpc_alg(data=data, node_names=node_names, alpha=alpha, indep_test=indep_test, correction_name=correction_name, stable=stable,
                         uc_rule=uc_rule, uc_priority=uc_priority, background_knowledge=background_knowledge,
                         verbose=verbose,
-                        show_progress=show_progress)
+                        show_progress=show_progress, **kwargs)
     else:
         return pc_alg(data=data, node_names=node_names, alpha=alpha, indep_test=indep_test, stable=stable, uc_rule=uc_rule,
                       uc_priority=uc_priority, background_knowledge=background_knowledge, verbose=verbose,
-                      show_progress=show_progress)
+                      show_progress=show_progress, **kwargs)
 
 
 def pc_alg(
@@ -58,6 +59,7 @@ def pc_alg(
     background_knowledge: BackgroundKnowledge | None = None,
     verbose: bool = False,
     show_progress: bool = True,
+    **kwargs
 ) -> CausalGraph:
     """
     Perform Peter-Clark (PC) algorithm for causal discovery
@@ -98,7 +100,7 @@ def pc_alg(
     """
 
     start = time.time()
-    indep_test = CIT(data, indep_test)
+    indep_test = CIT(data, indep_test, **kwargs)
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose,
                                                 show_progress=show_progress, node_names=node_names)
@@ -148,6 +150,7 @@ def mvpc_alg(
     background_knowledge: BackgroundKnowledge | None = None,
     verbose: bool = False,
     show_progress: bool = True,
+    **kwargs,
 ) -> CausalGraph:
     """
     Perform missing value Peter-Clark (PC) algorithm for causal discovery
@@ -192,7 +195,7 @@ def mvpc_alg(
     """
 
     start = time.time()
-    indep_test = CIT(data, indep_test)
+    indep_test = CIT(data, indep_test, **kwargs)
     ## Step 1: detect the direct causes of missingness indicators
     prt_m = get_parent_missingness_pairs(data, alpha, indep_test, stable)
     # print('Finish detecting the parents of missingness indicators.  ')
