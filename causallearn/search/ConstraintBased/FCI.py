@@ -729,7 +729,8 @@ def get_color_edges(graph: Graph) -> List[Edge]:
 
 
 def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 0.05, depth: int = -1,
-        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None) -> Tuple[Graph, List[Edge]]:
+        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None,
+        **kwargs) -> Tuple[Graph, List[Edge]]:
     """
     Perform Fast Causal Inference (FCI) algorithm for causal discovery
 
@@ -766,7 +767,7 @@ def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 
     if dataset.shape[0] < dataset.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
 
-    independence_test_method = CIT(dataset, method=independence_test_method)
+    independence_test_method = CIT(dataset, method=independence_test_method, **kwargs)
 
     ## ------- check parameters ------------
     if (depth is None) or type(depth) != int:
