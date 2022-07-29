@@ -1,4 +1,4 @@
-import os
+import os, time
 import sys
 sys.path.append("")
 import unittest
@@ -330,3 +330,26 @@ class TestPC(unittest.TestCase):
             print(f'{bname} ({num_nodes_in_truth} nodes/{num_edges_in_truth} edges): used {cg.PC_elapsed:.5f}s, SHD: {shd.get_shd()}')
 
         print('test_pc_load_bnlearn_discrete_datasets passed!\n')
+
+    # Test the usage of local cache checkpoint (check speed).
+    def test_pc_with_citest_local_checkpoint(self):
+        print('Now start test_pc_with_citest_local_checkpoint ...')
+        data_path = "./TestData/data_linear_10.txt"
+        citest_cache_file = "./TestData/citest_cache_linear_10_first_500_kci.json"
+
+        tic = time.time()
+        data = np.loadtxt(data_path, skiprows=1)[:500]
+        cg1 = pc(data, 0.05, kci, cache_path=citest_cache_file)
+        tac = time.time()
+        print(f'First pc run takes {tac - tic:.3f}s.')  # First pc run takes 125.663s.
+        assert os.path.exists(citest_cache_file), 'Cache file should exist.'
+
+        tic = time.time()
+        data = np.loadtxt(data_path, skiprows=1)[:500]
+        cg2 = pc(data, 0.05, kci, cache_path=citest_cache_file)
+        # you might also try other rules of PC, e.g., pc(data, 0.05, kci, True, 0, -1, cache_path=citest_cache_file)
+        tac = time.time()
+        print(f'Second pc run takes {tac - tic:.3f}s.')  # Second pc run takes 27.316s.
+        assert np.all(cg1.G.graph == cg2.G.graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
+
+        print('test_pc_with_citest_local_checkpoint passed!\n')
