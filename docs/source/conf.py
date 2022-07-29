@@ -22,7 +22,7 @@ copyright = '2021, CLeaR'
 author = 'CLeaR'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.1.2.8'
 
 
 # -- General configuration ---------------------------------------------------
