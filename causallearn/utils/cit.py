@@ -15,6 +15,7 @@ mc_fisherz = "mc_fisherz"
 kci = "kci"
 chisq = "chisq"
 gsq = "gsq"
+d_separation = "d_separation"
 
 
 def CIT(data, method='fisherz', **kwargs):
@@ -37,6 +38,8 @@ def CIT(data, method='fisherz', **kwargs):
         return MV_FisherZ(data, **kwargs)
     elif method == mc_fisherz:
         return MC_FisherZ(data, **kwargs)
+    elif method == d_separation:
+        return D_Separation(data, **kwargs)
     else:
         raise ValueError("Unknown method: {}".format(method))
 
@@ -450,3 +453,38 @@ class MC_FisherZ(CIT_Base):
 
         virtual_cit = MV_FisherZ(data_vir)
         return virtual_cit(0, 1, tuple(cond_set_bgn_0))
+
+
+class D_Separation(CIT_Base):
+    def __init__(self, data, true_dag=None, **kwargs):
+        '''
+        Use d-separation as CI test, to ensure the correctness of constraint-based methods. (only used for tests)
+        Parameters
+        ----------
+        data:   numpy.ndarray, just a placeholder, not used in D_Separation
+        true_dag:   nx.DiGraph object, the true DAG
+        '''
+        super().__init__(data, **kwargs)  # data is just a placeholder, not used in D_Separation
+        self.check_cache_method_consistent('d_separation', NO_SPECIFIED_PARAMETERS_MSG)
+        self.true_dag = true_dag
+        import networkx as nx; global nx
+        # import networkx here violates PEP8; but we want to prevent unnecessary import at the top (it's only used here)
+
+    def __call__(self, X, Y, condition_set=None):
+        Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
+        if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
+        p = float(nx.d_separated(self.true_dag, {Xs[0]}, {Ys[0]}, set(condition_set)))
+        # pvalue is bool here: 1 if is_d_separated and 0 otherwise. So heuristic comparison-based uc_rules will not work.
+
+        # here we use networkx's d_separation implementation.
+        # an alternative is to use causal-learn's own d_separation implementation in graph class:
+        #   self.true_dag.is_dseparated_from(
+        #       self.true_dag.nodes[Xs[0]], self.true_dag.nodes[Ys[0]], [self.true_dag.nodes[_] for _ in condition_set])
+        #   where self.true_dag is an instance of GeneralGrpah class.
+        # I have checked the two implementations: they are equivalent (when the graph is DAG),
+        # and generally causal-learn's implementation is faster.
+        # but just for now, I still use networkx's, for two reasons:
+        # 1. causal-learn's implementation sometimes stops working during run (haven't check detailed reasons)
+        # 2. GeneralGraph class will be hugely refactored in the near future.
+        self.pvalue_cache[cache_key] = p
+        return p
