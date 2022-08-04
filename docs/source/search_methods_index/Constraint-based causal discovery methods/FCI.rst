@@ -19,7 +19,7 @@ Usage
 
     # visualization
     from causallearn.utils.GraphUtils import GraphUtils
-    pdy = GraphUtils.to_pydot(graph)
+    pdy = GraphUtils.to_pydot(G)
     pdy.write_png('simple_test.png')
 
 Visualization using pydot is recommended. If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGraphVisualization.py>`_.
