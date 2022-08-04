@@ -14,7 +14,7 @@ Usage
 .. code-block:: python
 
     from causallearn.search.ConstraintBased.FCI import fci
-    graph, edges = fci(data, independence_test_method, alpha, depth, max_path_length,
+    G, edges = fci(data, independence_test_method, alpha, depth, max_path_length,
         verbose, background_knowledge, cache_variables_map)
 
     # visualization
@@ -22,7 +22,7 @@ Usage
     pdy = GraphUtils.to_pydot(graph)
     pdy.write_png('simple_test.png')
 
-Visualization using pydot is recommended. If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGraphVisualization.py>`_ (e.g., 'cg.draw_pydot_graph(labels=["A", "B", "C"])' or 'GraphUtils.to_pydot(cg.G, labels=["A", "B", "C"])').
+Visualization using pydot is recommended. If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGraphVisualization.py>`_.
 
 
 Parameters
@@ -53,7 +53,7 @@ For detailed usage, please kindly refer to its `usage example <https://github.co
 
 Returns
 -------------------
-**graph**: a CausalGraph object, where graph.graph[j,i]=1 and graph.graph[i,j]=-1 indicates  i --> j; graph.graph[i,j] = graph.graph[j,i] = -1 indicates i --- j; graph.graph[i,j] = graph.graph[j,i] = 1 indicates i <-> j; graph.graph[j,i]=1 and graph.graph[i,j]=2 indicates  i o-> j.
+**G**: a CausalGraph object, where G.graph[j,i]=1 and G.graph[i,j]=-1 indicates  i --> j; G.graph[i,j] = G.graph[j,i] = -1 indicates i --- j; G.graph[i,j] = G.graph[j,i] = 1 indicates i <-> j; G.graph[j,i]=1 and G.graph[i,j]=2 indicates  i o-> j.
 
 **edges**: list. Contains graph's edges properties. If edge.properties have the Property 'dd', then there is no latent confounder. Otherwise, there might be latent confounders. If edge.properties have the Property 'nl', then it is definitely direct. Otherwise, it is possibly direct.
 
