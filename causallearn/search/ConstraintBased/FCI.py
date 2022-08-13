@@ -82,8 +82,7 @@ class SepsetsPossibleDsep:
                 continue
 
             if self.existsSemidirectedPath(node_r, node_x, graph) or self.existsSemidirectedPath(node_r, node_b, graph):
-                if self.existOnePathWithPossibleParents(previous, node_r, node_x, node_b, graph):
-                    return True
+                return True
         return False
 
     def getPossibleDsep(self, node_x: Node, node_y: Node, maxPathLength: int) -> Set[Node]:
@@ -108,7 +107,7 @@ class SepsetsPossibleDsep:
             if node_list is None:
                 node_list = []
             node_list.append(node_b)
-            # previous[node_x] = node_list
+            previous.update({node_x: node_list})
             dsep.add(node_b)
 
         while not Q.empty():
@@ -136,7 +135,7 @@ class SepsetsPossibleDsep:
                 if node_list is None:
                     node_list = []
                 node_list.append(node_b)
-                # previous[node_c] = node_list
+                previous.update({node_c: node_list})
 
                 # isDefCollider
                 edge1 = self.graph.get_edge(node_a, node_b)
