@@ -17,10 +17,17 @@ Usage
 .. code-block:: python
 
     from causallearn.search.ConstraintBased.PC import pc
+
     cg = pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc, correction_name, background_knowledge, verbose, show_progress)
 
     # visualization using pydot
     cg.draw_pydot_graph()
+
+    # or save the graph
+    from causallearn.utils.GraphUtils import GraphUtils
+
+    pyd = GraphUtils.to_pydot(cg.G)
+    pyd.write_png('simple_test.png')
 
     # visualization using networkx
     # cg.to_nx_graph()

@@ -14,11 +14,13 @@ Usage
 .. code-block:: python
 
     from causallearn.search.ConstraintBased.FCI import fci
+
     G, edges = fci(data, independence_test_method, alpha, depth, max_path_length,
         verbose, background_knowledge, cache_variables_map)
 
     # visualization
     from causallearn.utils.GraphUtils import GraphUtils
+
     pdy = GraphUtils.to_pydot(G)
     pdy.write_png('simple_test.png')
 
