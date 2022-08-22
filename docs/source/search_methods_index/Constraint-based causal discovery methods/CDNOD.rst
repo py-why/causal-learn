@@ -15,7 +15,7 @@ Usage
 
     from causallearn.search.ConstraintBased.CDNOD import cdnod
 
-    G = cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvcdnod,
+    cg = cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvcdnod,
           correction_name, background_knowledge, verbose, show_progress)
 
     # visualization using pydot
