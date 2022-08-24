@@ -6,7 +6,7 @@ CD-NOD
 Algorithm Introduction
 --------------------------------------
 
-Perform Peter-Clark algorithm for causal discovery on the augmented data set that captures the unobserved changing factors (CD-NOD, [1]_).
+Perform Peter-Clark algorithm for causal discovery on the augmented data set that captures the unobserved changing factors (CD-NOD [1]_).
 
 
 Usage
