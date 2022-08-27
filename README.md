@@ -34,7 +34,7 @@ Causal-learn needs the following packages to be installed beforehand:
 * matplotlib
 * graphviz
 
-To use causal-learn, we could install it using [pip](https://pypi.org/project/sqlparse/):
+To use causal-learn, we could install it using [pip](https://pypi.org/project/causal-learn/):
 
 ```
 pip install causal-learn

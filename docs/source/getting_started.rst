@@ -28,7 +28,7 @@ Requirements
 Install via PyPI
 ------------
 
-To use causal-learn, we could install it using `pip <https://pypi.org/project/sqlparse/>`_:
+To use causal-learn, we could install it using `pip <https://pypi.org/project/causal-learn/>`_:
 
 .. code-block:: console
 

@@ -9,8 +9,8 @@ Usage
 --------
 .. code-block:: python
 
-    from causallearn.utils.cit import chisq
-    p = chisq(data, X, Y, conditioning_set)
+    from causallearn.utils.cit import cit
+    p = cit.CIT(data, 'chisq')
 
 
 Parameters
