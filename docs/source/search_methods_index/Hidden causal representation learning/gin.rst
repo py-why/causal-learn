@@ -12,7 +12,7 @@ Usage
 -----------------------------------------------------------
 .. code-block:: python
 
-    from causallearn.search.FCMBased.GIN.GIN import GIN
+    from causallearn.search.HiddenCausal.GIN.GIN import GIN
     G, K = GIN(data)
 
     # Visualization using pydot
