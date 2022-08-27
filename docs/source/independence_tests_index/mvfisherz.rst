@@ -6,6 +6,9 @@ Missing-value Fisher-z test
 Perform a testwise-deletion Fisher-z independence test to data sets with missing values.
 With testwise-deletion, the test makes use of all data points that do not have missing values for the variables involved in the test.
 
+(We have updated the independence test class and the usage example hasn't been updated yet. For new class, please refer to `TestCIT.py <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestCIT.py>`_ or `TestCIT_KCI.py <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestCIT_KCI.py>`_.)
+
+
 Usage
 --------
 .. code-block:: python

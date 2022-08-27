@@ -5,6 +5,9 @@ G-Square test
 
 Perform an independence test using G-Square test [1]_. This test is based on the log likelihood ratio test.
 
+(We have updated the independence test class and the usage example hasn't been updated yet. For new class, please refer to `TestCIT.py <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestCIT.py>`_ or `TestCIT_KCI.py <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestCIT_KCI.py>`_.)
+
+
 Usage
 --------
 .. code-block:: python

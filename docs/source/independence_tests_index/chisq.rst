@@ -5,12 +5,14 @@ Chi-Square test
 
 Perform an independence test on discrete variables using Chi-Square test.
 
+(We have updated the independence test class and the usage example hasn't been updated yet. For new class, please refer to `TestCIT.py <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestCIT.py>`_ or `TestCIT_KCI.py <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestCIT_KCI.py>`_.)
+
 Usage
 --------
 .. code-block:: python
 
-    from causallearn.utils.cit import cit
-    p = cit.CIT(data, 'chisq')
+    from causallearn.utils.cit import chisq
+    p = chisq(data, X, Y, conditioning_set)
 
 
 Parameters
