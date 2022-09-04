@@ -35,6 +35,33 @@ Usage
 
 Visualization using pydot is recommended. If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGraphVisualization.py>`_ (e.g., 'cg.draw_pydot_graph(labels=["A", "B", "C"])' or 'GraphUtils.to_pydot(cg.G, labels=["A", "B", "C"])').
 
++++++++++++++++
+Advanced Usages
++++++++++++++++
++ If you would like to specify parameters for the (conditional) independence test (if available), you may directly pass the parameters to the :code:`pc` call. E.g.,
+
+  .. code-block:: python
+
+    from causallearn.search.ConstraintBased.PC import pc
+    from causallearn.utils.cit import kci
+    cg = pc(data, 0.05, kci, kernelZ='Polynomial', approx=False, est_width='median', ...)
+
++ If your graph is big and/or your independence test is slow (e.g., KCI), you may want to cache the p-value results to a local checkpoint. Then by reading values from this local checkpoint, no more repeated calculation will be wasted to resume from checkpoint / just finetune some PC parameters. This can be achieved by specifying :code:`cache_path`. E.g.,
+
+  .. code-block:: python
+
+        citest_cache_file = "/my/path/to/citest_cache_dataname_kci.json"    # .json file
+        cg1 = pc(data, 0.05, kci, cache_path=citest_cache_file)             # after the long run
+
+        # just finetune uc_rule. p-values are reused, and thus cg2 is done in almost no time.
+        cg2 = pc(data, 0.05, kci, cache_path=citest_cache_file, uc_rule=1)
+  ..
+
+  If :code:`cache_path` does not exist in your local file system, a new one will be created. Otherwise, the cache will be first loaded from the json file to the CIT class and used during the runtime. Note that 1) data hash and parameters hash will first be checked at loading to ensure consistency, and 2) during runtime, the cache will be saved to the local file every 30 seconds.
+
++ The above advanced usages also apply to other constraint-based methods, e.g., FCI and CDNOD.
+
+
 Parameters
 -------------------
 **data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
@@ -42,7 +69,7 @@ and n_features is the number of features.
 
 **alpha**: desired significance level (float) in (0, 1). Default: 0.05.
 
-**indep_test**: Independence test method function. Default: 'fisherz'.
+**indep_test**: string, name of the independence test method. Default: 'fisherz'.
        - ":ref:`fisherz <Fisher-z test>`": Fisher's Z conditional independence test.
        - ":ref:`chisq <Chi-Square test>`": Chi-squared conditional independence test.
        - ":ref:`gsq <G-Square test>`": G-squared conditional independence test.
