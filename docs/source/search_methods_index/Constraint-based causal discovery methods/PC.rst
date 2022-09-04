@@ -35,9 +35,10 @@ Usage
 
 Visualization using pydot is recommended. If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGraphVisualization.py>`_ (e.g., 'cg.draw_pydot_graph(labels=["A", "B", "C"])' or 'GraphUtils.to_pydot(cg.G, labels=["A", "B", "C"])').
 
-+++++++++++++++
+.. _Advanced Usages:
+
 Advanced Usages
-+++++++++++++++
+----------------------------
 + If you would like to specify parameters for the (conditional) independence test (if available), you may directly pass the parameters to the :code:`pc` call. E.g.,
 
   .. code-block:: python
