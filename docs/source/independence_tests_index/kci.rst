@@ -42,26 +42,30 @@ Please see `CIT.py <https://github.com/cmu-phil/causal-learn/blob/main/causallea
 for more details on the implementation of the (conditional) independent tests.
 
 Parameters
--------------
+------------
 **data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
 and n_features is the number of features.
 
-**X, Y, and condition_set**: column indices of data. condition_set could be None.
+**method**: string, "kci".
 
-**KernelX/Y/Z (condition_set)**: ['GaussianKernel', 'LinearKernel', 'PolynomialKernel'].
-(For 'PolynomialKernel', the default degree is 2. Currently, users can change it by setting the 'degree' of 'class PolynomialKernel()'.
+**kwargs**:
 
-**est_width**: set kernel width for Gaussian kernels.
++ Either for specifying parameters of KCI, including:
+
+  **KernelX/Y/Z (condition_set)**: ['GaussianKernel', 'LinearKernel', 'PolynomialKernel']. (For 'PolynomialKernel', the default degree is 2. Currently, users can change it by setting the 'degree' of 'class PolynomialKernel()'.
+
+  **est_width**: set kernel width for Gaussian kernels.
    - 'empirical': set kernel width using empirical rules (default).
    - 'median': set kernel width using the median trick.
 
-**polyd**: polynomial kernel degrees (default=2).
+  **polyd**: polynomial kernel degrees (default=2).
 
-**kwidthx**: kernel width for data x (standard deviation sigma).
+  **kwidthx/y/z**: kernel width for data x/y/z (standard deviation sigma).
 
-**kwidthy**: kernel width for data y (standard deviation sigma).
+  **and more**: aee `KCI.py <https://github.com/cmu-phil/causal-learn/blob/main/causallearn/utils/KCI/KCI.py>`_ for details.
 
-**kwidthz**: kernel width for data z (standard deviation sigma).
++ Or for advanced usages of CIT, e.g., :code:`cache_path`. See :ref:`Advanced Usages <Advanced Usages>`.
+
 
 Returns
 -----------

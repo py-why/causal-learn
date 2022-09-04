@@ -32,11 +32,13 @@ for more details on the implementation of the (conditional) independent tests.
 
 
 Parameters
----------------
-**mvdata**: numpy.ndarray, shape (n_samples, n_features). Data with missing value, where n_samples is the number of samples
+------------
+**data**: numpy.ndarray, shape (n_samples, n_features). Data, where n_samples is the number of samples
 and n_features is the number of features.
 
-**X, Y and condition_set**: column indices of data.
+**method**: string, "mv_fisherz".
+
+**kwargs**: e.g., :code:`cache_path`. See :ref:`Advanced Usages <Advanced Usages>`.
 
 Returns
 ----------------
