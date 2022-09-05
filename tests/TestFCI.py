@@ -16,8 +16,6 @@ from causallearn.utils.DAG2PAG import dag2pag
 from causallearn.utils.GraphUtils import GraphUtils
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
-sys.path.append("")
-
 ######################################### Test Notes ###########################################
 # All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
 # are obtained from the code of causal-learn as of commit                                      #
@@ -54,7 +52,7 @@ INCONSISTENT_RESULT_GRAPH_WITH_PAG_ERRMSG = "Returned graph is inconsistent with
 # verify files integrity first
 for file_path, expected_MD5 in BENCHMARK_TXTFILE_TO_MD5.items():
     with open(file_path, 'rb') as fin:
-        assert hashlib.md5(fin.read()).hexdigest() == expected_MD5,\
+        assert hashlib.md5(fin.read()).hexdigest() == expected_MD5, \
             f'{file_path} is corrupted. Please download it again from https://github.com/cmu-phil/causal-learn/blob/fb092d1/tests/TestData'
 
 
@@ -66,17 +64,16 @@ class TestFCI(unittest.TestCase):
     def test_simple_test(self):
         data = np.empty(shape=(0, 4))
         true_dag = DiGraph()
-        true_dag.add_edges_from([(0, 1), (0, 2), (1, 3), (2, 3)])
+        ground_truth_edges = [(0, 1), (0, 2), (1, 3), (2, 3)]
+        true_dag.add_edges_from(ground_truth_edges)
         G, edges = fci(data, d_separation, 0.05, verbose=False, true_dag=true_dag)
 
         ground_truth_nodes = []
         for i in range(4):
-            ground_truth_nodes.append(GraphNode(f'X{i+1}'))
+            ground_truth_nodes.append(GraphNode(f'X{i + 1}'))
         ground_truth_dag = Dag(ground_truth_nodes)
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[0], ground_truth_nodes[1])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[0], ground_truth_nodes[2])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[1], ground_truth_nodes[3])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[2], ground_truth_nodes[3])
+        for u, v in ground_truth_edges:
+            ground_truth_dag.add_directed_edge(ground_truth_nodes[u], ground_truth_nodes[v])
         pag = dag2pag(ground_truth_dag, [])
 
         print(f'fci(data, d_separation, 0.05):')
@@ -86,87 +83,67 @@ class TestFCI(unittest.TestCase):
         assert G.is_adjacent_to(nodes[0], nodes[1])
 
         bk = BackgroundKnowledge().add_forbidden_by_node(nodes[0], nodes[1]).add_forbidden_by_node(nodes[1], nodes[0])
-        G_with_background_knowledge, edges = fci(data, d_separation, 0.05, verbose=False, true_dag=true_dag, background_knowledge=bk)
+        G_with_background_knowledge, edges = fci(data, d_separation, 0.05, verbose=False, true_dag=true_dag,
+                                                 background_knowledge=bk)
         assert not G_with_background_knowledge.is_adjacent_to(nodes[0], nodes[1])
 
     def test_simple_test2(self):
         data = np.empty(shape=(0, 7))
         true_dag = DiGraph()
-        true_dag.add_edges_from([('L1', 0), ('L1', 1), ('L2', 3), ('L2', 4), (2, 5),
-                                 (2, 6), (5, 1), (6, 3), (3, 0), (1, 4)])
+        ground_truth_edges = [(7, 0), (7, 1), (8, 3), (8, 4), (2, 5), (2, 6), (5, 1), (6, 3), (3, 0), (1, 4)]
+        true_dag.add_edges_from(ground_truth_edges)
         G, edges = fci(data, d_separation, 0.05, verbose=False, true_dag=true_dag)
         ground_truth_nodes = []
         for i in range(9):
-            ground_truth_nodes.append(GraphNode(f'X{i+1}'))
+            ground_truth_nodes.append(GraphNode(f'X{i + 1}'))
         ground_truth_dag = Dag(ground_truth_nodes)
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[7], ground_truth_nodes[0])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[7], ground_truth_nodes[1])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[8], ground_truth_nodes[3])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[8], ground_truth_nodes[4])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[2], ground_truth_nodes[5])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[2], ground_truth_nodes[6])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[5], ground_truth_nodes[1])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[6], ground_truth_nodes[3])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[3], ground_truth_nodes[0])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[1], ground_truth_nodes[4])
+        for u, v in ground_truth_edges:
+            ground_truth_dag.add_directed_edge(ground_truth_nodes[u], ground_truth_nodes[v])
 
         pag = dag2pag(ground_truth_dag, ground_truth_nodes[7: 9])
 
         print(f'fci(data, d_separation, 0.05):')
         self.run_simulate_data_test(pag, G)
 
-
     def test_simple_test3(self):
 
         data = np.empty(shape=(0, 5))
         true_dag = DiGraph()
-        true_dag.add_edges_from([(0, 2), (1, 2), (2, 3), (2, 4)])
+        ground_truth_edges = [(0, 2), (1, 2), (2, 3), (2, 4)]
+        true_dag.add_edges_from(ground_truth_edges)
         G, edges = fci(data, d_separation, 0.05, verbose=False, true_dag=true_dag)
 
         ground_truth_nodes = []
         for i in range(5):
             ground_truth_nodes.append(GraphNode(f'X{i + 1}'))
         ground_truth_dag = Dag(ground_truth_nodes)
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[0], ground_truth_nodes[2])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[1], ground_truth_nodes[2])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[2], ground_truth_nodes[3])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[2], ground_truth_nodes[4])
+        for u, v in ground_truth_edges:
+            ground_truth_dag.add_directed_edge(ground_truth_nodes[u], ground_truth_nodes[v])
 
         pag = dag2pag(ground_truth_dag, [])
 
         print(f'fci(data, d_separation, 0.05):')
         self.run_simulate_data_test(pag, G)
 
-
     def test_fritl(self):
         data = np.empty(shape=(0, 7))
         true_dag = DiGraph()
-        true_dag.add_edges_from([('L1', 0), ('L1', 5), ('L2', 0), ('L2', 6), ('L3', 3), ('L3', 4), ('L3', 6),
-                                 (0, 1), (0, 2), (1, 2), (2, 4), (5, 6)])
+        ground_truth_edges = [(7, 0), (7, 5), (8, 0), (8, 6), (9, 3), (9, 4), (9, 6),
+                              (0, 1), (0, 2), (1, 2), (2, 4), (5, 6)]
+        true_dag.add_edges_from(ground_truth_edges)
         G, edges = fci(data, d_separation, 0.05, verbose=False, true_dag=true_dag)
 
         ground_truth_nodes = []
         for i in range(10):
             ground_truth_nodes.append(GraphNode(f'X{i + 1}'))
         ground_truth_dag = Dag(ground_truth_nodes)
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[7], ground_truth_nodes[0])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[7], ground_truth_nodes[5])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[8], ground_truth_nodes[0])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[8], ground_truth_nodes[6])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[9], ground_truth_nodes[3])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[9], ground_truth_nodes[4])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[9], ground_truth_nodes[6])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[0], ground_truth_nodes[1])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[0], ground_truth_nodes[2])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[1], ground_truth_nodes[2])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[2], ground_truth_nodes[4])
-        ground_truth_dag.add_directed_edge(ground_truth_nodes[5], ground_truth_nodes[6])
+        for u, v in ground_truth_edges:
+            ground_truth_dag.add_directed_edge(ground_truth_nodes[u], ground_truth_nodes[v])
 
         pag = dag2pag(ground_truth_dag, ground_truth_nodes[7: 10])
 
         print(f'fci(data, d_separation, 0.05):')
         self.run_simulate_data_test(pag, G)
-
 
     @staticmethod
     def run_simulate_data_test(truth, est):
