@@ -3,17 +3,12 @@ import sys
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(BASE_DIR)
-import math
 
 import numpy as np
 import torch
 import torch.autograd as autograd
 import torch.nn as nn
-import torch.nn.functional as F
-
-from causallearn.utils.KCI.KCI import KCI_UInd
-import torch.autograd as autograd
-import matplotlib.pyplot as plt
+from scipy import stats
 
 
 class MLP(nn.Module):
@@ -38,7 +33,7 @@ class MLP(nn.Module):
 
         # create layers
         layers = [nn.Linear(n_inputs, n_units)]
-        for i in range(n_layers):
+        for _ in range(n_layers):
             layers.append(nn.ReLU())
             layers.append(nn.Linear(n_units, n_units))
         layers.append(nn.ReLU())
@@ -49,28 +44,6 @@ class MLP(nn.Module):
         x = self.layers(x)
         return x
 
-
-class MixGaussianLayer(nn.Module):
-    def __init__(self, Mix_K=3):
-        super(MixGaussianLayer, self).__init__()
-        self.Mix_K = Mix_K
-        self.Pi = nn.Parameter(torch.randn(self.Mix_K, 1))
-        self.Mu = nn.Parameter(torch.randn(self.Mix_K, 1))
-        self.Var = nn.Parameter(torch.randn(self.Mix_K, 1))
-
-    def forward(self, x):
-        Constraint_Pi = F.softmax(self.Pi, 0)
-        # -(x-u)**2/(2var**2)
-        Middle1 = -((x.expand(len(x), self.Mix_K) - self.Mu.T.expand(len(x), self.Mix_K)).pow(2)).div(
-            2 * (self.Var.T.expand(len(x), self.Mix_K)).pow(2))
-        # sum Pi*Middle/var
-        Middle2 = torch.exp(Middle1).mm(Constraint_Pi.div(torch.sqrt(2 * math.pi * self.Var.pow(2))))
-        # log sum
-        out = sum(torch.log(Middle2))
-
-        return out
-
-
 class PNL(object):
     """
     Use of constrained nonlinear ICA for distinguishing cause from effect.
@@ -78,33 +51,45 @@ class PNL(object):
     PURPOSE:
           To find which one of xi (i=1,2) is the cause. In particular, this
           function does
-            1) preprocessing to make xi rather clear to Gaussian,
+            1) preprocessing to make xi rather close to Gaussian,
             2) learn the corresponding 'disturbance' under each assumed causal
             direction, and
             3) performs the independence tests to see if the assumed cause if
             independent from the learned disturbance.
     """
 
-    def __init__(self, kernelX='Gaussian', kernelY='Gaussian', mix_K=3, epochs=100000):
+    def __init__(self, epochs=100000):
         '''
-        Construct the ANM model.
+        Construct the PNL model.
 
         Parameters:
         ----------
-        kernelX: kernel function for hypothetical cause
-        kernelY: kernel function for estimated noise
-        mix_K: number of Gaussian mixtures for independent components
         epochs: training epochs.
         '''
-        self.kernelX = kernelX
-        self.kernelY = kernelY
-        self.mix_K = mix_K
-        self.epochs = epochs
 
-    def nica_mnd(self, X, TotalEpoch, KofMix):
+        self.epochs = epochs
+    
+    def dele_abnormal(self, data_x, data_y):
+
+        mean_x = np.mean(data_x)
+        sigma_x = np.std(data_x)
+        remove_idx_x = np.where(abs(data_x - mean_x) > 3*sigma_x)[0]
+
+        mean_y = np.mean(data_y)
+        sigma_y = np.std(data_y)
+        remove_idx_y = np.where(abs(data_y - mean_y) > 3*sigma_y)[0]
+
+        remove_idx = np.append(remove_idx_x, remove_idx_y)
+
+        data_x = np.delete(data_x, remove_idx)
+        data_y = np.delete(data_y, remove_idx)
+
+        return data_x.reshape(len(data_x), 1), data_y.reshape(len(data_y), 1)
+
+    def nica_mnd(self, X, TotalEpoch):
         """
-        Use of "Nonlinear ICA with MND for Matlab" for distinguishing cause from effect
-        PURPOSE: Performing nonlinear ICA with the minimal nonlinear distortion or smoothness regularization.
+        Use of "Nonlinear ICA" for distinguishing cause from effect
+        PURPOSE: Performing nonlinear ICA.
 
         Parameters
         ----------
@@ -115,56 +100,54 @@ class PNL(object):
         Y (n*T): the separation result.
         """
         trpattern = X.T
-        trpattern = trpattern - np.tile(np.mean(trpattern, axis=1).reshape(2, 1), (1, len(trpattern[0])))
-        trpattern = np.dot(np.diag(1.5 / np.std(trpattern, axis=1)), trpattern)
+
         # --------------------------------------------------------
         x1 = torch.from_numpy(trpattern[0, :]).type(torch.FloatTensor).reshape(-1, 1)
         x2 = torch.from_numpy(trpattern[1, :]).type(torch.FloatTensor).reshape(-1, 1)
         x1.requires_grad = True
         x2.requires_grad = True
+
         y1 = x1
 
         Final_y2 = x2
         Min_loss = float('inf')
 
-        G1 = MLP(1, 1, n_layers=1, n_units=20)
-        G2 = MLP(1, 1, n_layers=1, n_units=20)
-        # MixGaussian = MixGaussianLayer(Mix_K=KofMix)
-        G3 = MLP(1, 1, n_layers=1, n_units=20)
+        G1 = MLP(1, 1, n_layers=3, n_units=12)
+        G2 = MLP(1, 1, n_layers=1, n_units=12)
         optimizer = torch.optim.Adam([
             {'params': G1.parameters()},
-            {'params': G2.parameters()},
-            {'params': G3.parameters()}], lr=1e-4, betas=(0.9, 0.99))
+            {'params': G2.parameters()}], lr=1e-5, betas=(0.9, 0.99))
+
+        loss_all = torch.zeros(TotalEpoch)
+        loss_pdf_all = torch.zeros(TotalEpoch)
+        loss_jacob_all = torch.zeros(TotalEpoch)
 
         for epoch in range(TotalEpoch):
+            G1.zero_grad()
+            G2.zero_grad()
 
             y2 = G2(x2) - G1(x1)
-            # y2 = x2 - G1(x1)
 
-            loss_pdf = torch.sum((y2)**2)
+            loss_pdf = 0.5 * torch.sum(y2**2)
 
-            jacob = autograd.grad(outputs=G2(x2), inputs=x2, grad_outputs=torch.ones(y2.shape), create_graph=True,
+            jacob = autograd.grad(outputs=y2, inputs=x2, grad_outputs=torch.ones(y2.shape), create_graph=True,
                                   retain_graph=True, only_inputs=True)[0]
+
             loss_jacob = - torch.sum(torch.log(torch.abs(jacob) + 1e-16))
 
             loss = loss_jacob + loss_pdf
 
+            loss_all[epoch] = loss
+            loss_pdf_all[epoch] = loss_pdf
+            loss_jacob_all[epoch] = loss_jacob
+
             if loss < Min_loss:
                 Min_loss = loss
                 Final_y2 = y2
-
-            if epoch % 100 == 0:
-                print('---------------------------{}-th epoch-------------------------------'.format(epoch))
-                print('The Total loss is {}'.format(loss))
-                print('The jacob loss is {}'.format(loss_jacob))
-                print('The pdf loss is {}'.format(loss_pdf))
-
-            optimizer.zero_grad()
-            loss.backward(retain_graph=True)
+                
+            loss.backward()
             optimizer.step()
-        plt.plot(x1.detach().numpy(), G1(x1).detach().numpy(), '.')
-        plt.plot(x2.detach().numpy(), G2(x2).detach().numpy(),'.')
-        plt.show()
+
         return y1, Final_y2
 
     def cause_or_effect(self, data_x, data_y):
@@ -181,28 +164,28 @@ class PNL(object):
         pval_forward: p value in the x->y direction
         pval_backward: p value in the y->x direction
         '''
+        torch.manual_seed(0)
 
-        raise SyntaxError('There are some potential issues in the current implementation of PNL. We are working on them and will update as soon as possible.')
-
-        kci = KCI_UInd(self.kernelX, self.kernelY)
+        # Delete the abnormal samples
+        data_x, data_y = self.dele_abnormal(data_x, data_y)
 
         # Now let's see if x1 -> x2 is plausible
         data = np.concatenate((data_x, data_y), axis=1)
-        y1, y2 = self.nica_mnd(data, self.epochs, self.mix_K)
-        print('To see if x1 -> x2...')
+        # print('To see if x1 -> x2...')
+        y1, y2 = self.nica_mnd(data, self.epochs)
 
         y1_np = y1.detach().numpy()
         y2_np = y2.detach().numpy()
 
-        pval_foward, _ = kci.compute_pvalue(y1_np, y2_np)
+        _, pval_forward = stats.ttest_ind(y1_np, y2_np)
 
         # Now let's see if x2 -> x1 is plausible
-        y1, y2 = self.nica_mnd(data[:, [1, 0]], self.epochs, self.mix_K)
-        print('To see if x2 -> x1...')
-
+        # print('To see if x2 -> x1...')
+        y1, y2 = self.nica_mnd(data[:, [1, 0]], self.epochs)
+        
         y1_np = y1.detach().numpy()
         y2_np = y2.detach().numpy()
 
-        pval_backward, _ = kci.compute_pvalue(y1_np, y2_np)
-
-        return pval_foward, pval_backward
+        _, pval_backward = stats.ttest_ind(y1_np, y2_np)
+ 
+        return np.round(pval_forward, 3), np.round(pval_backward, 3)
