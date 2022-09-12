@@ -71,8 +71,3 @@ class TestGranger(unittest.TestCase):
                                 [0.1155, 0.1485, 0, 0.039, -0., 0.1085]])
         self.assertEqual((np.round(coeff, 4) - coeff_truth).all(), 0)
 
-
-if __name__ == '__main__':
-    test = TestGranger()
-    test.test_granger_test()
-    test.test_granger_lasso()
