@@ -56,7 +56,7 @@ For the implemented modules, such as (conditional) independent test methods, we 
 For the convenience of our community, [CMU-CLeaR](https://www.cmu.edu/dietrich/causality) group maintains a list of benchmark datasets including real-world scenarios and various learning tasks. Please refer to the following links:
 
 * [https://github.com/cmu-phil/example-causal-datasets](https://github.com/cmu-phil/example-causal-datasets) (maintained by Joseph Ramsey)
-* [https://www.cmu.edu/dietrich/causality/causal-learn](https://www.cmu.edu/dietrich/causality/causal-learn>)
+* [https://www.cmu.edu/dietrich/causality/projects/causal_learn_benchmarks](https://www.cmu.edu/dietrich/causality/projects/causal_learn_benchmarks>)
 
 Please feel free to let us know if you have any recommendation regarding causal datasets with high-quality. We are grateful for any effort that benefits the development of causality community.
 
