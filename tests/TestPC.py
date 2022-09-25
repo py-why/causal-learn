@@ -377,7 +377,7 @@ class TestPC(unittest.TestCase):
             data = np.zeros((100, len(truth_dag.nodes)))  # just a placeholder
             cg = pc(data, 0.05, d_separation, True, 0, -1, true_dag=true_dag_netx)
             shd = SHD(truth_cpdag, cg.G)
-            self.assertEqual(0, shd, "PC with d-separation as CIT returns an inaccurate CPDAG.")
+            self.assertEqual(0, shd.get_shd(), "PC with d-separation as CIT returns an inaccurate CPDAG.")
             print(f'{bname} ({num_nodes_in_truth} nodes/{num_edges_in_truth} edges): used {cg.PC_elapsed:.5f}s, SHD: {shd.get_shd()}')
 
         print('test_pc_load_bnlearn_graphs_with_d_separation passed!\n')
