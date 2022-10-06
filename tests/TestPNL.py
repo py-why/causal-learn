@@ -1,13 +1,6 @@
-import os
-import sys
-
-BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
-sys.path.append(BASE_DIR)
-import sys
 import unittest
 import numpy as np
 from causallearn.search.FCMBased.PNL.PNL import PNL
-
 
 class TestPNL(unittest.TestCase):
 
@@ -29,7 +22,7 @@ class TestPNL(unittest.TestCase):
     # Test PNL by some simulated data
     def test_pnl_simulation_1(self):
         # simulated data y = (x + x^3 + e)^2
-        simulated_dataset_1 = np.loadtxt('TestData/pnl_simulation_1.txt', delimiter=',')
+        simulated_dataset_1 = np.loadtxt('tests/TestData/pnl_simulation_1.txt', delimiter=',')
         simulated_dataset_1_p_value_forward, simulated_dataset_1_p_value_backward = 0.396, 0.0  # round(value, 3) results
         x_1 = simulated_dataset_1[:, 0].reshape(-1, 1)
         y_1 = simulated_dataset_1[:, 1].reshape(-1, 1)
@@ -42,7 +35,7 @@ class TestPNL(unittest.TestCase):
 
     def test_pnl_simulation_2(self):
         # simulated data y = exp(x^2 + e)
-        simulated_dataset_2 = np.loadtxt('TestData/pnl_simulation_2.txt', delimiter=',')
+        simulated_dataset_2 = np.loadtxt('tests/TestData/pnl_simulation_2.txt', delimiter=',')
         simulated_dataset_2_p_value_forward, simulated_dataset_2_p_value_backward = 0.369, 0.0  # round(value, 3) results
         x_2 = simulated_dataset_2[:, 0].reshape(-1, 1)
         y_2 = simulated_dataset_2[:, 1].reshape(-1, 1)
