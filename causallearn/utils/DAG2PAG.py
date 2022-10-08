@@ -1,15 +1,17 @@
 from itertools import combinations, permutations
 from typing import List
 
+import numpy as np
 import networkx as nx
+from networkx.algorithms import d_separated
 
 from causallearn.graph.Dag import Dag
 from causallearn.graph.Edge import Edge
 from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.Node import Node
-from causallearn.search.ConstraintBased.FCI import ruleR3, rulesR1R2cycle
-
+from causallearn.search.ConstraintBased.FCI import rule0, rulesR1R2cycle, ruleR3, ruleR4B
+from causallearn.utils.cit import CIT, d_separation
 
 def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
     """
@@ -22,15 +24,29 @@ def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
     -------
     PAG : Partial Ancestral Graph
     """
-    udg = nx.Graph()
+    dg = nx.DiGraph()
+    true_dag = nx.DiGraph()
+    nodes = dag.get_nodes()
+    observed_nodes = list(set(nodes) - set(islatent))
+    mod_nodes = observed_nodes + islatent
     nodes = dag.get_nodes()
     nodes_ids = {node: i for i, node in enumerate(nodes)}
-    n = len(nodes)
-    for x, y in combinations(range(n), 2):
-        if dag.get_edge(nodes[x], nodes[y]):
-            udg.add_edge(x, y)
+    mod_nodeids = {node: i for i, node in enumerate(mod_nodes)}
 
-    observed_nodes = list(set(nodes) - set(islatent))
+    n = len(nodes)
+    dg.add_nodes_from(range(n))
+    true_dag.add_nodes_from(range(n))
+
+    for x, y in combinations(range(n), 2):
+        edge = dag.get_edge(nodes[x], nodes[y])
+        if edge:
+            if edge.get_endpoint2() == Endpoint.ARROW:
+                dg.add_edge(nodes_ids[edge.get_node1()], nodes_ids[edge.get_node2()])
+                true_dag.add_edge(mod_nodeids[edge.get_node1()], mod_nodeids[edge.get_node2()])
+            else:
+                dg.add_edge(nodes_ids[edge.get_node2()], nodes_ids[edge.get_node1()])
+                true_dag.add_edge(mod_nodeids[edge.get_node1()], mod_nodeids[edge.get_node2()])
+
 
     PAG = GeneralGraph(observed_nodes)
     for nodex, nodey in combinations(observed_nodes, 2):
@@ -41,43 +57,19 @@ def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
 
     sepset = {(nodex, nodey): set() for nodex, nodey in permutations(observed_nodes, 2)}
 
-    for nodex, nodey in combinations(observed_nodes, 2):
-        if nodex in islatent:
-            continue
-        if nodey in islatent:
-            continue
-        all_paths = nx.all_simple_paths(udg, nodes_ids[nodex], nodes_ids[nodey])
-        noncolider_path = []
-        is_connected = False
-        for path in all_paths:
-            path_sep = True
-            has_nonlatent = False
-            for i in range(1, len(path) - 1):
-                if nodes[path[i]] in observed_nodes:
-                    has_nonlatent = True
-                has_collider = is_endpoint(dag.get_edge(nodes[path[i - 1]], nodes[path[i]]), nodes[path[i]],
-                                           Endpoint.ARROW) and \
-                               is_endpoint(dag.get_edge(nodes[path[i + 1]], nodes[path[i]]), nodes[path[i]],
-                                           Endpoint.ARROW)
-                if has_collider:
-                    path_sep = False
-            if not path_sep:
-                continue
-            if has_nonlatent:
-                noncolider_path.append(path)
-            else:
-                is_connected = True
-                break
-        if not is_connected:
+    for l in range(0, len(observed_nodes) - 1):
+        for nodex, nodey in combinations(observed_nodes, 2):
             edge = PAG.get_edge(nodex, nodey)
-            if edge:
-                PAG.remove_edge(edge)
-            for path in noncolider_path:
-                for i in range(1, len(path) - 1):
-                    if nodes[path[i]] in islatent:
-                        continue
-                    sepset[(nodex, nodey)] |= {nodes[path[i]]}
-                    sepset[(nodey, nodex)] |= {nodes[path[i]]}
+            if not edge:
+                continue
+            for Z in combinations(observed_nodes, l):
+                if nodex in Z or nodey in Z:
+                    continue
+                if d_separated(dg, {nodes_ids[nodex]}, {nodes_ids[nodey]}, set(nodes_ids[z] for z in Z)):
+                    if edge:
+                        PAG.remove_edge(edge)
+                    sepset[(nodex, nodey)] |= set(Z)
+                    sepset[(nodey, nodex)] |= set(Z)
 
     for nodex, nodey in combinations(observed_nodes, 2):
         if PAG.get_edge(nodex, nodey):
@@ -99,13 +91,19 @@ def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
                     mod_endpoint(edge_yz, nodez, Endpoint.ARROW)
                     PAG.add_edge(edge_yz)
 
+    print()
     change_flag = True
+
+    data = np.empty(shape=(0, len(observed_nodes)))
+    independence_test_method = CIT(data, method=d_separation, true_dag=true_dag)
 
     while change_flag:
         change_flag = False
         change_flag = rulesR1R2cycle(PAG, None, change_flag, False)
         change_flag = ruleR3(PAG, sepset, None, change_flag, False)
-
+        change_flag = ruleR4B(PAG, -1, data, independence_test_method, 0.05, sep_sets=sepset,
+                          change_flag=change_flag,
+                          bk=None, verbose=False)
     return PAG
 
 
