@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from itertools import combinations
 from typing import List, Dict, Tuple, Set
 
 from numpy import ndarray
@@ -8,239 +9,12 @@ from tqdm.auto import tqdm
 
 from causallearn.graph.Edges import Edges
 from causallearn.graph.GeneralGraph import GeneralGraph
+from causallearn.graph.GraphClass import CausalGraph
 from causallearn.graph.Node import Node
 from causallearn.utils.ChoiceGenerator import ChoiceGenerator
+from causallearn.utils.PCUtils.Helper import append_value
 from causallearn.utils.cit import *
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
-
-
-
-def possible_parents(node_x: Node, adjx: List[Node], knowledge: BackgroundKnowledge | None = None) -> List[Node]:
-    possible_parents: List[Node] = []
-
-    for node_z in adjx:
-        if (knowledge is None) or \
-                (not knowledge.is_forbidden(node_z, node_x) and not knowledge.is_required(node_x, node_z)):
-            possible_parents.append(node_z)
-
-    return possible_parents
-
-
-def freeDegree(nodes: List[Node], adjacencies) -> int:
-    max_degree = 0
-    for node_x in nodes:
-        opposites = adjacencies[node_x]
-        for node_y in opposites:
-            adjx = set(opposites)
-            adjx.remove(node_y)
-
-            if len(adjx) > max_degree:
-                max_degree = len(adjx)
-    return max_degree
-
-
-def forbiddenEdge(node_x: Node, node_y: Node, knowledge: BackgroundKnowledge | None) -> bool:
-    if knowledge is None:
-        return False
-    elif knowledge.is_forbidden(node_x, node_y) and knowledge.is_forbidden(node_y, node_x):
-        print(node_x.get_name() + " --- " + node_y.get_name() +
-              " because it was forbidden by background background_knowledge.")
-        return True
-    return False
-
-
-def searchAtDepth0(data: ndarray, nodes: List[Node], adjacencies: Dict[Node, Set[Node]],
-                   sep_sets: Dict[Tuple[int, int], Set[int]],
-                   independence_test_method: CIT | None=None, alpha: float = 0.05,
-                   verbose: bool = False, knowledge: BackgroundKnowledge | None = None, pbar=None) -> bool:
-    empty = []
-
-    show_progress = pbar is not None
-    if show_progress:
-        pbar.reset()
-    for i in range(len(nodes)):
-        if show_progress:
-            pbar.update()
-            pbar.set_description(f'Depth=0, working on node {i}')
-        if verbose and (i + 1) % 100 == 0:
-            print(nodes[i + 1].get_name())
-
-        for j in range(i + 1, len(nodes)):
-            p_value = independence_test_method(i, j, tuple(empty))
-            independent = p_value > alpha
-            no_edge_required = True if knowledge is None else \
-                ((not knowledge.is_required(nodes[i], nodes[j])) or knowledge.is_required(nodes[j], nodes[i]))
-            if independent and no_edge_required:
-                sep_sets[(i, j)] = set()
-
-                if verbose:
-                    print(nodes[i].get_name() + " _||_ " + nodes[j].get_name() + " | (),  score = " + str(p_value))
-            elif not forbiddenEdge(nodes[i], nodes[j], knowledge):
-                adjacencies[nodes[i]].add(nodes[j])
-                adjacencies[nodes[j]].add(nodes[i])
-    if show_progress:
-        pbar.refresh()
-    return freeDegree(nodes, adjacencies) > 0
-
-
-def searchAtDepth(data: ndarray, depth: int, nodes: List[Node], adjacencies: Dict[Node, Set[Node]],
-                  sep_sets: Dict[Tuple[int, int], Set[int]],
-                  independence_test_method: CIT | None = None,
-                  alpha: float = 0.05,
-                  verbose: bool = False, knowledge: BackgroundKnowledge | None = None, pbar=None) -> bool:
-    def edge(adjx: List[Node], i: int, adjacencies_completed_edge: Dict[Node, Set[Node]]) -> bool:
-        for j in range(len(adjx)):
-            node_y = adjx[j]
-            _adjx = list(adjacencies_completed_edge[nodes[i]])
-            _adjx.remove(node_y)
-            ppx = possible_parents(nodes[i], _adjx, knowledge)
-
-            if len(ppx) >= depth:
-                cg = ChoiceGenerator(len(ppx), depth)
-                choice = cg.next()
-                flag = False
-                while choice is not None:
-                    cond_set = [nodes.index(ppx[index]) for index in choice]
-                    choice = cg.next()
-
-                    Y = nodes.index(adjx[j])
-                    p_value = independence_test_method(i, Y, tuple(cond_set))
-                    independent = p_value > alpha
-
-                    no_edge_required = True if knowledge is None else (
-                            not knowledge.is_required(nodes[i], adjx[j]) or knowledge.is_required(adjx[j],
-                                                                                                  nodes[i]))
-                    if independent and no_edge_required:
-
-                        if adjacencies[nodes[i]].__contains__(adjx[j]):
-                            adjacencies[nodes[i]].remove(adjx[j])
-                        if adjacencies[adjx[j]].__contains__(nodes[i]):
-                            adjacencies[adjx[j]].remove(nodes[i])
-
-                        if cond_set is not None:
-                            if sep_sets.keys().__contains__((i, nodes.index(adjx[j]))):
-                                sep_set = sep_sets[(i, nodes.index(adjx[j]))]
-                                for cond_set_item in cond_set:
-                                    sep_set.add(cond_set_item)
-                            else:
-                                sep_sets[(i, nodes.index(adjx[j]))] = set(cond_set)
-
-                        if verbose:
-                            message = "Independence accepted: " + nodes[i].get_name() + " _||_ " + adjx[
-                                j].get_name() + " | "
-                            for cond_set_index in range(len(cond_set)):
-                                message += nodes[cond_set[cond_set_index]].get_name()
-                                if cond_set_index != len(cond_set) - 1:
-                                    message += ", "
-                            message += "\tp = " + str(p_value)
-                            print(message)
-                        flag = True
-                if flag:
-                    return False
-        return True
-
-    count = 0
-
-    adjacencies_completed = deepcopy(adjacencies)
-
-    show_progress = pbar is not None
-    if show_progress:
-        pbar.reset()
-
-    for i in range(len(nodes)):
-        if show_progress:
-            pbar.update()
-            pbar.set_description(f'Depth={depth}, working on node {i}')
-        if verbose:
-            count += 1
-            if count % 10 == 0:
-                print("count " + str(count) + " of " + str(len(nodes)))
-        adjx = list(adjacencies[nodes[i]])
-        finish_flag = False
-        while not finish_flag:
-            finish_flag = edge(adjx, i, adjacencies_completed)
-            adjx = list(adjacencies[nodes[i]])
-    if show_progress:
-        pbar.refresh()
-    return freeDegree(nodes, adjacencies) > depth
-
-
-def searchAtDepth_not_stable(data: ndarray, depth: int, nodes: List[Node], adjacencies: Dict[Node, Set[Node]],
-                             sep_sets: Dict[Tuple[int, int], Set[int]],
-                             independence_test_method: CIT | None=None, alpha: float = 0.05, verbose: bool = False,
-                             knowledge: BackgroundKnowledge | None = None,
-                             pbar=None) -> bool:
-    def edge(adjx, i, adjacencies_completed_edge):
-        for j in range(len(adjx)):
-            node_y = adjx[j]
-            _adjx = list(adjacencies_completed_edge[nodes[i]])
-            _adjx.remove(node_y)
-            ppx = possible_parents(nodes[i], _adjx, knowledge)
-
-            if len(ppx) >= depth:
-                cg = ChoiceGenerator(len(ppx), depth)
-                choice = cg.next()
-
-                while choice is not None:
-                    cond_set = [nodes.index(ppx[index]) for index in choice]
-                    choice = cg.next()
-
-                    Y = nodes.index(adjx[j])
-                    p_value = independence_test_method(i, Y, tuple(cond_set))
-                    independent = p_value > alpha
-
-                    no_edge_required = True if knowledge is None else \
-                        (not knowledge.is_required(nodes[i], adjx[j]) or knowledge.is_required(adjx[j], nodes[i]))
-                    if independent and no_edge_required:
-
-                        if adjacencies[nodes[i]].__contains__(adjx[j]):
-                            adjacencies[nodes[i]].remove(adjx[j])
-                        if adjacencies[adjx[j]].__contains__(nodes[i]):
-                            adjacencies[adjx[j]].remove(nodes[i])
-
-                        if cond_set is not None:
-                            if sep_sets.keys().__contains__((i, nodes.index(adjx[j]))):
-                                sep_set = sep_sets[(i, nodes.index(adjx[j]))]
-                                for cond_set_item in cond_set:
-                                    sep_set.add(cond_set_item)
-                            else:
-                                sep_sets[(i, nodes.index(adjx[j]))] = set(cond_set)
-
-                        if verbose:
-                            message = "Independence accepted: " + nodes[i].get_name() + " _||_ " + adjx[
-                                j].get_name() + " | "
-                            for cond_set_index in range(len(cond_set)):
-                                message += nodes[cond_set[cond_set_index]].get_name()
-                                if cond_set_index != len(cond_set) - 1:
-                                    message += ", "
-                            message += "\tp = " + str(p_value)
-                            print(message)
-                        return False
-        return True
-
-    count = 0
-
-    show_progress = pbar is not None
-    if show_progress:
-        pbar.reset()
-
-    for i in range(len(nodes)):
-        if show_progress:
-            pbar.update()
-            pbar.set_description(f'Depth={depth}, working on node {i}')
-        if verbose:
-            count += 1
-            if count % 10 == 0:
-                print("count " + str(count) + " of " + str(len(nodes)))
-        adjx = list(adjacencies[nodes[i]])
-        finish_flag = False
-        while not finish_flag:
-            finish_flag = edge(adjx, i, adjacencies)
-
-            adjx = list(adjacencies[nodes[i]])
-    if show_progress:
-        pbar.refresh()
-    return freeDegree(nodes, adjacencies) > depth
 
 
 def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT | None=None, alpha: float = 0.05,
@@ -279,48 +53,109 @@ def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT | None=N
     sep_sets: separated sets of graph
     """
 
-    # --------check parameter -----------
-    if (depth is not None) and type(depth) != int:
-        raise TypeError("'depth' must be 'int' type!")
-    if (knowledge is not None) and type(knowledge) != BackgroundKnowledge:
-        raise TypeError("'background_knowledge' must be 'BackgroundKnowledge' type!")
+    assert type(data) == np.ndarray
+    assert 0 < alpha < 1
 
-    # --------end check parameter -----------
-
-    # ------- initial variable -----------
+    no_of_var = data.shape[1]
+    node_names = [node.get_name() for node in nodes]
+    cg = CausalGraph(no_of_var, node_names)
+    cg.set_ind_test(independence_test_method)
     sep_sets: Dict[Tuple[int, int], Set[int]] = {}
-    adjacencies: Dict[Node, Set[Node]] = {node: set() for node in nodes}
-    if depth is None or depth < 0:
-        depth = 1000
 
-    # ------- end initial variable ---------
-    print('Starting Fast Adjacency Search.')
+    depth = -1
+    pbar = tqdm(total=no_of_var) if show_progress else None
+    while cg.max_degree() - 1 > depth:
+        depth += 1
+        edge_removal = []
+        if show_progress:
+            pbar.reset()
+        for x in range(no_of_var):
+            if show_progress:
+                pbar.update()
+            if show_progress:
+                pbar.set_description(f'Depth={depth}, working on node {x}')
+            Neigh_x = cg.neighbors(x)
+            if len(Neigh_x) < depth - 1:
+                continue
+            for y in Neigh_x:
+                knowledge_ban_edge = False
+                sepsets = set()
+                if knowledge is not None and (
+                        knowledge.is_forbidden(cg.G.nodes[x], cg.G.nodes[y])
+                        and knowledge.is_forbidden(cg.G.nodes[y], cg.G.nodes[x])):
+                    knowledge_ban_edge = True
+                if knowledge_ban_edge:
+                    if not stable:
+                        edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
+                        if edge1 is not None:
+                            cg.G.remove_edge(edge1)
+                        edge2 = cg.G.get_edge(cg.G.nodes[y], cg.G.nodes[x])
+                        if edge2 is not None:
+                            cg.G.remove_edge(edge2)
+                        append_value(cg.sepset, x, y, ())
+                        append_value(cg.sepset, y, x, ())
+                        sep_sets[(x, y)] = set()
+                        sep_sets[(y, x)] = set()
+                        break
+                    else:
+                        edge_removal.append((x, y))  # after all conditioning sets at
+                        edge_removal.append((y, x))  # depth l have been considered
 
-    # use tqdm to show progress bar
-    pbar = tqdm(total=len(nodes)) if show_progress else None
-    for d in range(depth):
-        if d == 0:
-            more = searchAtDepth0(data, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose,
-                                  knowledge, pbar=pbar)
-        else:
-            if stable:
-                more = searchAtDepth(data, d, nodes, adjacencies, sep_sets, independence_test_method, alpha, verbose,
-                                     knowledge, pbar=pbar)
-            else:
-                more = searchAtDepth_not_stable(data, d, nodes, adjacencies, sep_sets, independence_test_method, alpha,
-                                                verbose, knowledge, pbar=pbar)
-        if not more:
-            break
+                Neigh_x_noy = np.delete(Neigh_x, np.where(Neigh_x == y))
+                for S in combinations(Neigh_x_noy, depth):
+                    p = cg.ci_test(x, y, S)
+                    if p > alpha:
+                        if verbose:
+                            print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
+                        if not stable:
+                            edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
+                            if edge1 is not None:
+                                cg.G.remove_edge(edge1)
+                            edge2 = cg.G.get_edge(cg.G.nodes[y], cg.G.nodes[x])
+                            if edge2 is not None:
+                                cg.G.remove_edge(edge2)
+                            append_value(cg.sepset, x, y, S)
+                            append_value(cg.sepset, y, x, S)
+                            sep_sets[(x, y)] = set(S)
+                            sep_sets[(y, x)] = set(S)
+                            break
+                        else:
+                            edge_removal.append((x, y))  # after all conditioning sets at
+                            edge_removal.append((y, x))  # depth l have been considered
+                            for s in S:
+                                sepsets.add(s)
+                    else:
+                        if verbose:
+                            print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
+                append_value(cg.sepset, x, y, tuple(sepsets))
+                append_value(cg.sepset, y, x, tuple(sepsets))
+
+        if show_progress:
+            pbar.refresh()
+
+        for (x, y) in list(set(edge_removal)):
+            edge1 = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
+            if edge1 is not None:
+                cg.G.remove_edge(edge1)
+            if cg.sepset[x, y] is not None:
+                origin_list = []
+                for l_out in cg.sepset[x, y]:
+                    for l_in in l_out:
+                        origin_list.append(l_in)
+                sep_sets[(x, y)] = set(origin_list)
+                sep_sets[(y, x)] = set(origin_list)
+
+
+    # for x in range(no_of_var):
+    #     for y in range(x, no_of_var):
+    #         if cg.sepset[x, y] is not None:
+    #             origin_list = []
+    #             for l_out in cg.sepset[x, y]:
+    #                 for l_in in l_out:
+    #                     origin_list.append(l_in)
+    #             sep_sets[(x, y)] = set(origin_list)
+
     if show_progress:
         pbar.close()
 
-    graph = GeneralGraph(nodes)
-    for i in range(len(nodes)):
-        for j in range(i + 1, len(nodes)):
-            node_x = nodes[i]
-            node_y = nodes[j]
-            if adjacencies[node_x].__contains__(node_y):
-                graph.add_edge(Edges().undirected_edge(node_x, node_y))
-
-    print("Finishing Fast Adjacency Search.")
-    return graph, sep_sets
+    return cg.G, sep_sets

@@ -316,3 +316,18 @@ class BackgroundKnowledge(object):
             self.tier_value_map.pop(node)
 
         return self
+
+    def is_in_which_tier(self, node: Node) -> int:
+        """
+        Returns the index of the tier of node if it's in a tier, otherwise -1.
+
+        Parameters
+        ----------
+        node: Node type variable
+
+        Returns
+        -------
+        The index of the tier of node if it's in a tier, otherwise -1.
+        """
+        return self.tier_value_map[node] if self.tier_value_map.__contains__(node) else -1
+
