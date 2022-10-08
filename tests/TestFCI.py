@@ -1,10 +1,11 @@
 import hashlib
 import os
+import random
 import sys
 import time
 import unittest
 
-from networkx import DiGraph
+from networkx import DiGraph, erdos_renyi_graph, is_directed_acyclic_graph
 import numpy as np
 import pandas as pd
 
@@ -19,12 +20,12 @@ from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 ######################################### Test Notes ###########################################
 # All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
 # are obtained from the code of causal-learn as of commit                                      #
-# https://github.com/cmu-phil/causal-learn/commit/fb092d1 (08-04-2022).                        #
+# https://github.com/cmu-phil/causal-learn/pull/68/commits/999df2e (10-08-2022).               #
 #                                                                                              #
 # We are not sure if the results are completely "correct" (reflect ground truth graph) or not. #
 # So if you find your tests failed, it means that your modified code is logically inconsistent #
-# with the code as of fb092d1, but not necessarily means that your code is "wrong".            #
-# If you are sure that your modification is "correct" (e.g. fixed some bugs in fb092d1),       #
+# with the code as of 999df2e, but not necessarily means that your code is "wrong".            #
+# If you are sure that your modification is "correct" (e.g. fixed some bugs in 999df2e),       #
 # please report it to us. We will then modify these benchmark results accordingly. Thanks :)   #
 ######################################### Test Notes ###########################################
 
@@ -32,20 +33,20 @@ BENCHMARK_TXTFILE_TO_MD5 = {
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_asia_fci_chisq_0.05.txt": "65f54932a9d8224459e56c40129e6d8b",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_cancer_fci_chisq_0.05.txt": "0312381641cb3b4818e0c8539f74e802",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_earthquake_fci_chisq_0.05.txt": "a1160b92ce15a700858552f08e43b7de",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_sachs_fci_chisq_0.05.txt": "c4a0d5eaf793838d6ad2b58632ba0ded",
+    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_sachs_fci_chisq_0.05.txt": "dced4a202fc32eceb75f53159fc81f3b",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_survey_fci_chisq_0.05.txt": "b1a28eee1e0c6ea8a64ac1624585c3f4",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_alarm_fci_chisq_0.05.txt": "c3bbc2b8aba456a4258dd071a42085bc",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_barley_fci_chisq_0.05.txt": "ccbd38b245ced2ac7e632415b93cbef1",
+    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_barley_fci_chisq_0.05.txt": "4a5000e7a582083859ee6aef15073676",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_child_fci_chisq_0.05.txt": "6b7858589e12f04b0f489ba4589a1254",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_insurance_fci_chisq_0.05.txt": "9975942b936aa2b1fc90c09318ca2d08",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_water_fci_chisq_0.05.txt": "48eee804d59526187b7ecd0519556ee5",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_hailfinder_fci_chisq_0.05.txt": "6b9a6b95b6474f8530e85c022f4e749c",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_hepar2_fci_chisq_0.05.txt": "e9de65c752011d72c36589b68590011d",
+    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_hepar2_fci_chisq_0.05.txt": "4aae21ff3d9aa2435515ed2ee402294c",
     "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_win95pts_fci_chisq_0.05.txt": "648fdf271e1440c06ca2b31b55ef1f3f",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_andes_fci_chisq_0.05.txt": "939375acd3c623334b20c709bf8f347c",
+    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_andes_fci_chisq_0.05.txt": "04092ae93e54c727579f08bf5dc34c77",
     "tests/TestData/benchmark_returned_results/linear_10_fci_fisherz_0.05.txt": "289c86f9c665bf82bbcc4c9e1dcec3e7"
 }
-
+#
 INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit fb092d1."
 INCONSISTENT_RESULT_GRAPH_WITH_PAG_ERRMSG = "Returned graph is inconsistent with the truth PAG."
 
@@ -182,3 +183,31 @@ class TestFCI(unittest.TestCase):
         benchmark_returned_graph = np.loadtxt(
             f'tests/TestData/benchmark_returned_results/linear_10_fci_fisherz_0.05.txt')
         assert np.all(G.graph == benchmark_returned_graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
+
+    def test_er_graph(self):
+        random.seed(42)
+        np.random.seed(42)
+        p = 0.1
+        for _ in range(5):
+            data = np.empty(shape=(0, 10))
+            true_dag = erdos_renyi_graph(15, p, directed=True)  # The last 5 variables are latent variables
+            while not is_directed_acyclic_graph(true_dag):
+                true_dag = erdos_renyi_graph(15, p, directed=True)
+            ground_truth_edges = list(true_dag.edges)
+            print(ground_truth_edges)
+            G, edges = fci(data, d_separation, 0.05, verbose=False, true_dag=true_dag)
+
+            ground_truth_nodes = []
+            for i in range(15):
+                ground_truth_nodes.append(GraphNode(f'X{i + 1}'))
+            ground_truth_dag = Dag(ground_truth_nodes)
+            for u, v in ground_truth_edges:
+                ground_truth_dag.add_directed_edge(ground_truth_nodes[u], ground_truth_nodes[v])
+            print(ground_truth_dag)
+            pag = dag2pag(ground_truth_dag, ground_truth_nodes[10:])
+            print('pag:')
+            print(pag)
+            print('fci graph:')
+            print(G)
+            print(f'fci(data, d_separation, 0.05):')
+            self.run_simulate_data_test(pag, G)
