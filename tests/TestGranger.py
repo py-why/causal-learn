@@ -12,6 +12,19 @@ import pandas as pd
 
 from causallearn.search.Granger.Granger import Granger
 
+######################################### Test Notes ###########################################
+# All the benchmark results (p_value_matrix_truth, adj_matrix_truth, coeff_truth)              #
+# are obtained from the code of causal-learn as of commit                                      #
+# https://github.com/cmu-phil/causal-learn/commit/b49980d046607baaaa66ff8dc0ceb98452ab8616     #
+# (b49980d).                                                                                   #
+#                                                                                              #
+# We are not sure if the results are completely "correct" (reflect ground truth graph) or not. #
+# So if you find your tests failed, it means that your modified code is logically inconsistent #
+# with the code as of b49980d, but not necessarily means that your code is "wrong".            #
+# If you are sure that your modification is "correct" (e.g. fixed some bugs in b49980d),       #
+# please report it to us. We will then modify these benchmark results accordingly. Thanks :)   #
+######################################### Test Notes ###########################################
+
 
 class TestGranger(unittest.TestCase):
     # simulate data from a VAR model
