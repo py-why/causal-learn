@@ -12,8 +12,6 @@ we suggest you first apply the PC algorithm and then use pair-wise
 analysis in this implementation to find the causal directions that
 cannot be determined by PC.
 
-(Note: there are some potential issues in the current implementation of PNL. We are working on them and will update as soon as possible.)
-
 Usage
 -------------
 
