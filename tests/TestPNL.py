@@ -1,55 +1,48 @@
-import os
-import sys
-
-sys.path.append("")
 import unittest
-from pickle import load
-
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-
-# # BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
-# # sys.path.append(BASE_DIR)
 from causallearn.search.FCMBased.PNL.PNL import PNL
 
-
 class TestPNL(unittest.TestCase):
-    def syn_data(self, b, n):
-        # x = np.abs(np.random.randn(n, 1) * np.sign(np.random.randn(n, 1)))
-        x = np.random.randn(n, 1)
-        x = x / np.std(x)
-        # e = np.abs(np.random.randn(n, 1) * np.sign(np.random.randn(n, 1)))
-        e = np.random.randn(n, 1)
-        e = e / np.std(e)
-        y = x + 0 * x ** 3 + e
-        plt.plot(x, y, '.')
-        plt.show()
-        return x, y
 
-    # example1
-    # simulated data y = x + bx^3 + e
-    def test_pnl_simul(self):
-        pnl = PNL()
-        x, y = self.syn_data(1, 1000)
-        p_value_foward, p_value_backward = pnl.cause_or_effect(x, y)
-        print('pvalue for x->y is {:.4f}'.format(p_value_foward))
-        print('pvalue for y->x is {:.4f}'.format(p_value_backward))
+    # # Data simulation
+    # np.random.seed(0)
+    # x = np.random.randn(1000, 1)
+    # x = x / np.std(x)
+    # e = np.random.randn(1000, 1)
+    # e = e / np.std(e)
+    # y_1 = (x + x**3 + e)**2
+    # y_2 = np.exp(x**2 + e)
+    # np.savetxt(r"TestData/pnl_simulation_1.txt", np.hstack([x, y_1]), delimiter=',')
+    # np.savetxt(r"TestData/pnl_simulation_2.txt", np.hstack([x, y_2]), delimiter=',')
 
-    # example2
-    # data pair from the Tuebingen cause-effect pair dataset.
-    def test_pnl_pair(self):
-        df = pd.read_csv('TestData/pair0001.txt', sep=' ', header=None)
-        dataset = df.to_numpy()
-        pnl = PNL()
-        n = dataset.shape[0]
-        p_value_foward, p_value_backward = pnl.cause_or_effect(dataset[:, 0].reshape(n, 1), dataset[:, 1].reshape(n, 1))
-        print('pvalue for x->y is {:.4f}'.format(p_value_foward))
-        print('pvalue for y->x is {:.4f}'.format(p_value_backward))
+    # Set the threshold for independence test
+    p_value_threshold = 0.1 # useless now but left
+    pnl = PNL()
 
+    # Test PNL by some simulated data
+    def test_pnl_simulation_1(self):
+        # simulated data y = (x + x^3 + e)^2
+        simulated_dataset_1 = np.loadtxt('tests/TestData/pnl_simulation_1.txt', delimiter=',')
+        simulated_dataset_1_p_value_forward, simulated_dataset_1_p_value_backward = 0.396, 0.0  # round(value, 3) results
+        x_1 = simulated_dataset_1[:, 0].reshape(-1, 1)
+        y_1 = simulated_dataset_1[:, 1].reshape(-1, 1)
+        p_value_forward_1, p_value_backward_1 = self.pnl.cause_or_effect(x_1, y_1)
+        self.assertTrue(p_value_forward_1 == simulated_dataset_1_p_value_forward)
+        self.assertTrue(p_value_backward_1 == simulated_dataset_1_p_value_backward)
+        self.assertTrue(p_value_forward_1 > self.p_value_threshold)
+        self.assertTrue(p_value_backward_1 < self.p_value_threshold)
+        print('PNL passed the first simulated case!')
 
-if __name__ == '__main__':
-    test = TestPNL()
-    test.test_pnl_simul()
-    # test.test_pnl_pair()
-    test.test_pnl_pair()
+    def test_pnl_simulation_2(self):
+        # simulated data y = exp(x^2 + e)
+        simulated_dataset_2 = np.loadtxt('tests/TestData/pnl_simulation_2.txt', delimiter=',')
+        simulated_dataset_2_p_value_forward, simulated_dataset_2_p_value_backward = 0.369, 0.0  # round(value, 3) results
+        x_2 = simulated_dataset_2[:, 0].reshape(-1, 1)
+        y_2 = simulated_dataset_2[:, 1].reshape(-1, 1)
+        p_value_forward_2, p_value_backward_2 = self.pnl.cause_or_effect(x_2, y_2)
+        self.assertTrue(p_value_forward_2 == simulated_dataset_2_p_value_forward)
+        self.assertTrue(p_value_backward_2 == simulated_dataset_2_p_value_backward)
+        self.assertTrue(p_value_forward_2 > self.p_value_threshold)
+        self.assertTrue(p_value_backward_2 < self.p_value_threshold)
+        print('PNL passed the second simulated case!')
+
