@@ -108,10 +108,11 @@ class PNL(object):
                 x1, x2 = x_batch[:,0].reshape(-1,1), x_batch[:,1].reshape(-1,1)
                 x1.requires_grad = True
                 x2.requires_grad = True
-                y2 = G2(x2) - G1(x1)
-                loss_pdf = 0.5 * torch.sum(y2**2)
+                
+                e = G2(x2) - G1(x1)
+                loss_pdf = 0.5 * torch.sum(e**2)
 
-                jacob = autograd.grad(outputs=y2, inputs=x2, grad_outputs=torch.ones(y2.shape), create_graph=True,
+                jacob = autograd.grad(outputs=e, inputs=x2, grad_outputs=torch.ones(e.shape), create_graph=True,
                                     retain_graph=True, only_inputs=True)[0]
                 loss_jacob = - torch.sum(torch.log(torch.abs(jacob) + 1e-16))
 
@@ -122,9 +123,9 @@ class PNL(object):
         
         X1_all = torch.tensor(X[:, 0].reshape(-1,1))
         X2_all = torch.tensor(X[:, 1].reshape(-1,1))
-        Final_y2 = G2(X2_all) - G1(X1_all)
+        e_estimated = G2(X2_all) - G1(X1_all)
 
-        return X1_all, Final_y2
+        return X1_all, e_estimated
 
     def cause_or_effect(self, data_x, data_y):
         '''
