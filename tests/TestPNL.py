@@ -18,7 +18,7 @@ class TestPNL(unittest.TestCase):
     # np.savetxt(r"TestData/pnl_simulation_3.txt", np.hstack([x, y_3]), delimiter=',')
 
     # Set the threshold for independence test
-    p_value_threshold = 0.1 # useless now but left
+    p_value_threshold = 0.5 # useless now but left
     pnl = PNL()
 
     # Test PNL by some simulated data
@@ -75,5 +75,6 @@ class TestPNL(unittest.TestCase):
         self.assertTrue(p_value_forward == real_dataset_p_value_forward)
         self.assertTrue(p_value_backward == real_dataset_p_value_backward)
         self.assertTrue(p_value_forward > self.p_value_threshold)
+        self.assertTrue(p_value_backward < self.p_value_threshold)
         print('PNL passed the real data case!')
 
