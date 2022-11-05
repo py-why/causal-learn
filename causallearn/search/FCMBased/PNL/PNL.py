@@ -3,6 +3,20 @@ import torch
 import torch.autograd as autograd
 import torch.nn as nn
 from scipy import stats
+from torch.utils.data import Dataset, DataLoader
+
+class PairDataset(Dataset):
+
+    def __init__(self, data):
+        super(PairDataset, self).__init__()
+        self.data = data
+        self.num_data = data.shape[0]
+
+    def __len__(self):
+        return self.num_data
+
+    def __getitem__(self, index):
+        return self.data[index, :]
 
 
 class MLP(nn.Module):
@@ -52,7 +66,7 @@ class PNL(object):
             independent from the learned disturbance.
     """
 
-    def __init__(self, epochs=100000):
+    def __init__(self, epochs=3000):
         '''
         Construct the PNL model.
 
@@ -62,23 +76,6 @@ class PNL(object):
         '''
 
         self.epochs = epochs
-    
-    def dele_abnormal(self, data_x, data_y):
-
-        mean_x = np.mean(data_x)
-        sigma_x = np.std(data_x)
-        remove_idx_x = np.where(abs(data_x - mean_x) > 3*sigma_x)[0]
-
-        mean_y = np.mean(data_y)
-        sigma_y = np.std(data_y)
-        remove_idx_y = np.where(abs(data_y - mean_y) > 3*sigma_y)[0]
-
-        remove_idx = np.append(remove_idx_x, remove_idx_y)
-
-        data_x = np.delete(data_x, remove_idx)
-        data_y = np.delete(data_y, remove_idx)
-
-        return data_x.reshape(len(data_x), 1), data_y.reshape(len(data_y), 1)
 
     def nica_mnd(self, X, TotalEpoch):
         """
@@ -93,56 +90,42 @@ class PNL(object):
         ---------
         Y (n*T): the separation result.
         """
-        trpattern = X.T
+        X = X.astype(np.float32)
 
-        # --------------------------------------------------------
-        x1 = torch.from_numpy(trpattern[0, :]).type(torch.FloatTensor).reshape(-1, 1)
-        x2 = torch.from_numpy(trpattern[1, :]).type(torch.FloatTensor).reshape(-1, 1)
-        x1.requires_grad = True
-        x2.requires_grad = True
-
-        y1 = x1
-
-        Final_y2 = x2
-        Min_loss = float('inf')
+        train_dataset = PairDataset(X)
+        train_loader = DataLoader(train_dataset, batch_size=128, drop_last=True)
 
         G1 = MLP(1, 1, n_layers=3, n_units=12)
         G2 = MLP(1, 1, n_layers=1, n_units=12)
         optimizer = torch.optim.Adam([
             {'params': G1.parameters()},
-            {'params': G2.parameters()}], lr=1e-5, betas=(0.9, 0.99))
+            {'params': G2.parameters()}], lr=1e-4, betas=(0.9, 0.99))
 
-        loss_all = torch.zeros(TotalEpoch)
-        loss_pdf_all = torch.zeros(TotalEpoch)
-        loss_jacob_all = torch.zeros(TotalEpoch)
+        for _ in range(TotalEpoch):
+            optimizer.zero_grad()
+            for x_batch in train_loader:
 
-        for epoch in range(TotalEpoch):
-            G1.zero_grad()
-            G2.zero_grad()
-
-            y2 = G2(x2) - G1(x1)
-
-            loss_pdf = 0.5 * torch.sum(y2**2)
-
-            jacob = autograd.grad(outputs=y2, inputs=x2, grad_outputs=torch.ones(y2.shape), create_graph=True,
-                                  retain_graph=True, only_inputs=True)[0]
-
-            loss_jacob = - torch.sum(torch.log(torch.abs(jacob) + 1e-16))
-
-            loss = loss_jacob + loss_pdf
-
-            loss_all[epoch] = loss
-            loss_pdf_all[epoch] = loss_pdf
-            loss_jacob_all[epoch] = loss_jacob
-
-            if loss < Min_loss:
-                Min_loss = loss
-                Final_y2 = y2
+                x1, x2 = x_batch[:,0].reshape(-1,1), x_batch[:,1].reshape(-1,1)
+                x1.requires_grad = True
+                x2.requires_grad = True
                 
-            loss.backward()
-            optimizer.step()
+                e = G2(x2) - G1(x1)
+                loss_pdf = 0.5 * torch.sum(e**2)
 
-        return y1, Final_y2
+                jacob = autograd.grad(outputs=e, inputs=x2, grad_outputs=torch.ones(e.shape), create_graph=True,
+                                    retain_graph=True, only_inputs=True)[0]
+                loss_jacob = - torch.sum(torch.log(torch.abs(jacob) + 1e-16))
+
+                loss = loss_jacob + loss_pdf
+
+                loss.backward()
+                optimizer.step()
+        
+        X1_all = torch.tensor(X[:, 0].reshape(-1,1))
+        X2_all = torch.tensor(X[:, 1].reshape(-1,1))
+        e_estimated = G2(X2_all) - G1(X1_all)
+
+        return X1_all, e_estimated
 
     def cause_or_effect(self, data_x, data_y):
         '''
@@ -159,10 +142,6 @@ class PNL(object):
         pval_backward: p value in the y->x direction
         '''
         torch.manual_seed(0)
-
-        # Delete the abnormal samples
-        data_x, data_y = self.dele_abnormal(data_x, data_y)
-
         # Now let's see if x1 -> x2 is plausible
         data = np.concatenate((data_x, data_y), axis=1)
         # print('To see if x1 -> x2...')
