@@ -3,7 +3,7 @@ import setuptools
 with open('README.md', 'r') as fh:
     README = fh.read()
 
-VERSION = '0.1.3.0'
+VERSION = '0.1.3.1'
 
 setuptools.setup(
     name='causal-learn',
@@ -28,7 +28,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         'Programming Language :: Python :: 3',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'License :: OSI Approved :: MIT License (MIT)',
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.6',
