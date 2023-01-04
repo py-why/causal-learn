@@ -55,7 +55,11 @@ For detailed usage, please kindly refer to its `usage example <https://github.co
 
 Returns
 -------------------
-**G**: a CausalGraph object, where G.graph[j,i]=1 and G.graph[i,j]=-1 indicates  i --> j; G.graph[i,j] = G.graph[j,i] = -1 indicates i --- j; G.graph[i,j] = G.graph[j,i] = 1 indicates i <-> j; G.graph[j,i]=1 and G.graph[i,j]=2 indicates  i o-> j.
+**G**: a CausalGraph object, where G is a PAG and the illustration of its end nodes is as follows:
+
+.. image:: pag.png
+  :width: 350
+
 
 **edges**: list. Contains graph's edges properties. If edge.properties have the Property 'dd', then there is no latent confounder. Otherwise, there might be latent confounders. If edge.properties have the Property 'nl', then it is definitely direct. Otherwise, it is possibly direct.
 
