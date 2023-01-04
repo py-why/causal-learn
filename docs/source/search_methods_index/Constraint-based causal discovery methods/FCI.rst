@@ -58,7 +58,7 @@ Returns
 **G**: a CausalGraph object, where G is a PAG and the illustration of its end nodes is as follows:
 
 .. image:: pag.png
-  :width: 350
+  :width: 500
 
 
 **edges**: list. Contains graph's edges properties. If edge.properties have the Property 'dd', then there is no latent confounder. Otherwise, there might be latent confounders. If edge.properties have the Property 'nl', then it is definitely direct. Otherwise, it is possibly direct.
