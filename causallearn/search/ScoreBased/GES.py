@@ -60,7 +60,7 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         if parameters is None:
             parameters = {'kfold': 10, 'lambda': 0.01, 'dlabel': {}}  # regularization parameter
             for i in range(X.shape[1]):
-                parameters['dlabel']['{}'.format(i)] = i
+                parameters['dlabel'][i] = i
         if maxP is None:
             maxP = len(parameters['dlabel']) / 2
         N = len(parameters['dlabel'])
@@ -71,7 +71,7 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         if parameters is None:
             parameters = {'dlabel': {}}
             for i in range(X.shape[1]):
-                parameters['dlabel']['{}'.format(i)] = i
+                parameters['dlabel'][i] = i
         if maxP is None:
             maxP = len(parameters['dlabel']) / 2
         N = len(parameters['dlabel'])
