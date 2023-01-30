@@ -8,8 +8,8 @@ Usage
 --------
 .. code-block:: python
 
-    from causallearn.score.LocalScoreFunction import local_score_bic
-    score = local_score_bic(Data, i, PAi, parameters)
+    from causallearn.score.LocalScoreFunction import local_score_BIC
+    score = local_score_BIC(Data, i, PAi, parameters)
 
 
 Parameters

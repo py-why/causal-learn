@@ -8,8 +8,8 @@ Usage
 --------
 .. code-block:: python
 
-    from causallearn.score.LocalScoreFunction import local_score_bdeu
-    score = local_score_bdeu(Data, i, PAi, parameters)
+    from causallearn.score.LocalScoreFunction import local_score_BDeu
+    score = local_score_BDeu(Data, i, PAi, parameters)
 
 
 Parameters
