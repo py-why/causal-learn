@@ -16,12 +16,12 @@ from .utils_simulate_data import simulate_discrete_data, simulate_linear_continu
 ######################################### Test Notes ###########################################
 # All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
 # are obtained from the code of causal-learn as of commit                                      #
-# https://github.com/cmu-phil/causal-learn/commit/999df2e (10-08-2022).                        #
+# https://github.com/py-why/causal-learn/commit/5918419 (02-03-2022).                          #
 #                                                                                              #
 # We are not sure if the results are completely "correct" (reflect ground truth graph) or not. #
 # So if you find your tests failed, it means that your modified code is logically inconsistent #
-# with the code as of 999df2e, but not necessarily means that your code is "wrong".            #
-# If you are sure that your modification is "correct" (e.g. fixed some bugs in 999df2e),       #
+# with the code as of 5918419, but not necessarily means that your code is "wrong".            #
+# If you are sure that your modification is "correct" (e.g. fixed some bugs in 5918419),       #
 # please report it to us. We will then modify these benchmark results accordingly. Thanks :)   #
 ######################################### Test Notes ###########################################
 
