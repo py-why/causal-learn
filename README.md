@@ -20,7 +20,7 @@ Our causal-learn implements methods for causal discovery:
 
 Causal-learn needs the following packages to be installed beforehand:
 
-* python 3
+* python 3 (>=3.7)
 * numpy
 * networkx
 * pandas
