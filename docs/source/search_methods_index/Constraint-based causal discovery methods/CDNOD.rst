@@ -15,6 +15,10 @@ Usage
 
     from causallearn.search.ConstraintBased.CDNOD import cdnod
 
+    # default parameters
+    cg = cdnod(data)
+
+    # or customized parameters
     cg = cdnod(data, c_indx, alpha, indep_test, stable, uc_rule, uc_priority, mvcdnod,
           correction_name, background_knowledge, verbose, show_progress)
 

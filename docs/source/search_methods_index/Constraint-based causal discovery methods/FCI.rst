@@ -15,6 +15,10 @@ Usage
 
     from causallearn.search.ConstraintBased.FCI import fci
 
+    # default parameters
+    G, edges = fci(data)
+
+    # or customized parameters
     G, edges = fci(data, independence_test_method, alpha, depth, max_path_length,
         verbose, background_knowledge, cache_variables_map)
 

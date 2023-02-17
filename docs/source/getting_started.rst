@@ -9,7 +9,7 @@ Installation
 Requirements
 ------------
 
-* python 3
+* python 3 (>=3.7)
 * numpy
 * networkx
 * pandas

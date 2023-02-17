@@ -18,6 +18,10 @@ Usage
 
     from causallearn.search.ConstraintBased.PC import pc
 
+    # default parameters
+    cg = pc(data)
+
+    # or customized parameters
     cg = pc(data, alpha, indep_test, stable, uc_rule, uc_priority, mvpc, correction_name, background_knowledge, verbose, show_progress)
 
     # visualization using pydot

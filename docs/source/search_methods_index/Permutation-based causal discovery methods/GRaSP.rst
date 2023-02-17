@@ -14,6 +14,11 @@ Usage
 .. code-block:: python
 
     from causallearn.search.PermutationBased.GRaSP import grasp
+
+    # default parameters
+    G = grasp(X)
+
+    # or customized parameters
     G = grasp(X, score_func, depth, maxP, parameters)
 
     # Visualization using pydot

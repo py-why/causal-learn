@@ -15,6 +15,10 @@ Usage
 
     from causallearn.search.ScoreBased.GES import ges
 
+    # default parameters
+    Record = ges(X)
+
+    # or customized parameters
     Record = ges(X, score_func, maxP, parameters)
 
     # Visualization using pydot
