@@ -30,7 +30,7 @@ class LocalScoreClass(object):
         self.score_cache = {}
 
         if self.local_score_fun == local_score_BIC_from_cov:
-            self.cov = np.corrcoef(self.data.T)
+            self.cov = np.cov(self.data.T)
             self.n = self.data.shape[0]
 
     def score(self, i: int, PAi: List[int]) -> float:
