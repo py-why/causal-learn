@@ -22,7 +22,7 @@ def local_score_BIC(Data: ndarray, i: int, PAi: List[int], parameters=None) -> f
     score: local BIC score
     """
 
-    cov = np.corrcoef(Data.T)
+    cov = np.cov(Data.T)
     n = Data.shape[0]
     # cov, n = Data
 
