@@ -47,14 +47,14 @@ BENCHMARK_TXTFILE_TO_MD5 = {
     "tests/TestData/benchmark_returned_results/linear_10_fci_fisherz_0.05.txt": "289c86f9c665bf82bbcc4c9e1dcec3e7"
 }
 #
-INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit fb092d1."
+INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit 5918419."
 INCONSISTENT_RESULT_GRAPH_WITH_PAG_ERRMSG = "Returned graph is inconsistent with the truth PAG."
 
 # verify files integrity first
 for file_path, expected_MD5 in BENCHMARK_TXTFILE_TO_MD5.items():
     with open(file_path, 'rb') as fin:
         assert hashlib.md5(fin.read()).hexdigest() == expected_MD5, \
-            f'{file_path} is corrupted. Please download it again from https://github.com/cmu-phil/causal-learn/blob/fb092d1/tests/TestData'
+            f'{file_path} is corrupted. Please download it again from https://github.com/cmu-phil/causal-learn/blob/5918419/tests/TestData'
 
 
 def gen_coef():

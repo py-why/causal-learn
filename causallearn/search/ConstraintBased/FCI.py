@@ -345,7 +345,7 @@ def ruleR3(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], bk: Backgrou
                 if graph.is_adjacent_to(node_A, node_C):
                     continue
 
-                if not graph.is_adjacent_to(node_A, node_D) or graph.is_adjacent_to(node_C, node_D):
+                if (not graph.is_adjacent_to(node_A, node_D)) or (not graph.is_adjacent_to(node_C, node_D)):
                     continue
 
                 if not isNoncollider(graph, sep_sets, node_A, node_D, node_C):
