@@ -24,7 +24,7 @@ setuptools.setup(
         'pydot',
         'tqdm'
     ],
-    url='https://github.com/cmu-phil/causal-learn',
+    url='https://github.com/py-why/causal-learn',
     packages=setuptools.find_packages(),
     classifiers=[
         'Programming Language :: Python :: 3',
