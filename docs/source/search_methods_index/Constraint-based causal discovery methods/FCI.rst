@@ -65,7 +65,11 @@ Returns
   :width: 500
 
 
-**edges**: list. Contains graph's edges properties. If edge.properties have the Property 'dd', then there is no latent confounder. Otherwise, there might be latent confounders. If edge.properties have the Property 'nl', then it is definitely direct. Otherwise, it is possibly direct.
+**edges**: list. Contains graph's edges properties.
+       - If edge.properties have the Property 'nl', then there is no latent confounder. Otherwise, there are possibly latent confounders.
+       - If edge.properties have the Property 'dd', then it is definitely direct. Otherwise, it is possibly direct.
+       - If edge.properties have the Property 'pl', then there are possibly latent confounders. Otherwise, there is no latent confounder.
+       - If edge.properties have the Property 'pd', then it is possibly direct. Otherwise, it is definitely direct.
 
 
 .. [1] Spirtes, P., Meek, C., & Richardson, T. (1995, August). Causal inference in the presence of latent variables and selection bias. In Proceedings of the Eleventh conference on Uncertainty in artificial intelligence (pp. 499-506).

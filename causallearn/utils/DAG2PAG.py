@@ -55,7 +55,7 @@ def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
         edge.set_endpoint2(Endpoint.CIRCLE)
         PAG.add_edge(edge)
 
-    sepset = {(nodex, nodey): set() for nodex, nodey in permutations(observed_nodes, 2)}
+    sepset = {(nodes_ids[nodex], nodes_ids[nodey]): set() for nodex, nodey in permutations(observed_nodes, 2)}
 
     for l in range(0, len(observed_nodes) - 1):
         for nodex, nodey in combinations(observed_nodes, 2):
@@ -68,8 +68,8 @@ def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
                 if d_separated(dg, {nodes_ids[nodex]}, {nodes_ids[nodey]}, set(nodes_ids[z] for z in Z)):
                     if edge:
                         PAG.remove_edge(edge)
-                    sepset[(nodex, nodey)] |= set(Z)
-                    sepset[(nodey, nodex)] |= set(Z)
+                    sepset[(nodes_ids[nodex], nodes_ids[nodey])] |= set(Z)
+                    sepset[(nodes_ids[nodey], nodes_ids[nodex])] |= set(Z)
 
     for nodex, nodey in combinations(observed_nodes, 2):
         if PAG.get_edge(nodex, nodey):
@@ -79,7 +79,7 @@ def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
                 continue
             if nodez == nodey:
                 continue
-            if nodez not in sepset[(nodex, nodey)]:
+            if nodez not in sepset[(nodes_ids[nodex], nodes_ids[nodey])]:
                 edge_xz = PAG.get_edge(nodex, nodez)
                 edge_yz = PAG.get_edge(nodey, nodez)
                 if edge_xz and edge_yz:

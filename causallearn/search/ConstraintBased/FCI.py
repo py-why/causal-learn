@@ -345,7 +345,7 @@ def ruleR3(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], bk: Backgrou
                 if graph.is_adjacent_to(node_A, node_C):
                     continue
 
-                if not graph.is_adjacent_to(node_A, node_D) or graph.is_adjacent_to(node_C, node_D):
+                if (not graph.is_adjacent_to(node_A, node_D)) or (not graph.is_adjacent_to(node_C, node_D)):
                     continue
 
                 if not isNoncollider(graph, sep_sets, node_A, node_D, node_C):
@@ -722,10 +722,14 @@ def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 
                     graph.graph[j,i]=1 and graph.graph[i,j]=2 indicates  i o-> j.
     edges : list
         Contains graph's edges properties.
-        If edge.properties have the Property 'dd', then there is no latent confounder. Otherwise,
-            there might be latent confounders.
-        If edge.properties have the Property nl, then it is definitely direct. Otherwise,
+        If edge.properties have the Property 'nl', then there is no latent confounder. Otherwise,
+            there are possibly latent confounders.
+        If edge.properties have the Property 'dd', then it is definitely direct. Otherwise,
             it is possibly direct.
+        If edge.properties have the Property 'pl', then there are possibly latent confounders. Otherwise,
+            there is no latent confounder.
+        If edge.properties have the Property 'pd', then it is possibly direct. Otherwise,
+            it is definitely direct.
     """
 
     if dataset.shape[0] < dataset.shape[1]:
