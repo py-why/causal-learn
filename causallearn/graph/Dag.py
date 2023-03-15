@@ -255,9 +255,6 @@ class Dag(GeneralGraph):
         i = self.node_map[node]
         children = []
 
-        print(self.nodes)
-        print(self.num_vars)
-
         for j in range(len(self.nodes)):
             if self.graph[j, i] == 1:
                 node2 = self.nodes[j]
