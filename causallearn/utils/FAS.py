@@ -1,26 +1,23 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from itertools import combinations
 from typing import List, Dict, Tuple, Set
 
 from numpy import ndarray
 from tqdm.auto import tqdm
 
-from causallearn.graph.Edges import Edges
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphClass import CausalGraph
 from causallearn.graph.Node import Node
-from causallearn.utils.ChoiceGenerator import ChoiceGenerator
 from causallearn.utils.PCUtils.Helper import append_value
 from causallearn.utils.cit import *
 from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 
 
-def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT | None=None, alpha: float = 0.05,
+def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT_Base, alpha: float = 0.05,
         knowledge: BackgroundKnowledge | None = None, depth: int = -1,
         verbose: bool = False, stable: bool = True, show_progress: bool = True) -> Tuple[
-    GeneralGraph, Dict[Tuple[int, int], Set[int]]]:
+    GeneralGraph, Dict[Tuple[int, int], Set[int]], Dict[Tuple[int, int, Set[int]], float]]:
     """
     Implements the "fast adjacency search" used in several causal algorithm in this file. In the fast adjacency
     search, at a given stage of the search, an edge X*-*Y is removed from the graph if X _||_ Y | S, where S is a subset
@@ -50,12 +47,24 @@ def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT | None=N
     Returns
     -------
     graph: Causal graph skeleton, where graph.graph[i,j] = graph.graph[j,i] = -1 indicates i --- j.
-    sep_sets: separated sets of graph
+    sep_sets: Separated sets of graph
+    test_results: Results of conditional independence tests
     """
+    ## ------- check parameters ------------
+    if type(data) != np.ndarray:
+        raise TypeError("'data' must be 'np.ndarray' type!")
+    if not all(isinstance(node, Node) for node in nodes):
+        raise TypeError("'nodes' must be 'List[Node]' type!")
+    if not isinstance(independence_test_method, CIT_Base):
+        raise TypeError("'independence_test_method' must be 'CIT_Base' type!")
+    if type(alpha) != float or alpha <= 0 or alpha >= 1:
+        raise TypeError("'alpha' must be 'float' type and between 0 and 1!")
+    if knowledge is not None and type(knowledge) != BackgroundKnowledge:
+        raise TypeError("'knowledge' must be 'BackgroundKnowledge' type!")
+    if type(depth) != int or depth < -1:
+        raise TypeError("'depth' must be 'int' type >= -1!")
+    ## ------- end check parameters ------------
 
-    assert type(data) == np.ndarray
-    assert 0 < alpha < 1
-    assert isinstance(depth, int) and depth >= -1
     if depth == -1:
         depth = float('inf')
 
@@ -64,6 +73,7 @@ def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT | None=N
     cg = CausalGraph(no_of_var, node_names)
     cg.set_ind_test(independence_test_method)
     sep_sets: Dict[Tuple[int, int], Set[int]] = {}
+    test_results: Dict[Tuple[int, int, Set[int]], float] = {}
 
     def remove_if_exists(x: int, y: int) -> None:
         edge = cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y])
@@ -103,6 +113,7 @@ def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT | None=N
                 Neigh_x_noy = np.delete(Neigh_x, np.where(Neigh_x == y))
                 for S in combinations(Neigh_x_noy, current_depth):
                     p = cg.ci_test(x, y, S)
+                    test_results[(x, y, S)] = p
                     if p > alpha:
                         if verbose:
                             print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
@@ -133,13 +144,4 @@ def fas(data: ndarray, nodes: List[Node], independence_test_method: CIT | None=N
                 sep_sets[(x, y)] = origin_set
                 sep_sets[(y, x)] = origin_set
 
-    # for x in range(no_of_var):
-    #     for y in range(x, no_of_var):
-    #         if cg.sepset[x, y] is not None:
-    #             origin_list = []
-    #             for l_out in cg.sepset[x, y]:
-    #                 for l_in in l_out:
-    #                     origin_list.append(l_in)
-    #             sep_sets[(x, y)] = set(origin_list)
-
-    return cg.G, sep_sets
+    return cg.G, sep_sets, test_results
