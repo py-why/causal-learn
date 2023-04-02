@@ -66,3 +66,7 @@ Please feel free to let us know if you have any recommendation regarding causal 
 Please feel free to open an issue if you find anything unexpected.
 And please create pull requests, perhaps after passing unittests in 'tests/', if you would like to contribute to causal-learn.
 We are always targeting to make our community better!
+
+# Running Tetrad in Python
+
+Although causal-learn provides python implementations for some causal discovery algorithms, there are currently a lot more in the classical Java-based [Tetrad](https://github.com/cmu-phil/tetrad) program. For users who would like to incorporate arbitrary Java code in Tetrad as part of a Python workflow, we strongly recommend considering [py-tetrad](https://github.com/cmu-phil/py-tetrad). Here is a list of [reusable examples](https://github.com/cmu-phil/py-tetrad/tree/main/pytetrad) of how to painlessly benefit from the most comprehensive Tetrad Java codebase.
