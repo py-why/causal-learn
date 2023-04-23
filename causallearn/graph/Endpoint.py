@@ -18,3 +18,6 @@ class Endpoint(Enum):
     # Prints out the name of the type
     def __str__(self):
         return self.name
+
+    def __eq__(self, other):
+        return self.value == other.value

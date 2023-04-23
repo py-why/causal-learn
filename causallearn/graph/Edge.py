@@ -82,28 +82,28 @@ class Edge:
         self.endpoint1 = endpoint
 
         if self.numerical_endpoint_1 == 1 and self.numerical_endpoint_2 == 1:
-            if endpoint is Endpoint.ARROW:
+            if endpoint == Endpoint.ARROW:
                 pass
             else:
-                if endpoint is Endpoint.TAIL:
+                if endpoint == Endpoint.TAIL:
                     self.numerical_endpoint_1 = -1
                     self.numerical_endpoint_2 = 1
                 else:
-                    if endpoint is Endpoint.CIRCLE:
+                    if endpoint == Endpoint.CIRCLE:
                         self.numerical_endpoint_1 = 2
                         self.numerical_endpoint_2 = 1
         else:
-            if endpoint is Endpoint.ARROW and self.numerical_endpoint_2 == 1:
+            if endpoint == Endpoint.ARROW and self.numerical_endpoint_2 == 1:
                 self.numerical_endpoint_1 = 1
                 self.numerical_endpoint_2 = 1
             else:
-                if endpoint is Endpoint.ARROW:
+                if endpoint == Endpoint.ARROW:
                     self.numerical_endpoint_1 = 1
                 else:
-                    if endpoint is Endpoint.TAIL:
+                    if endpoint == Endpoint.TAIL:
                         self.numerical_endpoint_1 = -1
                     else:
-                        if endpoint is Endpoint.CIRCLE:
+                        if endpoint == Endpoint.CIRCLE:
                             self.numerical_endpoint_1 = 2
 
         if self.pointing_left(self.endpoint1, self.endpoint2):
@@ -123,28 +123,28 @@ class Edge:
         self.endpoint2 = endpoint
 
         if self.numerical_endpoint_1 == 1 and self.numerical_endpoint_2 == 1:
-            if endpoint is Endpoint.ARROW:
+            if endpoint == Endpoint.ARROW:
                 pass
             else:
-                if endpoint is Endpoint.TAIL:
+                if endpoint == Endpoint.TAIL:
                     self.numerical_endpoint_1 = 1
                     self.numerical_endpoint_2 = -1
                 else:
-                    if endpoint is Endpoint.CIRCLE:
+                    if endpoint == Endpoint.CIRCLE:
                         self.numerical_endpoint_1 = 1
                         self.numerical_endpoint_2 = 2
         else:
-            if endpoint is Endpoint.ARROW and self.numerical_endpoint_2 == 1:
+            if endpoint == Endpoint.ARROW and self.numerical_endpoint_2 == 1:
                 self.numerical_endpoint_1 = 1
                 self.numerical_endpoint_2 = 1
             else:
-                if endpoint is Endpoint.ARROW:
+                if endpoint == Endpoint.ARROW:
                     self.numerical_endpoint_2 = 1
                 else:
-                    if endpoint is Endpoint.TAIL:
+                    if endpoint == Endpoint.TAIL:
                         self.numerical_endpoint_2 = -1
                     else:
-                        if endpoint is Endpoint.CIRCLE:
+                        if endpoint == Endpoint.CIRCLE:
                             self.numerical_endpoint_2 = 2
 
         if self.pointing_left(self.endpoint1, self.endpoint2):
@@ -216,20 +216,20 @@ class Edge:
 
         edge_string = node1.get_name() + " "
 
-        if endpoint1 is Endpoint.TAIL:
+        if endpoint1 == Endpoint.TAIL:
             edge_string = edge_string + "-"
         else:
-            if endpoint1 is Endpoint.ARROW:
+            if endpoint1 == Endpoint.ARROW:
                 edge_string = edge_string + "<"
             else:
                 edge_string = edge_string + "o"
 
         edge_string = edge_string + "-"
 
-        if endpoint2 is Endpoint.TAIL:
+        if endpoint2 == Endpoint.TAIL:
             edge_string = edge_string + "-"
         else:
-            if endpoint2 is Endpoint.ARROW:
+            if endpoint2 == Endpoint.ARROW:
                 edge_string = edge_string + ">"
             else:
                 edge_string = edge_string + "o"

@@ -62,20 +62,20 @@ class GraphUtils:
 
         edge_string = node1.get_name() + " "
 
-        if endpoint1 is Endpoint.TAIL:
+        if endpoint1 == Endpoint.TAIL:
             edge_string = edge_string + "-"
         else:
-            if endpoint1 is Endpoint.ARROW:
+            if endpoint1 == Endpoint.ARROW:
                 edge_string = edge_string + "<"
             else:
                 edge_string = edge_string + "o"
 
         edge_string = edge_string + "-"
 
-        if endpoint2 is Endpoint.TAIL:
+        if endpoint2 == Endpoint.TAIL:
             edge_string = edge_string + "-"
         else:
-            if endpoint2 is Endpoint.ARROW:
+            if endpoint2 == Endpoint.ARROW:
                 edge_string = edge_string + ">"
             else:
                 edge_string = edge_string + "o"
