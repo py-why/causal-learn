@@ -49,7 +49,7 @@ class ANM(object):
 
         # fit Gaussian process, including hyperparameter optimization
         gpr.fit(X, y)
-        pred_y = gpr.predict(X)
+        pred_y = gpr.predict(X).reshape(-1, 1)
         return pred_y
 
     def cause_or_effect(self, data_x, data_y):
