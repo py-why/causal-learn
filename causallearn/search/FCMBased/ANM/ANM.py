@@ -1,8 +1,3 @@
-import os
-import sys
-
-BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
-sys.path.append(BASE_DIR)
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.gaussian_process.kernels import ConstantKernel as C
@@ -49,7 +44,7 @@ class ANM(object):
 
         # fit Gaussian process, including hyperparameter optimization
         gpr.fit(X, y)
-        pred_y = gpr.predict(X)
+        pred_y = gpr.predict(X).reshape(-1, 1)
         return pred_y
 
     def cause_or_effect(self, data_x, data_y):

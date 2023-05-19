@@ -1,14 +1,5 @@
-import os
-import sys
-
-BASE_DIR = os.path.join(os.path.dirname(__file__), '..')
-sys.path.append(BASE_DIR)
-import sys
 import unittest
-from pickle import load
-
 import numpy as np
-
 from causallearn.search.FCMBased.ANM.ANM import ANM
 
 
@@ -33,7 +24,7 @@ class TestANM(unittest.TestCase):
     # Test ANM by some simulated data
     def test_anm_simulation_1(self):
         # simulated data y = x + 2x^3 + e
-        simulated_dataset_1 = np.loadtxt('TestData/anm_simulation_1.txt', delimiter=',')
+        simulated_dataset_1 = np.loadtxt('tests/TestData/anm_simulation_1.txt', delimiter=',')
         simulated_dataset_1_p_value_forward, simulated_dataset_1_p_value_backward = 0.99541, 0.0  # round(value, 5) results
         x_1 = simulated_dataset_1[:, 0].reshape(-1, 1)
         y_1 = simulated_dataset_1[:, 1].reshape(-1, 1)
@@ -46,7 +37,7 @@ class TestANM(unittest.TestCase):
 
     def test_anm_simulation_2(self):
         # simulated data y = 5 * exp(x) + e
-        simulated_dataset_2 = np.loadtxt('TestData/anm_simulation_2.txt', delimiter=',')
+        simulated_dataset_2 = np.loadtxt('tests/TestData/anm_simulation_2.txt', delimiter=',')
         simulated_dataset_2_p_value_forward, simulated_dataset_2_p_value_backward = 0.99348, 0.0  # round(value, 5) results
         x_2 = simulated_dataset_2[:, 0].reshape(-1, 1)
         y_2 = simulated_dataset_2[:, 1].reshape(-1, 1)
@@ -59,7 +50,7 @@ class TestANM(unittest.TestCase):
 
     def test_anm_simulation_3(self):
         # simulated data y = 3^x + e
-        simulated_dataset_3 = np.loadtxt('TestData/anm_simulation_3.txt', delimiter=',')
+        simulated_dataset_3 = np.loadtxt('tests/TestData/anm_simulation_3.txt', delimiter=',')
         simulated_dataset_3_p_value_forward, simulated_dataset_3_p_value_backward = 0.65933, 0.0  # round(value, 5) results
         x_3 = simulated_dataset_3[:, 0].reshape(-1, 1)
         y_3 = simulated_dataset_3[:, 1].reshape(-1, 1)
@@ -73,8 +64,8 @@ class TestANM(unittest.TestCase):
     # data pair from the Tuebingen cause-effect pair dataset.
     def test_anm_pair(self):
 
-        dataset = np.loadtxt('TestData/pair0001.txt')
-        dataset_p_value_forward, dataset_p_value_backward = 0.14736, 0.0  # round(value, 5) results
+        dataset = np.loadtxt('tests/TestData/pair0001.txt')
+        dataset_p_value_forward, dataset_p_value_backward = 0.14773, 0.0  # round(value, 5) results
         p_value_forward, p_value_backward = self.anm.cause_or_effect(dataset[:, 0].reshape(-1, 1), dataset[:, 1].reshape(-1, 1))
         self.assertTrue(round(p_value_forward, 5) == dataset_p_value_forward)
         self.assertTrue(round(p_value_backward, 5) == dataset_p_value_backward)
