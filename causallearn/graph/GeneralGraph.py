@@ -865,20 +865,21 @@ class GeneralGraph(Graph, ABC):
     # nodes of this graph together with the edges between them.
     def subgraph(self, nodes: List[Node]):
         subgraph = GeneralGraph(nodes)
-
+    
         graph = self.graph
-
+    
+        nodes_to_delete = []
+    
         for i in range(self.num_vars):
             if not (self.nodes[i] in nodes):
-                graph = np.delete(graph, i, axis=0)
-
-        for i in range(self.num_vars):
-            if not (self.nodes[i] in nodes):
-                graph = np.delete(graph, i, axis=1)
-
+                nodes_to_delete .append(i)
+    
+        np.delete(graph, nodes_to_delete, axis = 0)
+        np.delete(graph, nodes_to_delete, axis = 1)
+    
         subgraph.graph = graph
         subgraph.reconstitute_dpath(subgraph.get_graph_edges())
-
+    
         return subgraph
 
     # Returns a string representation of the graph.
