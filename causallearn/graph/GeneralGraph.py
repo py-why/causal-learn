@@ -874,8 +874,8 @@ class GeneralGraph(Graph, ABC):
             if not (self.nodes[i] in nodes):
                 nodes_to_delete .append(i)
     
-        np.delete(graph, nodes_to_delete, axis = 0)
-        np.delete(graph, nodes_to_delete, axis = 1)
+        graph = np.delete(graph, nodes_to_delete, axis = 0)
+        graph = np.delete(graph, nodes_to_delete, axis = 1)
     
         subgraph.graph = graph
         subgraph.reconstitute_dpath(subgraph.get_graph_edges())
