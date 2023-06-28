@@ -872,7 +872,7 @@ class GeneralGraph(Graph, ABC):
     
         for i in range(self.num_vars):
             if not (self.nodes[i] in nodes):
-                nodes_to_delete .append(i)
+                nodes_to_delete.append(i)
     
         graph = np.delete(graph, nodes_to_delete, axis = 0)
         graph = np.delete(graph, nodes_to_delete, axis = 1)
