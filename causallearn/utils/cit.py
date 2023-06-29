@@ -162,7 +162,7 @@ class FisherZ(CIT_Base):
             inv = np.linalg.inv(sub_corr_matrix)
         except np.linalg.LinAlgError:
             raise ValueError('Data correlation matrix is singular. Cannot run fisherz test. Please check your data.')
-        r = -inv[0, 1] / sqrt(inv[0, 0] * inv[1, 1])
+        r = -inv[0, 1] / sqrt(abs(inv[0, 0] * inv[1, 1]))
         if abs(r) >= 1: r = (1. - np.finfo(float).eps) * np.sign(r) # may happen when samplesize is very small or relation is deterministic
         Z = 0.5 * log((1 + r) / (1 - r))
         X = sqrt(self.sample_size - len(condition_set) - 3) * abs(Z)
@@ -382,7 +382,7 @@ class MV_FisherZ(CIT_Base):
             inv = np.linalg.inv(sub_corr_matrix)
         except np.linalg.LinAlgError:
             raise ValueError('Data correlation matrix is singular. Cannot run fisherz test. Please check your data.')
-        r = -inv[0, 1] / sqrt(inv[0, 0] * inv[1, 1])
+        r = -inv[0, 1] / sqrt(abs(inv[0, 0] * inv[1, 1]))
         if abs(r) >= 1: r = (1. - np.finfo(float).eps) * np.sign(r) # may happen when samplesize is very small or relation is deterministic
         Z = 0.5 * log((1 + r) / (1 - r))
         X = sqrt(len(test_wise_deletion_XYcond_rows_index) - len(condition_set) - 3) * abs(Z)
