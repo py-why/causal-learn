@@ -99,7 +99,7 @@ def dag2cpdag(G: Dag) -> GeneralGraph:
             id2 = np.intersect1d(np.where(sign_edges == 0)[0], id1)
             sign_edges[id2] = -1  # label all "unknown" edges incident into y with "reversible"
 
-    # create CPDAG accoring the labelled edge
+    # create CPDAG according the labelled edge
     nodes = G.get_nodes()
     CPDAG = GeneralGraph(nodes)
     for m in range(M):

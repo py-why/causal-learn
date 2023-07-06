@@ -338,8 +338,8 @@ class Chisq_or_Gsq(CIT_Base):
         # Chi-square (or G-square) independence test.
         Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
         if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
-        indexs = condition_set + Xs + Ys
-        p = self.chisq_or_gsq_test(self.data[:, indexs].T, self.cardinalities[indexs], G_sq=self.method == 'gsq')
+        indexes = condition_set + Xs + Ys
+        p = self.chisq_or_gsq_test(self.data[:, indexes].T, self.cardinalities[indexes], G_sq=self.method == 'gsq')
         self.pvalue_cache[cache_key] = p
         return p
 

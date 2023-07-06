@@ -579,7 +579,7 @@ def contain_crrn_m(var, prt_m):
 def contain_common_neighbors_prt_mvar(X, Y, condition_set, skel, prt_m):
     """Check whether X and Y have at least one common neighbor.
     If they have no common neighbors,
-        return Flase
+        return False
     If they have common neighbors,
         but the common neighbors are not the parents of the missingness indicators of the variables in the test,
         return False
