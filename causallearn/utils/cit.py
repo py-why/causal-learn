@@ -300,7 +300,7 @@ class Chisq_or_Gsq(CIT_Base):
             ----------
             cTables: tensor, (k, m, n) the [c]ounted tables (reflect joint P_XY)
             eTables: tensor, (k, m, n) the [e]xpected tables (reflect product of marginal P_X*P_Y)
-              if there are zero entires in eTables, zero must occur in whole rows or columns.
+              if there are zero entries in eTables, zero must occur in whole rows or columns.
               e.g. w.l.o.g., row eTables[w, i, :] == 0, iff np.sum(cTables[w], axis=1)[i] == 0, i.e. cTables[w, i, :] == 0,
                    i.e. in configuration of conditioning set == w, no X can be in value i.
 
@@ -338,8 +338,8 @@ class Chisq_or_Gsq(CIT_Base):
         # Chi-square (or G-square) independence test.
         Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
         if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
-        indexs = condition_set + Xs + Ys
-        p = self.chisq_or_gsq_test(self.data[:, indexs].T, self.cardinalities[indexs], G_sq=self.method == 'gsq')
+        indexes = condition_set + Xs + Ys
+        p = self.chisq_or_gsq_test(self.data[:, indexes].T, self.cardinalities[indexes], G_sq=self.method == 'gsq')
         self.pvalue_cache[cache_key] = p
         return p
 

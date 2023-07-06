@@ -49,13 +49,13 @@ Parameters
 Returns
 -------------------
 
-**arrowsTp/Fp/Fn/Tn**: True postive/false positive/false negative/true negative arrows.
+**arrowsTp/Fp/Fn/Tn**: True positive/false positive/false negative/true negative arrows.
 
 **arrowPrec**: Precision for arrows.
 
 **arrowRec**: Recall for arrows.
 
-**adjTp/Fp/Fn/Tn**: True postive/false positive/false negative/true negative edges.
+**adjTp/Fp/Fn/Tn**: True positive/false positive/false negative/true negative edges.
 
 **adjPrec**: Precision for the adjacency matrix.
 

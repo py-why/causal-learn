@@ -15,7 +15,7 @@ from causallearn.utils.cit import CIT, d_separation
 
 def dag2pag(dag: Dag, islatent: List[Node]) -> GeneralGraph:
     """
-    Covert a DAG to its corresponding PAG
+    Convert a DAG to its corresponding PAG
     Parameters
     ----------
     dag : Direct Acyclic Graph

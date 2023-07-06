@@ -1,7 +1,7 @@
 DAG2CPDAG
 ==============
 
-Covert a DAG to its corresponding CPDAG.
+Convert a DAG to its corresponding CPDAG.
 
 Usage
 --------

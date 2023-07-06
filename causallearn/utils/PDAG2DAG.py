@@ -9,7 +9,7 @@ from causallearn.graph.GeneralGraph import GeneralGraph
 
 def pdag2dag(G: GeneralGraph) -> GeneralGraph:
     """
-    Covert a PDAG to its corresponding DAG
+    Convert a PDAG to its corresponding DAG
 
     Parameters
     ----------

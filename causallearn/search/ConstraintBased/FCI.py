@@ -387,7 +387,7 @@ def doDdpOrientation(node_d: Node, node_a: Node, node_b: Node, node_c: Node, pre
                      independence_test_method, alpha: float, sep_sets: Dict[Tuple[int, int], Set[int]],
                      change_flag: bool, bk, verbose: bool = False) -> (bool, bool):
     """
-    Orients the edges inside the definte discriminating path triangle. Takes
+    Orients the edges inside the definite discriminating path triangle. Takes
     the left endpoint, and a,b,c as arguments.
     """
     if graph.is_adjacent_to(node_d, node_c):
