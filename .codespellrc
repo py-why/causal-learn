@@ -1,4 +1,5 @@
 [codespell]
 skip = .git,*.pdf,*.svg,*.ipynb,*.js,*.css,build
 # interm,te - quick variables used
-ignore-words-list = ges,interm,te
+# alph - skip as might be not desired change at this stage
+ignore-words-list = ges,interm,te,alph
