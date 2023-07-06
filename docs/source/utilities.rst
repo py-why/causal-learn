@@ -8,7 +8,7 @@ Graph operations
 DAG2CPDAG
 ^^^^^^^^^^^^
 
-Covert a DAG to its corresponding PDAG.
+Convert a DAG to its corresponding PDAG.
 
 Parameters
 """"""""""""""""""""""""""""""""""""
@@ -22,7 +22,7 @@ Returns
 DAG2PAG
 ^^^^^^^^^^^^
 
-Covert a DAG to its corresponding PAG.
+Convert a DAG to its corresponding PAG.
 
 Parameters
 """"""""""""""""""""""""""""""""""""
@@ -38,7 +38,7 @@ Returns
 PDAG2DAG
 ^^^^^^^^^^^^
 
-Covert a PDAG to its corresponding DAG.
+Convert a PDAG to its corresponding DAG.
 
 Parameters
 """"""""""""""""""""""""""""""""""""

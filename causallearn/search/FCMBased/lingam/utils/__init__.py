@@ -24,7 +24,7 @@ def print_causal_directions(cdc, n_sampling, labels=None):
     n_sampling : int
         Number of bootstrapping samples.
     labels : array-like, optional (default=None)
-        List of feature lables.
+        List of feature labels.
         If set labels, the output feature name will be the specified label.
     """
     for i, (fr, to, co) in enumerate(zip(cdc['from'], cdc['to'], cdc['count'])):
@@ -47,7 +47,7 @@ def print_dagc(dagc, n_sampling, labels=None):
     n_sampling : int
         Number of bootstrapping samples.
     labels : array-like, optional (default=None)
-        List of feature lables.
+        List of feature labels.
         If set labels, the output feature name will be the specified label.
     """
     for i, (dag, co) in enumerate(zip(dagc['dag'], dagc['count'])):

@@ -300,7 +300,7 @@ class Chisq_or_Gsq(CIT_Base):
             ----------
             cTables: tensor, (k, m, n) the [c]ounted tables (reflect joint P_XY)
             eTables: tensor, (k, m, n) the [e]xpected tables (reflect product of marginal P_X*P_Y)
-              if there are zero entires in eTables, zero must occur in whole rows or columns.
+              if there are zero entries in eTables, zero must occur in whole rows or columns.
               e.g. w.l.o.g., row eTables[w, i, :] == 0, iff np.sum(cTables[w], axis=1)[i] == 0, i.e. cTables[w, i, :] == 0,
                    i.e. in configuration of conditioning set == w, no X can be in value i.
 

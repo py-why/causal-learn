@@ -56,7 +56,7 @@ def chisq(data, X, Y, conditioning_set, G_sq=False):
     for value_config in range(len(value_config_list)):
         L = list(zip(conditioning_set, value_config_list[value_config]))
         sub_data = recursive_and(L)[:, [X,
-                                        Y]]  # obtain the subset dataset (containing only the X, Y columns) with only rows specifed in value_config
+                                        Y]]  # obtain the subset dataset (containing only the X, Y columns) with only rows specified in value_config
 
         # Step 2: Generate contingency table (applying Fienberg's method)
         def make_ctable(D, cat_size):
@@ -692,7 +692,7 @@ def get_sub_correlation_matrix(mvdata):
     -------
     INPUT:
     -------
-    mvdata: data, columns represent variables, rows represnet records/samples
+    mvdata: data, columns represent variables, rows represent records/samples
     -------
     OUTPUT:
     -------
@@ -711,7 +711,7 @@ def get_indx_complete_rows(mvdata):
     -------
     INPUT:
     -------
-    mvdata: data, columns represent variables, rows represnet records/samples
+    mvdata: data, columns represent variables, rows represent records/samples
     -------
     OUTPUT:
     -------

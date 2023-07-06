@@ -394,7 +394,7 @@ def detect_parent(r: int, data_: ndarray, alpha: float, indep_test, stable: bool
 def get_parent(r: int, cg_skel_adj: ndarray) -> ndarray:
     """Get the neighbors of missingness indicators which are the parents
     :param r: the missingness indicator index
-    :param cg_skel_adj: adjacancy matrix of a causal skeleton
+    :param cg_skel_adj: adjacency matrix of a causal skeleton
     :return:
     prt: list, parents of the missingness indicator r
     """

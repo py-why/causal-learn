@@ -60,7 +60,7 @@ def bic_exact_search(X, super_graph=None, search_method='astar',
     dag_est :  numpy.ndarray, shape=(d, d)
         Estimated DAG.
     search_stats :  dict
-        Some statistics related to the seach procedure.
+        Some statistics related to the search procedure.
     """
     n, d = X.shape
     if super_graph is None:
@@ -76,7 +76,7 @@ def bic_exact_search(X, super_graph=None, search_method='astar',
     if max_parents is None:
         max_parents = d
 
-    # To store statistics related to the seach procedure
+    # To store statistics related to the search procedure
     search_stats = {}
 
     # Generate parent graphs (without parallel computing)
@@ -102,7 +102,7 @@ def bic_exact_search(X, super_graph=None, search_method='astar',
     if verbose:
         _logger.info("Finished searching for shortest path.")
 
-    # Covnert structures to adjacency matrix
+    # Convert structures to adjacency matrix
     dag_est = np.zeros((d, d))
     for i, parents in enumerate(structures):
         dag_est[parents, i] = 1
@@ -135,14 +135,14 @@ def astar_shortest_path(parent_graphs, use_path_extension=True,
     structures :  tuple, shape=(d,)
         Optimal parents for each variable.
     shortest_path_stats :  dict
-        Some statistics related to the shortest path seach.
+        Some statistics related to the shortest path search.
     """
     d = len(parent_graphs)
     opened = PriorityQueue()
     closed = set()
 
     if use_k_cycle_heuristic:
-        # Create pattern databse
+        # Create pattern database
         PD = create_dynamic_pd(parent_graphs, k)
         if verbose:
             _logger.info('Finished creating pattern database.')
@@ -234,7 +234,7 @@ def dp_shortest_path(parent_graphs, use_path_extension=True, verbose=False):
     structures :  tuple, shape=(d,)
         Optimal parents for each variable.
     shortest_path_stats :  dict
-        Some statistics related to the shortest path seach.
+        Some statistics related to the shortest path search.
     """
     d = len(parent_graphs)
     order_graph = nx.DiGraph()
@@ -320,7 +320,7 @@ def generate_parent_graph(X, i, max_parents=None, parent_set=None, include_paren
         parent_set = tuple(set(parent_set))
 
     if include_parents is None:
-        include_parents = ()  # Emptry tuple
+        include_parents = ()  # Empty tuple
 
     parent_graph = []
     for j in range(len(parent_set) + 1):

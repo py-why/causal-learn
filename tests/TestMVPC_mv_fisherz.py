@@ -111,12 +111,12 @@ class Test_test_wise_deletion_PC(unittest.TestCase):
 if __name__ == '__main__':
     test = Test_test_wise_deletion_PC()
     print('------------------------------')
-    print('Test test-wise deletion PC and MVPC on full datatsets.')
+    print('Test test-wise deletion PC and MVPC on full datasets.')
     test.test_pc_with_mv_fisherz_full_data()
     print('------------------------------')
-    print('Test test-wise deletion PC and MVPC on MCAR datatsets.')
+    print('Test test-wise deletion PC and MVPC on MCAR datasets.')
     test.test_pc_with_mv_fisherz_MCAR_data()
     print('------------------------------')
-    print('Test test-wise deletion PC on MCAR datatsets where most values are missing.')
+    print('Test test-wise deletion PC on MCAR datasets where most values are missing.')
     test.test_pc_with_mv_fisherz_MCAR_data_assertion()
     

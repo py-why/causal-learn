@@ -80,7 +80,7 @@ class CausalEffect(object):
 
         Parameters
         ----------
-        En : array-like, shpae (n_features)
+        En : array-like, shape (n_features)
             Expectations of each noise variable.
         intervention_index : int
             Index of variable to apply intervention.
@@ -89,7 +89,7 @@ class CausalEffect(object):
 
         Returns
         -------
-        propagated_effects : array-like, shpae (n_features)
+        propagated_effects : array-like, shape (n_features)
             Propagated effects, where ``n_features`` is the number of features.
         """
         effects = np.zeros(len(self._causal_order))
@@ -106,7 +106,7 @@ class CausalEffect(object):
 
         Parameters
         ----------
-        X : array-like, shpae (n_predictors)
+        X : array-like, shape (n_predictors)
             Predictors, where ``n_predictors`` is the number of variables.
         pred_model : model object implementing 'predict' or 'predict_proba'
             Model to predict the expectation. For linear regression or non-linear reggression, model object must have ``predict`` method.

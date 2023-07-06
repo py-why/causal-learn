@@ -224,7 +224,7 @@ def minimize(X, f, length, *varargin):
                     if np.isnan(f3) or np.isinf(f3) or np.any(np.isnan(df3)) or np.any(np.isinf(df3)):
                         raise Exception('')
                     success = True
-                except Exception as e:  # catch any error which occured in f
+                except Exception as e:  # catch any error which occurred in f
                     x3 = (x2 + x3) / 2  # bisect and try again
 
             if f3 < F0:
@@ -393,7 +393,7 @@ def gpr_multi_new(logtheta=None, covfunc=None, x=None, y=None, xstar=None, nargo
     # whose mean and variance are returned. Note that in cases where the covariance
     # function has noise contributions, the variance returned in S2 is for noisy
     # test targets; if you want the variance of the noise-free latent function, you
-    # must substract the noise variance.
+    # must subtract the noise variance.
     #
     # usage: [nlml dnlml] = gpr(logtheta, covfunc, x, y)
     #    or: [mu S2]  = gpr(logtheta, covfunc, x, y, xstar)
@@ -472,8 +472,8 @@ def solve_chol(A, B):
     # contained in the file solve_chol.c, and should be compiled using matlabs mex
     # facility. However, this file also contains a (less efficient) matlab
     # implementation, supplied only as a help to people unfamiliar with mex. If
-    # the C code has been properly compiled and is avaiable, it automatically
-    # takes precendence over the matlab code in this file.
+    # the C code has been properly compiled and is available, it automatically
+    # takes precedence over the matlab code in this file.
 
     if A is None or B is None:
         raise Exception('Wrong number of arguments.')
@@ -589,8 +589,8 @@ def sq_dist(a, b=None, Q=None):
     # contained in the file sq_dist.c, and should be compiled using matlabs mex
     # facility. However, this file also contains a (less efficient) matlab
     # implementation, supplied only as a help to people unfamiliar with mex. If
-    # the C code has been properly compiled and is avaiable, it automatically
-    # takes precendence over the matlab code in this file.
+    # the C code has been properly compiled and is available, it automatically
+    # takes precedence over the matlab code in this file.
     #
     # Usage: C = sq_dist(a, b)
     #    or: C = sq_dist(a)  or equiv.: C = sq_dist(a, [])

@@ -146,7 +146,7 @@ class DirectLiNGAM(_BaseLiNGAM):
                k2 * (np.mean(u * np.exp((-u ** 2) / 2))) ** 2
 
     def _diff_mutual_info(self, xi_std, xj_std, ri_j, rj_i):
-        """Calculate the difference of the mutual informations."""
+        """Calculate the difference of the mutual information."""
         return (self._entropy(xj_std) + self._entropy(ri_j / np.std(ri_j))) - \
                (self._entropy(xi_std) + self._entropy(rj_i / np.std(rj_i)))
 
@@ -215,7 +215,7 @@ class DirectLiNGAM(_BaseLiNGAM):
         return Uc[np.argmax(M_list)]
 
     def _mutual_information(self, x1, x2, param):
-        """Calculate the mutual informations."""
+        """Calculate the mutual information."""
         kappa, sigma = param
         n = len(x1)
         X1 = np.tile(x1, (n, 1))

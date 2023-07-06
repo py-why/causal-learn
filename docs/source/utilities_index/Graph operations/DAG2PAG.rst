@@ -1,7 +1,7 @@
 DAG2PAG
 ==================
 
-Covert a DAG to its corresponding PAG.
+Convert a DAG to its corresponding PAG.
 
 Usage
 --------

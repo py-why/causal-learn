@@ -1,7 +1,7 @@
 PDAG2DAG
 ============
 
-Covert a PDAG to its corresponding DAG.
+Convert a PDAG to its corresponding DAG.
 
 Usage
 --------
