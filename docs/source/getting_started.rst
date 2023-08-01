@@ -81,5 +81,18 @@ Contributors
 
 **Quality control**: Yewen Fan, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
 
+Citation
+^^^^^^^^^^^^
+
+Please cite as:
+
+  @article{causallearn,
+    title={Causal-learn: Causal Discovery in Python},
+    author={Yujia Zheng and Biwei Huang and Wei Chen and Joseph Ramsey and Mingming Gong and Ruichu Cai and Shohei Shimizu and Peter Spirtes and Kun Zhang},
+    journal={arXiv preprint arXiv:2307.16405},
+    year={2023}
+  }
+
+
 
 

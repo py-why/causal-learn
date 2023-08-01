@@ -56,6 +56,7 @@ For detailed usage, please kindly refer to its `usage example <https://github.co
 
 **cache_variables_map**: This variable a map which contains the variables relate with cache. If it is not None, it should contain 'data_hash_key' 、'ci_test_hash_key' and 'cardinalities'. Default: None.
 
+**show_progress**: True iff the algorithm progress should be show in console. Default: True.
 
 Returns
 -------------------

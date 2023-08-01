@@ -70,3 +70,16 @@ We are always targeting to make our community better!
 # Running Tetrad in Python
 
 Although causal-learn provides python implementations for some causal discovery algorithms, there are currently a lot more in the classical Java-based [Tetrad](https://github.com/cmu-phil/tetrad) program. For users who would like to incorporate arbitrary Java code in Tetrad as part of a Python workflow, we strongly recommend considering [py-tetrad](https://github.com/cmu-phil/py-tetrad). Here is a list of [reusable examples](https://github.com/cmu-phil/py-tetrad/tree/main/pytetrad) of how to painlessly benefit from the most comprehensive Tetrad Java codebase.
+
+# Citation
+
+Please cite as:
+
+```
+@article{causallearn,
+  title={Causal-learn: Causal Discovery in Python},
+  author={Yujia Zheng and Biwei Huang and Wei Chen and Joseph Ramsey and Mingming Gong and Ruichu Cai and Shohei Shimizu and Peter Spirtes and Kun Zhang},
+  journal={arXiv preprint arXiv:2307.16405},
+  year={2023}
+}
+```
