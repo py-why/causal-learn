@@ -85,7 +85,9 @@ Citation
 ^^^^^^^^^^^^
 
 
-Please cite as::
+Please cite as:
+
+.. code-block:: none
 
   @article{causallearn,
     title={Causal-learn: Causal Discovery in Python},
