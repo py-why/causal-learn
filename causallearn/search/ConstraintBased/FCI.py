@@ -693,7 +693,7 @@ def removeByPossibleDsep(graph: Graph, independence_test_method: CIT, alpha: flo
 
 
 def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 0.05, depth: int = -1,
-        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None,
+        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None, show_progress: bool = True,
         **kwargs) -> Tuple[Graph, List[Edge]]:
     """
     Perform Fast Causal Inference (FCI) algorithm for causal discovery
@@ -755,7 +755,7 @@ def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 
 
     # FAS (“Fast Adjacency Search”) is the adjacency search of the PC algorithm, used as a first step for the FCI algorithm.
     graph, sep_sets, test_results = fas(dataset, nodes, independence_test_method=independence_test_method, alpha=alpha,
-                                        knowledge=background_knowledge, depth=depth, verbose=verbose)
+                                        knowledge=background_knowledge, depth=depth, verbose=verbose, show_progress=show_progress)
 
     reorientAllWith(graph, Endpoint.CIRCLE)
 
