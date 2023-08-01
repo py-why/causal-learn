@@ -84,7 +84,8 @@ Contributors
 Citation
 ^^^^^^^^^^^^
 
-Please cite as:
+
+Please cite as::
 
   @article{causallearn,
     title={Causal-learn: Causal Discovery in Python},
