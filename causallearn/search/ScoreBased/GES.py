@@ -5,10 +5,11 @@ from causallearn.graph.GraphNode import GraphNode
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 from causallearn.utils.GESUtils import *
 from causallearn.utils.PDAG2DAG import pdag2dag
+from typing import Union
 
 
 def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] = None,
-        parameters: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        parameters: Optional[Dict[str, Any]] = None, node_names: Union[List[str], None] = None,) -> Dict[str, Any]:
     """
     Perform greedy equivalence search (GES) algorithm
 
@@ -95,7 +96,8 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         raise Exception('Unknown function!')
     score_func = localScoreClass
 
-    node_names = [("X%d" % (i + 1)) for i in range(N)]
+    if node_names is None:
+        node_names = [("X%d" % (i + 1)) for i in range(N)]
     nodes = []
 
     for name in node_names:
