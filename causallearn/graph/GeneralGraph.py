@@ -508,13 +508,15 @@ class GeneralGraph(Graph, ABC):
     def is_child_of(self, node1: Node, node2: Node) -> bool:
         i = self.node_map[node1]
         j = self.node_map[node2]
-        return self.graph[i, j] == Endpoint.TAIL.value or self.graph[i, j] == Endpoint.ARROW_AND_ARROW.value
+        return (self.graph[j, i] == Endpoint.TAIL.value and self.graph[i, j] == Endpoint.ARROW.value) \
+               or self.graph[j, i] == Endpoint.TAIL_AND_ARROW.value
 
     # Returns true iff node1 is a parent of node2.
     def is_parent_of(self, node1: Node, node2: Node) -> bool:
         i = self.node_map[node1]
         j = self.node_map[node2]
-        return self.graph[j, i] == Endpoint.ARROW.value and self.graph[i, j] == Endpoint.TAIL.value
+        return (self.graph[j, i] == Endpoint.ARROW.value and self.graph[i, j] == Endpoint.TAIL.value) \
+               or self.graph[i, j] == Endpoint.TAIL_AND_ARROW.value
 
     # Returns true iff node1 is a proper ancestor of node2.
     def is_proper_ancestor_of(self, node1: Node, node2: Node) -> bool:
