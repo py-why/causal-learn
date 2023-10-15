@@ -523,7 +523,7 @@ def cov_noise(logtheta=None, x=None, z=None, nargout=1):
 
 
 def cov_seard(loghyper=None, x=None, z=None, nargout=1):
-    # Squared Exponential covariance function with Automatic Relevance Detemination
+    # Squared Exponential covariance function with Automatic Relevance Determination
     # (ARD) distance measure. The covariance function is parameterized as:
     #
     # k(x^p,x^q) = sf2 * exp(-(x^p - x^q)'*inv(P)*(x^p - x^q)/2)
