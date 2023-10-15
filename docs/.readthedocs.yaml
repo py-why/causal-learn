@@ -11,3 +11,12 @@ build:
   tools:
     python: "3.11"
 
+python:
+  version: 3.11
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+    - method: pip
+      requirements: sphinx_rtd_theme
