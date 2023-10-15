@@ -10,3 +10,4 @@ Contents:
 
     Graph operations/index
     Evaluations
+    Datasets
