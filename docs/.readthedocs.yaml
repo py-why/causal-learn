@@ -4,7 +4,13 @@
 
 version: 2
 
-build:
-  os: ubuntu-22.04
-  commands:
-    - pip install sphinx_rtd_theme
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+    - method: pip
+      extra_requirements:
+        - sphinx_rtd_theme
+
