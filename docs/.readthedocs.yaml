@@ -12,7 +12,7 @@ build:
     python: "3.11"
 
 python:
-  version: 3.11
+  version: "3.11"
   install:
     - method: pip
       path: .
