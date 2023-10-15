@@ -716,7 +716,7 @@ def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 
 
     Returns
     -------
-    graph : a CausalGraph object, where graph.graph[j,i]=1 and graph.graph[i,j]=-1 indicates  i --> j ,
+    graph : a GeneralGraph object, where graph.graph[j,i]=1 and graph.graph[i,j]=-1 indicates  i --> j ,
                     graph.graph[i,j] = graph.graph[j,i] = -1 indicates i --- j,
                     graph.graph[i,j] = graph.graph[j,i] = 1 indicates i <-> j,
                     graph.graph[j,i]=1 and graph.graph[i,j]=2 indicates  i o-> j.

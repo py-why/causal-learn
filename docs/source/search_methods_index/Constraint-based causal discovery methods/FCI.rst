@@ -16,16 +16,16 @@ Usage
     from causallearn.search.ConstraintBased.FCI import fci
 
     # default parameters
-    G, edges = fci(data)
+    g, edges = fci(data)
 
     # or customized parameters
-    G, edges = fci(data, independence_test_method, alpha, depth, max_path_length,
+    g, edges = fci(data, independence_test_method, alpha, depth, max_path_length,
         verbose, background_knowledge, cache_variables_map)
 
     # visualization
     from causallearn.utils.GraphUtils import GraphUtils
 
-    pdy = GraphUtils.to_pydot(G)
+    pdy = GraphUtils.to_pydot(g)
     pdy.write_png('simple_test.png')
 
 Visualization using pydot is recommended. If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGraphVisualization.py>`_.
@@ -60,7 +60,7 @@ For detailed usage, please kindly refer to its `usage example <https://github.co
 
 Returns
 -------------------
-**G**: a CausalGraph object, where G is a PAG and the illustration of its end nodes is as follows:
+**g**: a GeneralGraph object, where g.graph is a PAG and the illustration of its end nodes is as follows (denotes G = g.graph):
 
 .. image:: pag.png
   :width: 500
