@@ -253,14 +253,14 @@ class VARLiNGAM:
         # XXX: VAR.fit() is not searching lags correctly
         if self._criterion not in ['aic', 'fpe', 'hqic', 'bic']:
             var = VAR(X)
-            result = var.fit(maxlags=self._lags, trend='nc')
+            result = var.fit(maxlags=self._lags, trend='n')
         else:
             min_value = float('Inf')
             result = None
 
             for lag in range(1, self._lags + 1):
                 var = VAR(X)
-                fitted = var.fit(maxlags=lag, ic=None, trend='nc')
+                fitted = var.fit(maxlags=lag, ic=None, trend='n')
 
                 value = getattr(fitted, self._criterion)
                 if value < min_value:
