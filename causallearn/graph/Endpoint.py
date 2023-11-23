@@ -20,4 +20,4 @@ class Endpoint(Enum):
         return self.name
 
     def __eq__(self, other):
-        return self.value == other.value
+        return isinstance(other, Endpoint) and self.value == other.value
