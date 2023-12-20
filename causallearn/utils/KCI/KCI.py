@@ -191,7 +191,7 @@ class KCI_UInd(object):
         """
         T = Kxc.shape[0]
         if T > 1000:
-            num_eig = np.int(np.floor(T / 2))
+            num_eig = int(np.floor(T / 2))
         else:
             num_eig = T
         lambdax = eigvalsh(Kxc)
