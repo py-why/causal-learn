@@ -81,7 +81,7 @@ and n_features is the number of features.
        - ":ref:`kci <Kernel-based conditional independence (KCI) test and independence test>`": kernel-based conditional independence test. (As a kernel method, its complexity is cubic in the sample size, so it might be slow if the same size is not small.)
        - ":ref:`mv_fisherz <Missing-value Fisher-z test>`": Missing-value Fisher's Z conditional independence test.
 
-**stable**: run stabilized skeleton discovery if True. Default: True.
+**stable**: run stabilized skeleton discovery [4]_ if True. Default: True.
 
 **uc_rule**: how unshielded colliders are oriented. Default: 0.
        - 0: run uc_sepset.
@@ -115,3 +115,4 @@ Returns
 .. [1] Spirtes, P., Glymour, C. N., Scheines, R., & Heckerman, D. (2000). Causation, prediction, and search. MIT press.
 .. [2] Tu, R., Zhang, C., Ackermann, P., Mohan, K., Kjellström, H., & Zhang, K. (2019, April). Causal discovery in the presence of missing data. In The 22nd International Conference on Artificial Intelligence and Statistics (pp. 1762-1770). PMLR.
 .. [3] Ramsey, J. (2016). Improving accuracy and scalability of the pc algorithm by maximizing p-value. arXiv preprint arXiv:1610.00378.
+.. [4] Colombo, D., & Maathuis, M. H. (2014). Order-independent constraint-based causal structure learning. J. Mach. Learn. Res., 15(1), 3741-3782.
