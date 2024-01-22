@@ -120,8 +120,9 @@ def skeleton_discovery(
                     else:
                         if verbose:
                             print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
-                append_value(cg.sepset, x, y, tuple(sepsets))
-                append_value(cg.sepset, y, x, tuple(sepsets))
+                if (x, y) in edge_removal or not cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y]):
+                    append_value(cg.sepset, x, y, tuple(sepsets))
+                    append_value(cg.sepset, y, x, tuple(sepsets))
 
         if show_progress:
             pbar.refresh()
