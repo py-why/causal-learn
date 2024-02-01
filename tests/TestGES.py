@@ -10,7 +10,7 @@ from causallearn.search.ScoreBased.GES import ges
 
 
 ######################################### Test Notes ###########################################
-# All the benchmark results of loaded files (e.g. "./TestData/benchmark_returned_results/")    #
+# All the benchmark results of loaded files (e.g. "tests/TestData/benchmark_returned_results/")#
 # are obtained from the code of causal-learn as of commit                                      #
 # https://github.com/cmu-phil/causal-learn/commit/b51d788 (07-08-2022).                        #
 #                                                                                              #
@@ -23,13 +23,13 @@ from causallearn.search.ScoreBased.GES import ges
 
 
 BENCHMARK_TXTFILE_TO_MD5 = {
-    "./TestData/data_linear_10.txt": "95a17e15038d4cade0845140b67c05a6",
-    "./TestData/data_discrete_10.txt": "ccb51c6c1946d8524a8b29a49aef2cc4",
-    "./TestData/graph.10.txt": "4970d4ecb8be999a82a665e5f5e0825b",
-    "./TestData/test_ges_simulated_linear_gaussian_data.txt": "0d2490eeb9ee8ef3b18bf21d7e936e1e",
-    "./TestData/test_ges_simulated_linear_gaussian_CPDAG.txt": "aa0146777186b07e56421ce46ed52914",
-    "./TestData/benchmark_returned_results/linear_10_ges_local_score_BIC_none_none.txt": "3accb3673d2ccb4c110f3703d60fe702",
-    "./TestData/benchmark_returned_results/discrete_10_ges_local_score_BDeu_none_none.txt": "eebd11747c1b927b2fdd048a55c8c3a5",
+    "tests/TestData/data_linear_10.txt": "95a17e15038d4cade0845140b67c05a6",
+    "tests/TestData/data_discrete_10.txt": "ccb51c6c1946d8524a8b29a49aef2cc4",
+    "tests/TestData/graph.10.txt": "4970d4ecb8be999a82a665e5f5e0825b",
+    "tests/TestData/test_ges_simulated_linear_gaussian_data.txt": "0d2490eeb9ee8ef3b18bf21d7e936e1e",
+    "tests/TestData/test_ges_simulated_linear_gaussian_CPDAG.txt": "aa0146777186b07e56421ce46ed52914",
+    "tests/TestData/benchmark_returned_results/linear_10_ges_local_score_BIC_none_none.txt": "3accb3673d2ccb4c110f3703d60fe702",
+    "tests/TestData/benchmark_returned_results/discrete_10_ges_local_score_BDeu_none_none.txt": "eebd11747c1b927b2fdd048a55c8c3a5",
 }
 
 INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit b51d788."
@@ -47,8 +47,8 @@ class TestGES(unittest.TestCase):
     # Load data from file "data_linear_10.txt". Run GES with local_score_BIC.
     def test_ges_load_linear_10_with_local_score_BIC(self):
         print('Now start test_ges_load_linear_10_with_local_score_BIC ...')
-        data_path = "./TestData/data_linear_10.txt"
-        truth_graph_path = "./TestData/graph.10.txt"
+        data_path = "tests/TestData/data_linear_10.txt"
+        truth_graph_path = "tests/TestData/graph.10.txt"
         data = np.loadtxt(data_path, skiprows=1)
         truth_dag = txt2generalgraph(truth_graph_path)  # truth_dag is a GeneralGraph instance
         truth_cpdag = dag2cpdag(truth_dag)
@@ -58,7 +58,7 @@ class TestGES(unittest.TestCase):
         res_map = ges(data, score_func='local_score_BIC', maxP=None, parameters=None)  # Run GES and obtain the estimated graph (res_map is Dict object，which contains the updated steps, the result causal graph and the result score.)
 
         benchmark_returned_graph = np.loadtxt(
-            "./TestData/benchmark_returned_results/linear_10_ges_local_score_BIC_none_none.txt")
+            "tests/TestData/benchmark_returned_results/linear_10_ges_local_score_BIC_none_none.txt")
         assert np.all(res_map['G'].graph == benchmark_returned_graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
         shd = SHD(truth_cpdag, res_map['G'])
         print(f"    ges(data, score_func='local_score_BIC', maxP=None, parameters=None)\tSHD: {shd.get_shd()} of {num_edges_in_truth}")
@@ -73,9 +73,9 @@ class TestGES(unittest.TestCase):
         truth_DAG_directed_edges = {(0, 1), (0, 3), (1, 2), (1, 3), (2, 3), (2, 4), (3, 4)}
         truth_CPDAG_directed_edges = {(0, 3), (1, 3), (2, 3), (2, 4), (3, 4)}
         truth_CPDAG_undirected_edges = {(0, 1), (1, 2), (2, 1), (1, 0)}
-        truth_CPDAG = np.loadtxt("./TestData/test_ges_simulated_linear_gaussian_CPDAG.txt")
+        truth_CPDAG = np.loadtxt("tests/TestData/test_ges_simulated_linear_gaussian_CPDAG.txt")
 
-        ###### Simulation configuration: code to generate "./TestData/test_ges_simulated_linear_gaussian_data.txt" ######
+        ###### Simulation configuration: code to generate "tests/TestData/test_ges_simulated_linear_gaussian_data.txt" ######
         # np.random.seed(42)
         # linear_weight_minabs, linear_weight_maxabs, linear_weight_netative_prob = 0.5, 0.9, 0.5
         # sample_size = 10000
@@ -89,10 +89,10 @@ class TestGES(unittest.TestCase):
         # mixing_matrix = np.linalg.inv(np.eye(num_of_nodes) - adjacency_matrix)
         # exogenous_noise = np.random.normal(0, 1, (num_of_nodes, sample_size))
         # data = (mixing_matrix @ exogenous_noise).T
-        # np.savetxt("./TestData/test_ges_simulated_linear_gaussian_data.txt", data)
-        ###### Simulation configuration: code to generate "./TestData/test_ges_simulated_linear_gaussian_data.txt" ######
+        # np.savetxt("tests/TestData/test_ges_simulated_linear_gaussian_data.txt", data)
+        ###### Simulation configuration: code to generate "tests/TestData/test_ges_simulated_linear_gaussian_data.txt" ######
 
-        data = np.loadtxt("./TestData/test_ges_simulated_linear_gaussian_data.txt")
+        data = np.loadtxt("tests/TestData/test_ges_simulated_linear_gaussian_data.txt")
 
         # Run GES with default parameters: score_func='local_score_BIC', maxP=None, parameters=None
         res_map = ges(data, score_func='local_score_BIC', maxP=None, parameters=None)
@@ -105,8 +105,8 @@ class TestGES(unittest.TestCase):
     # Load data from file "data_discrete_10.txt". Run GES with local_score_BDeu.
     def test_ges_load_discrete_10_with_local_score_BDeu(self):
         print('Now start test_ges_load_discrete_10_with_local_score_BDeu ...')
-        data_path = "./TestData/data_discrete_10.txt"
-        truth_graph_path = "./TestData/graph.10.txt"
+        data_path = "tests/TestData/data_discrete_10.txt"
+        truth_graph_path = "tests/TestData/graph.10.txt"
         data = np.loadtxt(data_path, skiprows=1)
         truth_dag = txt2generalgraph(truth_graph_path)  # truth_dag is a GeneralGraph instance
         truth_cpdag = dag2cpdag(truth_dag)
@@ -115,7 +115,7 @@ class TestGES(unittest.TestCase):
         # Run GES with local_score_BDeu.
         res_map = ges(data, score_func='local_score_BDeu', maxP=None, parameters=None)
         benchmark_returned_graph = np.loadtxt(
-            "./TestData/benchmark_returned_results/discrete_10_ges_local_score_BDeu_none_none.txt")
+            "tests/TestData/benchmark_returned_results/discrete_10_ges_local_score_BDeu_none_none.txt")
         assert np.all(res_map['G'].graph == benchmark_returned_graph), INCONSISTENT_RESULT_GRAPH_ERRMSG
         shd = SHD(truth_cpdag, res_map['G'])
         print(f"    ges(data, score_func='local_score_BDeu', maxP=None, parameters=None)\tSHD: {shd.get_shd()} of {num_edges_in_truth}")
