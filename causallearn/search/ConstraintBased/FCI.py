@@ -827,30 +827,6 @@ def removeByPossibleDsep(graph: Graph, independence_test_method: CIT, alpha: flo
                     break
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 0.05, depth: int = -1,
         max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None, show_progress: bool = True,
         **kwargs) -> Tuple[Graph, List[Edge]]:
