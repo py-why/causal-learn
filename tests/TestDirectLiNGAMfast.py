@@ -34,7 +34,7 @@ class TestDirectLiNGAMFast(unittest.TestCase):
 
         cuda = get_cuda_version()
         if cuda:
-            model = lingam.DirectLiNGAM()
+            model = lingam.DirectLiNGAM(measure='pwling_fast')
             model.fit(X)
 
             print(model.causal_order_)
