@@ -97,6 +97,7 @@ def grasp(
                   parameters['lambda']: regularization parameter
                   parameters['dlabel']: for variables with multi-dimensions,
                                indicate which dimensions belong to the i-th variable.
+    verbose : whether to print the time cost and verbose output of the algorithm.
 
     Returns
     -------
