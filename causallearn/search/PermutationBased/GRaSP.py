@@ -80,7 +80,8 @@ def grasp(
     depth: Optional[int] = 3,
     maxP: Optional[float] = None,
     parameters: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    verbose: Optional[bool] = True,
+) -> GeneralGraph:
     """
     Perform a greedy relaxation of the sparsest permutation (GRaSP) algorithm
 
@@ -96,6 +97,7 @@ def grasp(
                   parameters['lambda']: regularization parameter
                   parameters['dlabel']: for variables with multi-dimensions,
                                indicate which dimensions belong to the i-th variable.
+    verbose : whether to print the time cost and verbose output of the algorithm.
 
     Returns
     -------
@@ -206,13 +208,15 @@ def grasp(
         order.bump_edges(len(y_parents))
 
     while dfs(depth - 1, set(), [], order, score):
-        sys.stdout.write("\rGRaSP edge count: %i    " % order.get_edges())
-        sys.stdout.flush()
+        if verbose:
+            sys.stdout.write("\rGRaSP edge count: %i    " % order.get_edges())
+            sys.stdout.flush()
 
     runtime = time.perf_counter() - runtime
-
-    sys.stdout.write("\nGRaSP completed in: %.2fs \n" % runtime)
-    sys.stdout.flush()
+    
+    if verbose:
+        sys.stdout.write("\nGRaSP completed in: %.2fs \n" % runtime)
+        sys.stdout.flush()
 
     for y in range(p):
         for x in order.get_parents(y):
