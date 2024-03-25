@@ -80,6 +80,7 @@ def grasp(
     depth: Optional[int] = 3,
     maxP: Optional[float] = None,
     parameters: Optional[Dict[str, Any]] = None,
+    verbose: Optional[bool] = True,
 ) -> Dict[str, Any]:
     """
     Perform a greedy relaxation of the sparsest permutation (GRaSP) algorithm
@@ -206,13 +207,15 @@ def grasp(
         order.bump_edges(len(y_parents))
 
     while dfs(depth - 1, set(), [], order, score):
-        sys.stdout.write("\rGRaSP edge count: %i    " % order.get_edges())
-        sys.stdout.flush()
+        if verbose:
+            sys.stdout.write("\rGRaSP edge count: %i    " % order.get_edges())
+            sys.stdout.flush()
 
     runtime = time.perf_counter() - runtime
-
-    sys.stdout.write("\nGRaSP completed in: %.2fs \n" % runtime)
-    sys.stdout.flush()
+    
+    if verbose:
+        sys.stdout.write("\nGRaSP completed in: %.2fs \n" % runtime)
+        sys.stdout.flush()
 
     for y in range(p):
         for x in order.get_parents(y):
