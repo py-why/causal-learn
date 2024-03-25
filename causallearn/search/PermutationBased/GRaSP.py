@@ -81,7 +81,7 @@ def grasp(
     maxP: Optional[float] = None,
     parameters: Optional[Dict[str, Any]] = None,
     verbose: Optional[bool] = True,
-) -> Dict[str, Any]:
+) -> GeneralGraph:
     """
     Perform a greedy relaxation of the sparsest permutation (GRaSP) algorithm
 
