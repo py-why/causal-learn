@@ -24,6 +24,9 @@ setuptools.setup(
         'pydot',
         'tqdm'
     ],
+    extras_require={
+        'gpu': ['culingam']  # optional dependency for accelerated lingam. cuda required.
+    },
     url='https://github.com/py-why/causal-learn',
     packages=setuptools.find_packages(),
     classifiers=[
