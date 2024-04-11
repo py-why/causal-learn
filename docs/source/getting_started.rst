@@ -67,7 +67,7 @@ Contributors
 
 **Developers**:
 
-- Wei Chen, Biwei Huang, Yuequn Liu, Zhiyi Huang, Feng Xie, Haoyue Dai: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operations <graphoperation>`.
+- Wei Chen, Biwei Huang, Yuequn Liu, Zhiyi Huang, Feng Xie, Haoyue Dai, Xiaokai Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operations <graphoperation>`.
 - Mingming Gong, Erdun Gao, Aoqi Zuo: :ref:`PNL <pnl>`, :ref:`ANM <anm>`, :ref:`Granger causality <granger>`, and :ref:`KCI <Kernel-based conditional independence (KCI) test and independence test>`.
 - Shohei Shimizu, Takashi Nicholas Maeda, Takashi Ikeuchi: :ref:`LiNGAM-based methods <lingam>`.
 - Madelyn Glymour: several helpers.
@@ -89,13 +89,15 @@ Please cite as:
 
 .. code-block:: none
 
-  @article{causallearn,
-    title={Causal-learn: Causal Discovery in Python},
-    author={Yujia Zheng and Biwei Huang and Wei Chen and Joseph Ramsey and Mingming Gong and Ruichu Cai and Shohei Shimizu and Peter Spirtes and Kun Zhang},
-    journal={arXiv preprint arXiv:2307.16405},
-    year={2023}
+  @article{zheng2024causal,
+    title={Causal-learn: Causal discovery in python},
+    author={Zheng, Yujia and Huang, Biwei and Chen, Wei and Ramsey, Joseph and Gong, Mingming and Cai, Ruichu and Shimizu, Shohei and Spirtes, Peter and Zhang, Kun},
+    journal={Journal of Machine Learning Research},
+    volume={25},
+    number={60},
+    pages={1--8},
+    year={2024}
   }
-
 
 
 
