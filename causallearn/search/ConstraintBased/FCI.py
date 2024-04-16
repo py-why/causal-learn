@@ -320,8 +320,9 @@ def rulesR1R2cycle(graph: Graph, bk: BackgroundKnowledge | None, changeFlag: boo
 
 def isNoncollider(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], node_i: Node, node_j: Node,
                   node_k: Node) -> bool:
-    sep_set = sep_sets[(graph.get_node_map()[node_i], graph.get_node_map()[node_k])]
-    return sep_set is not None and sep_set.__contains__(graph.get_node_map()[node_j])
+    node_map = graph.get_node_map()
+    sep_set = sep_sets.get((node_map[node_i], node_map[node_k]))
+    return sep_set is not None and sep_set.__contains__(node_map[node_j])
 
 
 def ruleR3(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], bk: BackgroundKnowledge | None, changeFlag: bool,
