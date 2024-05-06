@@ -306,8 +306,8 @@ class KCI_CInd(object):
             k_appr, theta_appr = self.get_kappa(uu_prod)
             pvalue = 1 - stats.gamma.cdf(test_stat, k_appr, 0, theta_appr)
         else:
-            null_samples = self.null_sample_spectral(uu_prod, size_u, Kx.shape[0])
-            pvalue = sum(null_samples > test_stat) / float(self.nullss)
+            self.null_samples = self.null_sample_spectral(uu_prod, size_u, Kx.shape[0])
+            pvalue = sum(self.null_samples > test_stat) / float(self.nullss)
         return pvalue, test_stat
 
     def kernel_matrix(self, data_x, data_y, data_z):
