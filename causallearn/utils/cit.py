@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from scipy.stats import chi2, norm
 
 from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
+from causallearn.utils.FastKCI.FastKCI import FastKCI_CInd, FastKCI_UInd
 from causallearn.utils.PCUtils import Helper
 
 CONST_BINCOUNT_UNIQUE_THRESHOLD = 1e5
@@ -13,6 +14,7 @@ fisherz = "fisherz"
 mv_fisherz = "mv_fisherz"
 mc_fisherz = "mc_fisherz"
 kci = "kci"
+fastkci = "fastkci"
 chisq = "chisq"
 gsq = "gsq"
 d_separation = "d_separation"
@@ -32,6 +34,8 @@ def CIT(data, method='fisherz', **kwargs):
         return FisherZ(data, **kwargs)
     elif method == kci:
         return KCI(data, **kwargs)
+    elif method == fastkci:
+        return FastKCI(data, **kwargs)
     elif method in [chisq, gsq]:
         return Chisq_or_Gsq(data, method_name=method, **kwargs)
     elif method == mv_fisherz:
@@ -183,6 +187,28 @@ class KCI(CIT_Base):
         self.assert_input_data_is_valid()
         self.kci_ui = KCI_UInd(**kci_ui_kwargs)
         self.kci_ci = KCI_CInd(**kci_ci_kwargs)
+
+    def __call__(self, X, Y, condition_set=None):
+        # Kernel-based conditional independence test.
+        Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
+        if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
+        p = self.kci_ui.compute_pvalue(self.data[:, Xs], self.data[:, Ys])[0] if len(condition_set) == 0 else \
+            self.kci_ci.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
+        self.pvalue_cache[cache_key] = p
+        return p
+
+class FastKCI(CIT_Base):
+    def __init__(self, data, **kwargs):
+        super().__init__(data, **kwargs)
+        kci_ui_kwargs = {k: v for k, v in kwargs.items() if k in
+                         ['kernelX', 'kernelY', 'null_ss', 'approx', 'est_width', 'polyd', 'kwidthx', 'kwidthy']}
+        kci_ci_kwargs = {k: v for k, v in kwargs.items() if k in
+                         ['K', 'J', 'alpha', 'use_gp']}
+        self.check_cache_method_consistent(
+            'kci', hashlib.md5(json.dumps(kci_ci_kwargs, sort_keys=True).encode('utf-8')).hexdigest())
+        self.assert_input_data_is_valid()
+        self.kci_ui = KCI_UInd(**kci_ui_kwargs)
+        self.kci_ci = FastKCI_CInd(**kci_ci_kwargs)
 
     def __call__(self, X, Y, condition_set=None):
         # Kernel-based conditional independence test.
