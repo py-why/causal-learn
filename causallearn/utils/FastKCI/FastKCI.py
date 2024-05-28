@@ -364,6 +364,8 @@ class FastKCI_UInd(object):
         self.J = J
         self.alpha = alpha
         self.trimming_thresh = trimming_thresh
+        self.nullss = 5000
+        self.eig_thresh = 1e-5
         # TODO: Adjust to causal-learn API
 
     def compute_pvalue(self, data_x=None, data_y=None):
@@ -384,18 +386,14 @@ class FastKCI_UInd(object):
         self.data_y = data_y
         self.n = data_x.shape[0]
         
-        Z_proposal = Parallel(n_jobs=-1)(delayed(self.partition_data)(self.data) for i in range(self.J))
+        Z_proposal = Parallel(n_jobs=-1)(delayed(self.partition_data)() for i in range(self.J))
         self.Z_proposal, self.prob_Y = zip(*Z_proposal)
         block_res = Parallel(n_jobs=-1)(delayed(self.pvalue_onblocks)(self.Z_proposal[i]) for i in range(self.J))
-        test_stat, mean_appr, var_appr, log_likelihood = zip(*block_res)
-        self.prob_Y = np.array(self.prob_Y)
-        self.prob_weights = np.around(np.exp(log_likelihood-logsumexp(log_likelihood)))
+        test_stat, null_samples, log_likelihood = zip(*block_res)
+        self.prob_weights = np.around(np.exp(log_likelihood-logsumexp(log_likelihood)), 6)
         self.test_stat = np.average(np.array(test_stat), weights = self.prob_weights)
-        self.mean_appr = np.average(np.array(mean_appr), weights = self.prob_weights)
-        self.var_appr = np.average(np.array(var_appr), weights = self.prob_weights)
-
-        k_appr, theta_appr = self.get_kappa(self.mean_appr, self.var_appr)
-        self.pvalue = 1 - stats.gamma.cdf(self.test_stat, k_appr, 0, theta_appr)
+        self.null_samples = np.average(null_samples, axis = 0, weights = self.prob_weights)
+        self.pvalue = np.sum(self.null_samples > self.test_stat) / float(self.nullss)
 
         return self.pvalue, self.test_stat          
 
@@ -410,7 +408,7 @@ class FastKCI_UInd(object):
         """
         Y_mean = self.data_y.mean(axis=0)
         Y_sd = self.data_y.std(axis=0)
-        mu_k = np.random.normal(Y_mean, Y_sd, size = (self.K,self.shape[1]))
+        mu_k = np.random.normal(Y_mean, Y_sd, size = (self.K,self.data_y.shape[1]))
         sigma_k = np.eye(self.data_y.shape[1])
         pi_j = np.random.dirichlet([self.alpha]*self.K)
         ll = np.tile(np.log(pi_j),(self.n,1))
@@ -425,25 +423,30 @@ class FastKCI_UInd(object):
     def pvalue_onblocks(self, Z_proposal):
         unique_Z_j = np.unique(Z_proposal)
         test_stat = 0
-        prob_weight = 0
-        mean_appr = 0
-        var_appr = 0
+        log_likelihood = 0
+        null_samples = np.zeros((1,self.nullss))
         for k in unique_Z_j:
             K_mask = (Z_proposal==k)
-            X_k = np.copy(self.data[0][K_mask])
-            Y_k = np.copy(self.data[1][K_mask])
+            X_k = np.copy(self.data_x[K_mask])
+            Y_k = np.copy(self.data_y[K_mask])
 
             Kx = self.kernel_matrix(X_k)
             Ky = self.kernel_matrix(Y_k)
-            n_block = Kx.shape[0]
 
-            Kxc = Kernel.center_kernel_matrix(Kx)
-            Kyc = Kernel.center_kernel_matrix(Ky)
-            test_stat += np.einsum('ij,ji->', Kxc, Kyc)
-            mean_appr += np.trace(Kxc) * np.trace(Kyc) / n_block
-            var_appr += 2 * np.sum(Kxc ** 2) * np.sum(Kyc ** 2) / n_block / n_block
-        var_appr /= unique_Z_j.shape[0]
-        return (test_stat, mean_appr, var_appr, prob_weight)
+            v_stat, Kxc, Kyc = self.HSIC_V_statistic(Kx, Ky)
+
+            null_samples += self.null_sample_spectral(Kxc, Kyc)
+            test_stat += v_stat
+
+            gpx = GaussianProcessRegressor()
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=Warning)
+                # P(X|Y)
+                gpx.fit(X = Y_k, y = X_k)
+            likelihood = gpx.log_marginal_likelihood_value_
+            log_likelihood += likelihood
+            
+        return test_stat, null_samples, log_likelihood
     
     def kernel_matrix(self, data):
         """
@@ -478,3 +481,54 @@ class FastKCI_UInd(object):
         k_appr = mean_appr ** 2 / var_appr
         theta_appr = var_appr / mean_appr
         return k_appr, theta_appr
+
+    def null_sample_spectral(self, Kxc, Kyc):
+        """
+        Simulate data from null distribution
+
+        Parameters
+        ----------
+        Kxc: centralized kernel matrix for data_x (nxn)
+        Kyc: centralized kernel matrix for data_y (nxn)
+
+        Returns
+        _________
+        null_dstr: samples from the null distribution
+
+        """
+        T = Kxc.shape[0]
+        if T > 1000:
+            num_eig = int(np.floor(T / 2))
+        else:
+            num_eig = T
+        lambdax = np.linalg.eigvalsh(Kxc)
+        lambday = np.linalg.eigvalsh(Kyc)
+        lambdax = -np.sort(-lambdax)
+        lambday = -np.sort(-lambday)
+        lambdax = lambdax[0:num_eig]
+        lambday = lambday[0:num_eig]
+        lambda_prod = np.dot(lambdax.reshape(num_eig, 1), lambday.reshape(1, num_eig)).reshape(
+            (num_eig ** 2, 1))
+        lambda_prod = lambda_prod[lambda_prod > lambda_prod.max() * self.eig_thresh]
+        f_rand = np.random.chisquare(1, (lambda_prod.shape[0], self.nullss))
+        null_dstr = lambda_prod.T.dot(f_rand) / T
+        return null_dstr
+    
+    def HSIC_V_statistic(self, Kx, Ky):
+        """
+        Compute V test statistic from kernel matrices Kx and Ky
+        Parameters
+        ----------
+        Kx: kernel matrix for data_x (nxn)
+        Ky: kernel matrix for data_y (nxn)
+
+        Returns
+        _________
+        Vstat: HSIC v statistics
+        Kxc: centralized kernel matrix for data_x (nxn)
+        Kyc: centralized kernel matrix for data_y (nxn)
+        """
+        Kxc = Kernel.center_kernel_matrix(Kx)
+        Kyc = Kernel.center_kernel_matrix(Ky)
+        V_stat = np.einsum('ij,ij->', Kxc, Kyc)
+        return V_stat, Kxc, Kyc

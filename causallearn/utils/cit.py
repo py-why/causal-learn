@@ -201,13 +201,13 @@ class FastKCI(CIT_Base):
     def __init__(self, data, **kwargs):
         super().__init__(data, **kwargs)
         kci_ui_kwargs = {k: v for k, v in kwargs.items() if k in
-                         ['kernelX', 'kernelY', 'null_ss', 'approx', 'est_width', 'polyd', 'kwidthx', 'kwidthy']}
+                         ['K', 'J', 'alpha']}
         kci_ci_kwargs = {k: v for k, v in kwargs.items() if k in
                          ['K', 'J', 'alpha', 'use_gp']}
         self.check_cache_method_consistent(
             'kci', hashlib.md5(json.dumps(kci_ci_kwargs, sort_keys=True).encode('utf-8')).hexdigest())
         self.assert_input_data_is_valid()
-        self.kci_ui = KCI_UInd(**kci_ui_kwargs)
+        self.kci_ui = FastKCI_UInd(**kci_ui_kwargs)
         self.kci_ci = FastKCI_CInd(**kci_ci_kwargs)
 
     def __call__(self, X, Y, condition_set=None):
