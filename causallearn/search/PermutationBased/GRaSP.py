@@ -81,6 +81,7 @@ def grasp(
     maxP: Optional[float] = None,
     parameters: Optional[Dict[str, Any]] = None,
     verbose: Optional[bool] = True,
+    node_names: Optional[List[str]] = None,
 ) -> GeneralGraph:
     """
     Perform a greedy relaxation of the sparsest permutation (GRaSP) algorithm
@@ -185,7 +186,7 @@ def grasp(
         raise Exception("Unknown function!")
     score = localScoreClass
 
-    node_names = [("x%d" % i) for i in range(p)]
+    node_names = [("X%d" % (i + 1)) for i in range(p)] if node_names is None else node_names
     nodes = []
 
     for name in node_names:
