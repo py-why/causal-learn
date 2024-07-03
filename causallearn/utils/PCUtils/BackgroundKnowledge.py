@@ -165,7 +165,7 @@ class BackgroundKnowledge(object):
 
         # then check in tier_map
         if self.tier_value_map.keys().__contains__(node1) and self.tier_value_map.keys().__contains__(node2):
-            if self.tier_value_map.get(node1) >= self.tier_value_map.get(node2):
+            if self.tier_value_map.get(node1) > self.tier_value_map.get(node2): # Allow orientation within the same tier
                 return True
 
         return False

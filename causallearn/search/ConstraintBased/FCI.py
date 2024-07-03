@@ -829,7 +829,8 @@ def removeByPossibleDsep(graph: Graph, independence_test_method: CIT, alpha: flo
 
 
 def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 0.05, depth: int = -1,
-        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None, show_progress: bool = True,
+        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None, 
+        show_progress: bool = True, node_names = None,
         **kwargs) -> Tuple[Graph, List[Edge]]:
     """
     Perform Fast Causal Inference (FCI) algorithm for causal discovery
@@ -884,8 +885,10 @@ def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 
 
 
     nodes = []
+    if node_names is None:
+        node_names = [f"X{i + 1}" for i in range(dataset.shape[1])]
     for i in range(dataset.shape[1]):
-        node = GraphNode(f"X{i + 1}")
+        node = GraphNode(node_names[i])
         node.add_attribute("id", i)
         nodes.append(node)
 
