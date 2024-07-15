@@ -78,7 +78,6 @@ def grasp(
     X: np.ndarray,
     score_func: str = "local_score_BIC",
     depth: Optional[int] = 3,
-    maxP: Optional[float] = None,
     parameters: Optional[Dict[str, Any]] = None,
     verbose: Optional[bool] = True,
     node_names: Optional[List[str]] = None,
@@ -92,7 +91,6 @@ def grasp(
     score_func : the string name of score function. (str(one of 'local_score_CV_general', 'local_score_marginal_general',
                     'local_score_CV_multi', 'local_score_marginal_multi', 'local_score_BIC', 'local_score_BDeu')).
     depth : allowed maximum depth for DFS
-    maxP : allowed maximum number of parents when searching the graph
     parameters : when using CV likelihood,
                   parameters['kfold']: k-fold cross validation
                   parameters['lambda']: regularization parameter
@@ -118,8 +116,6 @@ def grasp(
                 "kfold": 10,  # 10 fold cross validation
                 "lambda": 0.01,
             }  # regularization parameter
-        if maxP is None:
-            maxP = X.shape[1] / 2  # maximum number of parents
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_general, parameters=parameters
         )
@@ -128,8 +124,6 @@ def grasp(
         score_func == "local_score_marginal_general"
     ):  # negative marginal likelihood based on regression in RKHS
         parameters = {}
-        if maxP is None:
-            maxP = X.shape[1] / 2  # maximum number of parents
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_general, parameters=parameters
         )
@@ -146,8 +140,6 @@ def grasp(
             }  # regularization parameter
             for i in range(X.shape[1]):
                 parameters["dlabel"]["{}".format(i)] = i
-        if maxP is None:
-            maxP = len(parameters["dlabel"]) / 2
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_multi, parameters=parameters
         )
@@ -160,8 +152,6 @@ def grasp(
             parameters = {"dlabel": {}}
             for i in range(X.shape[1]):
                 parameters["dlabel"]["{}".format(i)] = i
-        if maxP is None:
-            maxP = len(parameters["dlabel"]) / 2
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_multi, parameters=parameters
         )
@@ -169,15 +159,11 @@ def grasp(
     elif score_func == "local_score_BIC":  # Greedy equivalence search with BIC score
         parameters = {}
         parameters["lambda_value"] = 2
-        if maxP is None:
-            maxP = X.shape[1] / 2
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC, parameters=parameters
         )
 
     elif score_func == "local_score_BDeu":  # Greedy equivalence search with BDeu score
-        if maxP is None:
-            maxP = X.shape[1] / 2
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BDeu, parameters=None
         )
