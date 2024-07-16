@@ -66,7 +66,8 @@ def parameterize_dag(g):
 
 class TestGRaSP(unittest.TestCase):
     def test_grasp(self):
-        ps = [30, 60]
+        # ps = [30, 60]
+        ps = [30]
         ds = [0.1, 0.15]
         n = 1000
         reps = 5
@@ -77,19 +78,15 @@ class TestGRaSP(unittest.TestCase):
                 for rep in range(1, reps + 1):
                     g0 = random_dag(p, d)
                     print(
-                        "\nNodes:",
-                        p,
-                        "| Edges:",
-                        np.sum(g0),
-                        "| Avg Degree:",
-                        2 * np.sum(g0) / p,
-                        "| Rep:",
-                        rep,
+                        "\nNodes:", p,
+                        "| Edges:", np.sum(g0),
+                        "| Avg Degree:", 2 * np.sum(g0) / p,
+                        "| Rep:", rep,
                     )
                     cov = parameterize_dag(g0)
                     X = np.random.multivariate_normal(np.zeros(p), cov, n)
 
-                    node_names = [("x%d" % i) for i in range(p)]
+                    node_names = [("X%d" % (i + 1)) for i in range(p)]
                     nodes = []
 
                     for name in node_names:
@@ -105,13 +102,13 @@ class TestGRaSP(unittest.TestCase):
 
                     G = grasp(X)
 
-                    pyd = GraphUtils.to_pydot(G)
-                    tmp_png = pyd.create_png(f="png")
-                    fp = io.BytesIO(tmp_png)
-                    img = mpimg.imread(fp, format='png')
-                    plt.axis('off')
-                    plt.imshow(img)
-                    plt.show()
+                    # pyd = GraphUtils.to_pydot(G)
+                    # tmp_png = pyd.create_png(f="png")
+                    # fp = io.BytesIO(tmp_png)
+                    # img = mpimg.imread(fp, format='png')
+                    # plt.axis('off')
+                    # plt.imshow(img)
+                    # plt.show()
 
                     AdjC = AdjacencyConfusion(G0, G)
                     stats[0].append(AdjC.get_adj_precision())

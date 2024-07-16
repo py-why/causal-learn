@@ -10,6 +10,7 @@ from causallearn.graph.GraphNode import GraphNode
 from causallearn.score.LocalScoreFunction import (
     local_score_BDeu,
     local_score_BIC,
+    local_score_BIC_from_cov,
     local_score_cv_general,
     local_score_cv_multi,
     local_score_marginal_general,
@@ -76,7 +77,7 @@ class Order:
 
 def grasp(
     X: np.ndarray,
-    score_func: str = "local_score_BIC",
+    score_func: str = "local_score_BIC_from_cov",
     depth: Optional[int] = 3,
     parameters: Optional[Dict[str, Any]] = None,
     verbose: Optional[bool] = True,
@@ -157,10 +158,18 @@ def grasp(
         )
 
     elif score_func == "local_score_BIC":  # Greedy equivalence search with BIC score
+        warnings.warn("Please use 'local_score_BIC_from_cov' instead")
         parameters = {}
         parameters["lambda_value"] = 2
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC, parameters=parameters
+        )
+
+    elif score_func == "local_score_BIC_from_cov":  # Greedy equivalence search with BIC score
+        parameters = {}
+        parameters["lambda_value"] = 2
+        localScoreClass = LocalScoreClass(
+            data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
 
     elif score_func == "local_score_BDeu":  # Greedy equivalence search with BDeu score
