@@ -16,6 +16,7 @@ from causallearn.score.LocalScoreFunction import (
     local_score_marginal_general,
     local_score_marginal_multi,
 )
+from causallearn.search.PermutationBased.gst import GST;
 from causallearn.score.LocalScoreFunctionClass import LocalScoreClass
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 
@@ -34,6 +35,7 @@ class Order:
             y = self.order[i]
             self.parents[y] = []
             self.local_scores[y] = -score.score(y, [])
+            # self.local_scores[y] = -score.score_nocache(y, [])
 
     def get(self, i):
         return self.order[i]
@@ -109,9 +111,8 @@ def grasp(
         warnings.warn("The number of features is much larger than the sample size!")
 
     X = np.mat(X)
-    if (
-        score_func == "local_score_CV_general"
-    ):  # % k-fold negative cross validated likelihood based on regression in RKHS
+    if score_func == "local_score_CV_general":  
+        # k-fold negative cross validated likelihood based on regression in RKHS
         if parameters is None:
             parameters = {
                 "kfold": 10,  # 10 fold cross validation
@@ -121,17 +122,15 @@ def grasp(
             data=X, local_score_fun=local_score_cv_general, parameters=parameters
         )
 
-    elif (
-        score_func == "local_score_marginal_general"
-    ):  # negative marginal likelihood based on regression in RKHS
+    elif score_func == "local_score_marginal_general":
+        # negative marginal likelihood based on regression in RKHS
         parameters = {}
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_general, parameters=parameters
         )
 
-    elif (
-        score_func == "local_score_CV_multi"
-    ):  # k-fold negative cross validated likelihood based on regression in RKHS
+    elif score_func == "local_score_CV_multi": 
+        # k-fold negative cross validated likelihood based on regression in RKHS
         # for data with multi-variate dimensions
         if parameters is None:
             parameters = {
@@ -145,9 +144,8 @@ def grasp(
             data=X, local_score_fun=local_score_cv_multi, parameters=parameters
         )
 
-    elif (
-        score_func == "local_score_marginal_multi"
-    ):  # negative marginal likelihood based on regression in RKHS
+    elif score_func == "local_score_marginal_multi":  
+        # negative marginal likelihood based on regression in RKHS
         # for data with multi-variate dimensions
         if parameters is None:
             parameters = {"dlabel": {}}
@@ -157,7 +155,8 @@ def grasp(
             data=X, local_score_fun=local_score_marginal_multi, parameters=parameters
         )
 
-    elif score_func == "local_score_BIC":  # Greedy equivalence search with BIC score
+    elif score_func == "local_score_BIC":  
+        # SEM BIC score
         warnings.warn("Please use 'local_score_BIC_from_cov' instead")
         parameters = {}
         parameters["lambda_value"] = 2
@@ -165,14 +164,16 @@ def grasp(
             data=X, local_score_fun=local_score_BIC, parameters=parameters
         )
 
-    elif score_func == "local_score_BIC_from_cov":  # Greedy equivalence search with BIC score
+    elif score_func == "local_score_BIC_from_cov":  
+        # SEM BIC score
         parameters = {}
         parameters["lambda_value"] = 2
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
 
-    elif score_func == "local_score_BDeu":  # Greedy equivalence search with BDeu score
+    elif score_func == "local_score_BDeu":  
+        # BDeu score
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BDeu, parameters=None
         )
@@ -180,6 +181,8 @@ def grasp(
     else:
         raise Exception("Unknown function!")
     score = localScoreClass
+
+    gsts = [GST(i, score) for i in range(p)]
 
     node_names = [("X%d" % (i + 1)) for i in range(p)] if node_names is None else node_names
     nodes = []
@@ -198,12 +201,15 @@ def grasp(
         y_parents = order.get_parents(y)
 
         candidates = [order.get(j) for j in range(0, i)]
+        # local_score = gsts[y].trace(candidates)
+
         grow(y, y_parents, candidates, score)
         local_score = shrink(y, y_parents, score)
+        
         order.set_local_score(y, local_score)
         order.bump_edges(len(y_parents))
 
-    while dfs(depth - 1, set(), [], order, score):
+    while dfs(depth - 1, set(), [], order, score, gsts):
         if verbose:
             sys.stdout.write("\rGRaSP edge count: %i    " % order.get_edges())
             sys.stdout.flush()
@@ -224,7 +230,7 @@ def grasp(
 
 
 # performs a dfs over covered tucks
-def dfs(depth: int, flipped: set, history: List[set], order, score):
+def dfs(depth: int, flipped: set, history: List[set], order, score, gsts):
 
     cache = [{}, {}, {}, 0]
 
@@ -252,7 +258,7 @@ def dfs(depth: int, flipped: set, history: List[set], order, score):
             cache[3] = order.get_edges()
 
             tuck(i, j, order)
-            edge_bump, score_bump = update(i, j, order, score)
+            edge_bump, score_bump = update(i, j, order, score, gsts)
 
             # because things that should be zero sometimes are not
             if score_bump > 1e-6:
@@ -271,7 +277,7 @@ def dfs(depth: int, flipped: set, history: List[set], order, score):
 
                 if len(flipped) > 0 and flipped not in history:
                     history.append(flipped)
-                    if depth > 0 and dfs(depth - 1, flipped, history, order, score):
+                    if depth > 0 and dfs(depth - 1, flipped, history, order, score, gsts):
                         return True
                     del history[-1]
 
@@ -286,7 +292,7 @@ def dfs(depth: int, flipped: set, history: List[set], order, score):
 
 
 # updates the parents and scores after a tuck
-def update(i: int, j: int, order, score):
+def update(i: int, j: int, order, score, gsts):
 
     edge_bump = 0
     old_score = 0
@@ -299,18 +305,21 @@ def update(i: int, j: int, order, score):
         edge_bump -= len(z_parents)
         old_score += order.get_local_score(z)
 
+        z_parents.clear()
         candidates = [order.get(l) for l in range(0, k)]
 
-        for w in [w for w in z_parents if w not in candidates]:
-            z_parents.remove(w)
-        shrink(z, z_parents, score)
+        # for w in [w for w in z_parents if w not in candidates]:
+        #     z_parents.remove(w)
+        # shrink(z, z_parents, score)
 
-        for w in z_parents:
-            candidates.remove(w)
+        # for w in z_parents:
+        #     candidates.remove(w)
+
+        # local_score = gsts[z].trace(candidates, z_parents)
 
         grow(z, z_parents, candidates, score)
-
         local_score = shrink(z, z_parents, score)
+
         order.set_local_score(z, local_score)
 
         edge_bump += len(z_parents)
@@ -323,6 +332,7 @@ def update(i: int, j: int, order, score):
 def grow(y: int, y_parents: List[int], candidates: List[int], score):
 
     best = -score.score(y, y_parents)
+    # best = -score.score_nocache(y, y_parents)
 
     add = None
     checked = []
@@ -340,6 +350,7 @@ def grow(y: int, y_parents: List[int], candidates: List[int], score):
             x = candidates.pop()
             y_parents.append(x)
             current = -score.score(y, y_parents)
+            # current = -score.score_nocache(y, y_parents)
             y_parents.remove(x)
             checked.append(x)
 
@@ -354,6 +365,7 @@ def grow(y: int, y_parents: List[int], candidates: List[int], score):
 def shrink(y: int, y_parents: List[int], score):
 
     best = -score.score(y, y_parents)
+    # best = -score.score_nocache(y, y_parents)
 
     remove = None
     checked = 0
@@ -367,6 +379,7 @@ def shrink(y: int, y_parents: List[int], score):
         while checked < len(y_parents):
             x = y_parents.pop(0)
             current = -score.score(y, y_parents)
+            # current = -score.score_nocache(y, y_parents)
             y_parents.append(x)
             checked += 1
 
