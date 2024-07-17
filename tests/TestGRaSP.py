@@ -11,7 +11,6 @@ from causallearn.utils.GraphUtils import GraphUtils
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import io
-import random
 
 
 def simulate_data(p, d, n):
@@ -31,7 +30,7 @@ def simulate_data(p, d, n):
     ne = int(d * pe)
 
     # generate edges
-    e = np.append(np.zeros(pe - ne), np.random.uniform(-1, 1, ne))
+    e = np.append(np.zeros(pe - ne), 0.5 * np.random.uniform(-1, 1, ne))
     np.random.shuffle(e)
     B = np.zeros([p, p])
     B.T[np.triu_indices(p, 1)] = e
@@ -67,7 +66,7 @@ class TestGRaSP(unittest.TestCase):
                     print(
                         "\nNodes:", p,
                         "| Edges:", np.sum(g0),
-                        "| Avg Degree:", 2 * np.sum(g0) / p,
+                        "| Avg Degree:", 2 * round(np.sum(g0) / p, 2),
                         "| Rep:", rep,
                     )
 
@@ -85,7 +84,7 @@ class TestGRaSP(unittest.TestCase):
 
                     G0 = dag2cpdag(G0)
 
-                    G = grasp(X, depth=1)
+                    G = grasp(X, depth=1, parameters={'lambda_value': 2})
 
                     # pyd = GraphUtils.to_pydot(G)
                     # tmp_png = pyd.create_png(f="png")
