@@ -92,7 +92,7 @@ def grasp(
     ----------
     X : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
     score_func : the string name of score function. (str(one of 'local_score_CV_general', 'local_score_marginal_general',
-                    'local_score_CV_multi', 'local_score_marginal_multi', 'local_score_BIC', 'local_score_BDeu')).
+                    'local_score_CV_multi', 'local_score_marginal_multi', 'local_score_BIC', 'local_score_BIC_from_cov', 'local_score_BDeu')).
     depth : allowed maximum depth for DFS
     parameters : when using CV likelihood,
                   parameters['kfold']: k-fold cross validation
@@ -158,16 +158,16 @@ def grasp(
     elif score_func == "local_score_BIC":  
         # SEM BIC score
         warnings.warn("Please use 'local_score_BIC_from_cov' instead")
-        parameters = {}
-        parameters["lambda_value"] = 2
+        if parameters is None:
+            parameters = {"lambda_value": 2}
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC, parameters=parameters
         )
 
     elif score_func == "local_score_BIC_from_cov":  
         # SEM BIC score
-        parameters = {}
-        parameters["lambda_value"] = 2
+        if parameters is None:
+            parameters = {"lambda_value": 2}
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
