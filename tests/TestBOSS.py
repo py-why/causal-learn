@@ -7,10 +7,8 @@ from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
 from causallearn.search.PermutationBased.BOSS import boss
 from causallearn.utils.DAG2CPDAG import dag2cpdag
-from causallearn.utils.GraphUtils import GraphUtils
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
-import io
+
+import gc
 
 
 def simulate_data(p, d, n):
@@ -53,10 +51,12 @@ def simulate_data(p, d, n):
 class TestBOSS(unittest.TestCase):
     def test_boss(self):
         ps = [30, 60]
-        # ps = [30]
         ds = [0.1, 0.15]
         n = 1000
         reps = 5
+
+        gc.set_threshold(20000, 50, 50)
+        # gc.set_debug(gc.DEBUG_STATS)
 
         for p in ps:
             for d in ds:
@@ -84,15 +84,8 @@ class TestBOSS(unittest.TestCase):
 
                     G0 = dag2cpdag(G0)
 
-                    G = boss(X, parameters={'lambda_value': 2})
-
-                    # pyd = GraphUtils.to_pydot(G)
-                    # tmp_png = pyd.create_png(f="png")
-                    # fp = io.BytesIO(tmp_png)
-                    # img = mpimg.imread(fp, format='png')
-                    # plt.axis('off')
-                    # plt.imshow(img)
-                    # plt.show()
+                    G = boss(X, parameters={'lambda_value': 4})
+                    gc.collect()
 
                     AdjC = AdjacencyConfusion(G0, G)
                     stats[0].append(AdjC.get_adj_precision())

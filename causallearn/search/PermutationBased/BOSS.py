@@ -48,11 +48,11 @@ def boss(
     G : learned causal graph, where G.graph[j,i] = 1 and G.graph[i,j] = -1 indicates i --> j, G.graph[i,j] = G.graph[j,i] = -1 indicates i --- j.
     """
 
+    X = X.copy()
     n, p = X.shape
     if n < p:
         warnings.warn("The number of features is much larger than the sample size!")
 
-    X = np.mat(X)
     if score_func == "local_score_CV_general":  
         # % k-fold negative cross validated likelihood based on regression in RKHS
         if parameters is None:
@@ -63,14 +63,12 @@ def boss(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_general, parameters=parameters
         )
-
     elif score_func == "local_score_marginal_general":  
         # negative marginal likelihood based on regression in RKHS
         parameters = {}
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_general, parameters=parameters
         )
-
     elif score_func == "local_score_CV_multi":  
         # k-fold negative cross validated likelihood based on regression in RKHS
         # for data with multi-variate dimensions
@@ -85,7 +83,6 @@ def boss(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_multi, parameters=parameters
         )
-
     elif score_func == "local_score_marginal_multi":  
         # negative marginal likelihood based on regression in RKHS
         # for data with multi-variate dimensions
@@ -96,7 +93,6 @@ def boss(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_multi, parameters=parameters
         )
-
     elif score_func == "local_score_BIC":  
         # SEM BIC score
         warnings.warn("Please use 'local_score_BIC_from_cov' instead")
@@ -105,7 +101,6 @@ def boss(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC, parameters=parameters
         )
-
     elif score_func == "local_score_BIC_from_cov":  
         # SEM BIC score
         if parameters is None:
@@ -113,17 +108,15 @@ def boss(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
-
     elif score_func == "local_score_BDeu":  
         # BDeu score
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BDeu, parameters=None
         )
-
     else:
         raise Exception("Unknown function!")
+    
     score = localScoreClass
-
     gsts = [GST(i, score) for i in range(p)]
 
     node_names = [("X%d" % (i + 1)) for i in range(p)] if node_names is None else node_names
