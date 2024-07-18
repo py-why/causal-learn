@@ -46,3 +46,9 @@ class LocalScoreClass(object):
                 self.score_cache[i][hash_key] = self.local_score_fun(self.data, i, PAi, self.parameters)
 
         return self.score_cache[i][hash_key]
+
+    def score_nocache(self, i: int, PAi: List[int]) -> float:
+        if self.local_score_fun == local_score_BIC_from_cov:
+            return self.local_score_fun((self.cov, self.n), i, PAi, self.parameters)
+        else:
+            return self.local_score_fun(self.data, i, PAi, self.parameters)
