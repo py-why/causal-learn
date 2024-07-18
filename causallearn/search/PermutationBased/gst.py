@@ -1,8 +1,8 @@
 class GSTNode:
 
     def __init__(self, tree, add=None, score=None):
-        # if score is None: score = -tree.score.score_nocache(tree.vertex, [])
-        if score is None: score = -tree.score.score(tree.vertex, [])
+        if score is None: score = -tree.score.score_nocache(tree.vertex, [])
+        # if score is None: score = -tree.score.score(tree.vertex, [])
         self.tree = tree
         self.add = add
         self.grow_score = score
@@ -17,8 +17,8 @@ class GSTNode:
         self.branches = []
         for add in available:
             parents.append(add)
-            # score = -self.tree.score.score_nocache(self.tree.vertex, parents)
-            score = -self.tree.score.score(self.tree.vertex, parents)
+            score = -self.tree.score.score_nocache(self.tree.vertex, parents)
+            # score = -self.tree.score.score(self.tree.vertex, parents)
             parents.remove(add)
             branch = GSTNode(self.tree, add, score)
             if score > self.grow_score: self.branches.append(branch)
@@ -30,8 +30,8 @@ class GSTNode:
             best = None
             for remove in [parent for parent in parents]:
                 parents.remove(remove)
-                # score = -self.tree.score.score_nocache(self.tree.vertex, parents)
-                score = -self.tree.score.score(self.tree.vertex, parents)
+                score = -self.tree.score.score_nocache(self.tree.vertex, parents)
+                # score = -self.tree.score.score(self.tree.vertex, parents)
                 parents.append(remove)
                 if score > self.shrink_score:
                     self.shrink_score = score

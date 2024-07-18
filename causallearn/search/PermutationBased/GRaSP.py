@@ -106,11 +106,11 @@ def grasp(
     G : learned causal graph, where G.graph[j,i] = 1 and G.graph[i,j] = -1 indicates i --> j, G.graph[i,j] = G.graph[j,i] = -1 indicates i --- j.
     """
 
+    X = X.copy()
     n, p = X.shape
     if n < p:
         warnings.warn("The number of features is much larger than the sample size!")
 
-    X = np.mat(X)
     if score_func == "local_score_CV_general":  
         # k-fold negative cross validated likelihood based on regression in RKHS
         if parameters is None:
@@ -121,14 +121,12 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_general, parameters=parameters
         )
-
     elif score_func == "local_score_marginal_general":
         # negative marginal likelihood based on regression in RKHS
         parameters = {}
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_general, parameters=parameters
         )
-
     elif score_func == "local_score_CV_multi": 
         # k-fold negative cross validated likelihood based on regression in RKHS
         # for data with multi-variate dimensions
@@ -143,7 +141,6 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_multi, parameters=parameters
         )
-
     elif score_func == "local_score_marginal_multi":  
         # negative marginal likelihood based on regression in RKHS
         # for data with multi-variate dimensions
@@ -154,7 +151,6 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_multi, parameters=parameters
         )
-
     elif score_func == "local_score_BIC":  
         # SEM BIC score
         warnings.warn("Please use 'local_score_BIC_from_cov' instead")
@@ -163,7 +159,6 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC, parameters=parameters
         )
-
     elif score_func == "local_score_BIC_from_cov":  
         # SEM BIC score
         if parameters is None:
@@ -171,17 +166,15 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
-
     elif score_func == "local_score_BDeu":  
         # BDeu score
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BDeu, parameters=None
         )
-
     else:
         raise Exception("Unknown function!")
-    score = localScoreClass
 
+    score = localScoreClass
     gsts = [GST(i, score) for i in range(p)]
 
     node_names = [("X%d" % (i + 1)) for i in range(p)] if node_names is None else node_names
@@ -201,15 +194,11 @@ def grasp(
         y_parents = order.get_parents(y)
 
         candidates = [order.get(j) for j in range(0, i)]
-        # local_score = gsts[y].trace(candidates)
-
-        grow(y, y_parents, candidates, score)
-        local_score = shrink(y, y_parents, score)
-        
+        local_score = gsts[y].trace(candidates, y_parents)
         order.set_local_score(y, local_score)
         order.bump_edges(len(y_parents))
 
-    while dfs(depth - 1, set(), [], order, score, gsts):
+    while dfs(depth - 1, set(), [], order, gsts):
         if verbose:
             sys.stdout.write("\rGRaSP edge count: %i    " % order.get_edges())
             sys.stdout.flush()
@@ -230,7 +219,7 @@ def grasp(
 
 
 # performs a dfs over covered tucks
-def dfs(depth: int, flipped: set, history: List[set], order, score, gsts):
+def dfs(depth: int, flipped: set, history: List[set], order, gsts):
 
     cache = [{}, {}, {}, 0]
 
@@ -258,7 +247,7 @@ def dfs(depth: int, flipped: set, history: List[set], order, score, gsts):
             cache[3] = order.get_edges()
 
             tuck(i, j, order)
-            edge_bump, score_bump = update(i, j, order, score, gsts)
+            edge_bump, score_bump = update(i, j, order, gsts)
 
             # because things that should be zero sometimes are not
             if score_bump > 1e-6:
@@ -277,7 +266,7 @@ def dfs(depth: int, flipped: set, history: List[set], order, score, gsts):
 
                 if len(flipped) > 0 and flipped not in history:
                     history.append(flipped)
-                    if depth > 0 and dfs(depth - 1, flipped, history, order, score, gsts):
+                    if depth > 0 and dfs(depth - 1, flipped, history, order, gsts):
                         return True
                     del history[-1]
 
@@ -292,7 +281,7 @@ def dfs(depth: int, flipped: set, history: List[set], order, score, gsts):
 
 
 # updates the parents and scores after a tuck
-def update(i: int, j: int, order, score, gsts):
+def update(i: int, j: int, order, gsts):
 
     edge_bump = 0
     old_score = 0
@@ -307,87 +296,13 @@ def update(i: int, j: int, order, score, gsts):
 
         z_parents.clear()
         candidates = [order.get(l) for l in range(0, k)]
-
-        # for w in [w for w in z_parents if w not in candidates]:
-        #     z_parents.remove(w)
-        # shrink(z, z_parents, score)
-
-        # for w in z_parents:
-        #     candidates.remove(w)
-
-        # local_score = gsts[z].trace(candidates, z_parents)
-
-        grow(z, z_parents, candidates, score)
-        local_score = shrink(z, z_parents, score)
-
+        local_score = gsts[z].trace(candidates, z_parents)
         order.set_local_score(z, local_score)
 
         edge_bump += len(z_parents)
         new_score += local_score
 
     return edge_bump, new_score - old_score
-
-
-# grow of grow-shrink
-def grow(y: int, y_parents: List[int], candidates: List[int], score):
-
-    best = -score.score(y, y_parents)
-    # best = -score.score_nocache(y, y_parents)
-
-    add = None
-    checked = []
-    while add is not None or len(candidates) > 0:
-
-        if add is not None:
-            checked.remove(add)
-            y_parents.append(add)
-            candidates = checked
-            checked = []
-            add = None
-
-        while len(candidates) > 0:
-
-            x = candidates.pop()
-            y_parents.append(x)
-            current = -score.score(y, y_parents)
-            # current = -score.score_nocache(y, y_parents)
-            y_parents.remove(x)
-            checked.append(x)
-
-            if current > best:
-                best = current
-                add = x
-
-    return best
-
-
-# shrink of grow-shrink
-def shrink(y: int, y_parents: List[int], score):
-
-    best = -score.score(y, y_parents)
-    # best = -score.score_nocache(y, y_parents)
-
-    remove = None
-    checked = 0
-    while remove is not None or checked < len(y_parents):
-
-        if remove is not None:
-            y_parents.remove(remove)
-            checked = 0
-            remove = None
-
-        while checked < len(y_parents):
-            x = y_parents.pop(0)
-            current = -score.score(y, y_parents)
-            # current = -score.score_nocache(y, y_parents)
-            y_parents.append(x)
-            checked += 1
-
-            if current > best:
-                best = current
-                remove = x
-
-    return best
 
 
 # tucks the node at position i into position j
