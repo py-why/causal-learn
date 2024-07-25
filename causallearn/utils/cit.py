@@ -184,12 +184,45 @@ class KCI(CIT_Base):
         self.kci_ui = KCI_UInd(**kci_ui_kwargs)
         self.kci_ci = KCI_CInd(**kci_ci_kwargs)
 
+        self.is_discrete = np.array(kwargs["is_discrete"]) if "is_discrete" in kwargs.keys() else None
+
     def __call__(self, X, Y, condition_set=None):
         # Kernel-based conditional independence test.
         Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
         if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
-        p = self.kci_ui.compute_pvalue(self.data[:, Xs], self.data[:, Ys])[0] if len(condition_set) == 0 else \
-            self.kci_ci.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
+
+        is_discrete_X = None 
+        is_discrete_Y = None 
+        is_discrete_Z = None 
+        if self.is_discrete is not None:
+            is_discrete_X = self.is_discrete[Xs][0] if len(Xs) > 0 else None
+            if not is_discrete_X:
+                is_discrete_X = None
+
+            is_discrete_Y = self.is_discrete[Ys][0] if len(Ys) > 0 else None
+            if not is_discrete_Y:
+                is_discrete_Y = None
+
+            if condition_set is not None:
+                is_discrete_Z = self.is_discrete[condition_set] if len(condition_set) > 0 else None
+                if (is_discrete_Z is not None) and not (np.any(is_discrete_Z)):
+                    is_discrete_Z = None
+
+        p = self.kci_ui.compute_pvalue(
+            self.data[:, Xs],
+            self.data[:, Ys],
+            is_discrete_X=is_discrete_X,
+            is_discrete_Y=is_discrete_Y
+        )[0] if len(condition_set) == 0 else \
+            self.kci_ci.compute_pvalue(
+            self.data[:, Xs],
+            self.data[:, Ys],
+            self.data[:, condition_set],
+            is_discrete_X=is_discrete_X,
+            is_discrete_Y=is_discrete_Y,
+            is_discrete_Z=is_discrete_Z
+        )[0]
+
         self.pvalue_cache[cache_key] = p
         return p
 
