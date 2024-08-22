@@ -760,8 +760,7 @@ def is_possible_parent(graph: Graph, potential_parent_node, child_node):
     if not graph.is_adjacent_to(potential_parent_node, child_node):
         return False
 
-    if graph.get_endpoint(child_node, potential_parent_node) == Endpoint.ARROW or \
-    graph.get_endpoint(potential_parent_node, child_node) == Endpoint.TAIL:
+    if graph.get_endpoint(child_node, potential_parent_node) == Endpoint.ARROW: 
         return False
     else:
         return True
