@@ -320,8 +320,9 @@ def rulesR1R2cycle(graph: Graph, bk: BackgroundKnowledge | None, changeFlag: boo
 
 def isNoncollider(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], node_i: Node, node_j: Node,
                   node_k: Node) -> bool:
-    sep_set = sep_sets[(graph.get_node_map()[node_i], graph.get_node_map()[node_k])]
-    return sep_set is not None and sep_set.__contains__(graph.get_node_map()[node_j])
+    node_map = graph.get_node_map()
+    sep_set = sep_sets.get((node_map[node_i], node_map[node_k]))
+    return sep_set is not None and sep_set.__contains__(node_map[node_j])
 
 
 def ruleR3(graph: Graph, sep_sets: Dict[Tuple[int, int], Set[int]], bk: BackgroundKnowledge | None, changeFlag: bool,
@@ -827,7 +828,8 @@ def removeByPossibleDsep(graph: Graph, independence_test_method: CIT, alpha: flo
 
 
 def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 0.05, depth: int = -1,
-        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None, show_progress: bool = True,
+        max_path_length: int = -1, verbose: bool = False, background_knowledge: BackgroundKnowledge | None = None, 
+        show_progress: bool = True, node_names = None,
         **kwargs) -> Tuple[Graph, List[Edge]]:
     """
     Perform Fast Causal Inference (FCI) algorithm for causal discovery
@@ -882,8 +884,10 @@ def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 
 
 
     nodes = []
+    if node_names is None:
+        node_names = [f"X{i + 1}" for i in range(dataset.shape[1])]
     for i in range(dataset.shape[1]):
-        node = GraphNode(f"X{i + 1}")
+        node = GraphNode(node_names[i])
         node.add_attribute("id", i)
         nodes.append(node)
 
