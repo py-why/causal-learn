@@ -198,7 +198,7 @@ def local_score_cv_general(
     PAi = list(PAi)
 
     T = Data.shape[0]
-    X = Data[:, Xi]
+    X = Data[:, [Xi]]
     var_lambda = parameters["lambda"]  # regularization parameter
     k = parameters["kfold"]  # k-fold cross validation
     n0 = math.floor(T / k)
@@ -715,7 +715,7 @@ def local_score_marginal_general(
     """
 
     T = Data.shape[0]
-    X = Data[:, Xi]
+    X = Data[:, [Xi]]
     dX = X.shape[1]
 
     # set the kernel for X
