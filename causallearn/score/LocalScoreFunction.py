@@ -34,9 +34,9 @@ def local_score_BIC(Data: ndarray, i: int, PAi: List[int], parameters=None) -> f
     if len(PAi) == 0:
         return n * np.log(cov[i, i])
 
-    yX = np.mat(cov[np.ix_([i], PAi)])
-    XX = np.mat(cov[np.ix_(PAi, PAi)])
-    H = np.log(cov[i, i] - yX * np.linalg.inv(XX) * yX.T)
+    yX = cov[np.ix_([i], PAi)]
+    XX = cov[np.ix_(PAi, PAi)]
+    H = np.log(cov[i, i] - yX @ np.linalg.inv(XX) @ yX.T)
 
     return n * H + np.log(n) * len(PAi) * lambda_value
 
@@ -68,9 +68,9 @@ def local_score_BIC_from_cov(
     if len(PAi) == 0:
         return n * np.log(cov[i, i])
 
-    yX = np.mat(cov[np.ix_([i], PAi)])
-    XX = np.mat(cov[np.ix_(PAi, PAi)])
-    H = np.log(cov[i, i] - yX * np.linalg.inv(XX) * yX.T)
+    yX = cov[np.ix_([i], PAi)]
+    XX = cov[np.ix_(PAi, PAi)]
+    H = np.log(cov[i, i] - yX @ np.linalg.inv(XX) @ yX.T)
 
     return n * H + np.log(n) * len(PAi) * lambda_value
 
@@ -198,7 +198,7 @@ def local_score_cv_general(
     PAi = list(PAi)
 
     T = Data.shape[0]
-    X = Data[:, Xi]
+    X = Data[:, [Xi]]
     var_lambda = parameters["lambda"]  # regularization parameter
     k = parameters["kfold"]  # k-fold cross validation
     n0 = math.floor(T / k)
@@ -715,7 +715,7 @@ def local_score_marginal_general(
     """
 
     T = Data.shape[0]
-    X = Data[:, Xi]
+    X = Data[:, [Xi]]
     dX = X.shape[1]
 
     # set the kernel for X

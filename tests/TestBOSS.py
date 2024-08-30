@@ -5,7 +5,7 @@ from causallearn.graph.AdjacencyConfusion import AdjacencyConfusion
 from causallearn.graph.ArrowConfusion import ArrowConfusion
 from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
-from causallearn.search.PermutationBased.GRaSP import grasp
+from causallearn.search.PermutationBased.BOSS import boss
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 
 import gc
@@ -48,8 +48,8 @@ def simulate_data(p, d, n):
     return (B != 0)[pi][:, pi], X[:, pi]
 
 
-class TestGRaSP(unittest.TestCase):
-    def test_grasp(self):
+class TestBOSS(unittest.TestCase):
+    def test_boss(self):
         ps = [30, 60]
         ds = [0.1, 0.15]
         n = 1000
@@ -84,7 +84,7 @@ class TestGRaSP(unittest.TestCase):
 
                     G0 = dag2cpdag(G0)
 
-                    G = grasp(X, depth=1, parameters={'lambda_value': 4})
+                    G = boss(X, parameters={'lambda_value': 4})
                     gc.collect()
 
                     AdjC = AdjacencyConfusion(G0, G)
