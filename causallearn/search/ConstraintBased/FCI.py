@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from queue import Queue
-from typing import List, Set, Tuple, Dict
+from typing import List, Set, Tuple, Dict, Generator
 from numpy import ndarray
 
 from causallearn.graph.Edge import Edge
@@ -44,7 +44,7 @@ def traverseCircle(node: Node, edge: Edge) -> Node | None:
         if edge.get_endpoint1() == Endpoint.CIRCLE and edge.get_endpoint2() == Endpoint.CIRCLE:
             return edge.get_node2()
     elif node == edge.get_node2():
-        if edge.get_endpoint1() == Endpoint.CIRCLE or edge.get_endpoint2() == Endpoint.CIRCLE:
+        if edge.get_endpoint1() == Endpoint.CIRCLE and edge.get_endpoint2() == Endpoint.CIRCLE:
             return edge.get_node1()
     return None
 
@@ -82,7 +82,7 @@ def existsSemiDirectedPath(node_from: Node, node_to: Node, G: Graph) -> bool: ##
 
     return False
 
-def GetUncoveredCirclePath(node_from: Node, node_to: Node, G: Graph) -> List[Node] | None:
+def GetUncoveredCirclePath(node_from: Node, node_to: Node, G: Graph) -> Generator[Node] | None:
     Q = Queue()
     V = set()
 
@@ -102,7 +102,7 @@ def GetUncoveredCirclePath(node_from: Node, node_to: Node, G: Graph) -> List[Nod
     while not Q.empty():
         node_t, path = Q.get_nowait()
         if node_t == node_to and is_uncovered_path(path, G):
-            return path
+            yield path
 
         for node_u in G.get_adjacent_nodes(node_t):
             edge = G.get_edge(node_t, node_u)
@@ -467,35 +467,31 @@ def ruleR5(graph: Graph, changeFlag: bool,
                     for node_D in b_circle_adj_nodes_set:
                         if graph.is_adjacent_to(node_A, node_D):
                             continue
-                        path = GetUncoveredCirclePath(node_from=node_C, node_to=node_D, G=graph)
-                        if path is not None:                            
-                            # pdb.set_trace()
+                        paths = GetUncoveredCirclePath(node_from=node_C, node_to=node_D, G=graph)
+                        if paths is not None:                            
+                            # Mark the change if find at least one path
                             changeFlag = True
-                            # orient A - C, D - B
-                            edge = graph.get_edge(node_A, path[0])
-                            graph.remove_edge(edge)
-                            graph.add_edge(Edge(node_A, path[0], Endpoint.TAIL, Endpoint.TAIL))
-
-                            edge = graph.get_edge(node_B, path[-1])
-                            graph.remove_edge(edge)
-                            graph.add_edge(Edge(node_B, path[-1], Endpoint.TAIL, Endpoint.TAIL))
-                            if verbose:
-                                print("Orienting edge (Double tail): " + graph.get_edge(node_A, path[0]).__str__())
-                                print("Orienting edge (Double tail): " + graph.get_edge(node_B, path[-1]).__str__())
-
-                            # orient everything on the path to both tails
-                            for i in range(len(path) - 1):
-                                edge = graph.get_edge(path[i], path[i + 1])
+                            for path in paths:
+                                # orient A - C, D - B
+                                edge = graph.get_edge(node_A, path[0])
                                 graph.remove_edge(edge)
-                                graph.add_edge(Edge(path[i], path[i + 1], Endpoint.TAIL, Endpoint.TAIL))
-                                if verbose:
-                                    print("Orienting edge (Double tail): " + graph.get_edge(path[i], path[i + 1]).__str__())
-                            
-                            # if not is_arrow_point_allowed(node_A, path[0], graph, bk):
-                            #     break
-                            # if not is_arrow_point_allowed(node_B, path[-1], graph, bk):
-                            #     break
+                                graph.add_edge(Edge(node_A, path[0], Endpoint.TAIL, Endpoint.TAIL))
 
+                                edge = graph.get_edge(node_B, path[-1])
+                                graph.remove_edge(edge)
+                                graph.add_edge(Edge(node_B, path[-1], Endpoint.TAIL, Endpoint.TAIL))
+                                if verbose:
+                                    print("Orienting edge (Double tail): " + graph.get_edge(node_A, path[0]).__str__())
+                                    print("Orienting edge (Double tail): " + graph.get_edge(node_B, path[-1]).__str__())
+
+                                # orient everything on the path to both tails
+                                for i in range(len(path) - 1):
+                                    edge = graph.get_edge(path[i], path[i + 1])
+                                    graph.remove_edge(edge)
+                                    graph.add_edge(Edge(path[i], path[i + 1], Endpoint.TAIL, Endpoint.TAIL))
+                                    if verbose:
+                                        print("Orienting edge (Double tail): " + graph.get_edge(path[i], path[i + 1]).__str__())
+                                
                             continue
                         
     return changeFlag
