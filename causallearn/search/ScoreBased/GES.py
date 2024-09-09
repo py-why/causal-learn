@@ -8,8 +8,13 @@ from causallearn.utils.PDAG2DAG import pdag2dag
 from typing import Union
 
 
-def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] = None,
-        parameters: Optional[Dict[str, Any]] = None, node_names: Union[List[str], None] = None,) -> Dict[str, Any]:
+def ges(
+    X: ndarray,
+    score_func: str = "local_score_BIC",
+    maxP: Optional[float] = None,
+    parameters: Optional[Dict[str, Any]] = None,
+    node_names: Union[List[str], None] = None,
+) -> Dict[str, Any]:
     """
     Perform greedy equivalence search (GES) algorithm
 
@@ -39,61 +44,88 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
     if X.shape[0] < X.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
 
-    X = np.mat(X)
-    if score_func == 'local_score_CV_general':  # % k-fold negative cross validated likelihood based on regression in RKHS
+    if (
+        score_func == "local_score_CV_general"
+    ):  # % k-fold negative cross validated likelihood based on regression in RKHS
         if parameters is None:
-            parameters = {'kfold': 10,  # 10 fold cross validation
-                          'lambda': 0.01}  # regularization parameter
+            parameters = {
+                "kfold": 10,  # 10 fold cross validation
+                "lambda": 0.01,
+            }  # regularization parameter
         if maxP is None:
             maxP = X.shape[1] / 2  # maximum number of parents
         N = X.shape[1]  # number of variables
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_cv_general, parameters=parameters)
+        localScoreClass = LocalScoreClass(
+            data=X, local_score_fun=local_score_cv_general, parameters=parameters
+        )
 
-    elif score_func == 'local_score_marginal_general':  # negative marginal likelihood based on regression in RKHS
+    elif (
+        score_func == "local_score_marginal_general"
+    ):  # negative marginal likelihood based on regression in RKHS
         parameters = {}
         if maxP is None:
             maxP = X.shape[1] / 2  # maximum number of parents
         N = X.shape[1]  # number of variables
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_marginal_general, parameters=parameters)
+        localScoreClass = LocalScoreClass(
+            data=X, local_score_fun=local_score_marginal_general, parameters=parameters
+        )
 
-    elif score_func == 'local_score_CV_multi':  # k-fold negative cross validated likelihood based on regression in RKHS
+    elif (
+        score_func == "local_score_CV_multi"
+    ):  # k-fold negative cross validated likelihood based on regression in RKHS
         # for data with multi-variate dimensions
         if parameters is None:
-            parameters = {'kfold': 10, 'lambda': 0.01, 'dlabel': {}}  # regularization parameter
+            parameters = {
+                "kfold": 10,
+                "lambda": 0.01,
+                "dlabel": {},
+            }  # regularization parameter
             for i in range(X.shape[1]):
-                parameters['dlabel'][i] = i
+                parameters["dlabel"][i] = i
         if maxP is None:
-            maxP = len(parameters['dlabel']) / 2
-        N = len(parameters['dlabel'])
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_cv_multi, parameters=parameters)
+            maxP = len(parameters["dlabel"]) / 2
+        N = len(parameters["dlabel"])
+        localScoreClass = LocalScoreClass(
+            data=X, local_score_fun=local_score_cv_multi, parameters=parameters
+        )
 
-    elif score_func == 'local_score_marginal_multi':  # negative marginal likelihood based on regression in RKHS
+    elif (
+        score_func == "local_score_marginal_multi"
+    ):  # negative marginal likelihood based on regression in RKHS
         # for data with multi-variate dimensions
         if parameters is None:
-            parameters = {'dlabel': {}}
+            parameters = {"dlabel": {}}
             for i in range(X.shape[1]):
-                parameters['dlabel'][i] = i
+                parameters["dlabel"][i] = i
         if maxP is None:
-            maxP = len(parameters['dlabel']) / 2
-        N = len(parameters['dlabel'])
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_marginal_multi, parameters=parameters)
+            maxP = len(parameters["dlabel"]) / 2
+        N = len(parameters["dlabel"])
+        localScoreClass = LocalScoreClass(
+            data=X, local_score_fun=local_score_marginal_multi, parameters=parameters
+        )
 
-    elif score_func == 'local_score_BIC' or score_func == 'local_score_BIC_from_cov':  # Greedy equivalence search with BIC score
+    elif (
+        score_func == "local_score_BIC" or score_func == "local_score_BIC_from_cov"
+    ):  # Greedy equivalence search with BIC score
         if maxP is None:
             maxP = X.shape[1] / 2
         N = X.shape[1]  # number of variables
         parameters = {}
         parameters["lambda_value"] = 2
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters)
+        localScoreClass = LocalScoreClass(
+            data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
+        )
 
-    elif score_func == 'local_score_BDeu':  # Greedy equivalence search with BDeu score
+    elif score_func == "local_score_BDeu":  # Greedy equivalence search with BDeu score
         if maxP is None:
             maxP = X.shape[1] / 2
         N = X.shape[1]  # number of variables
-        localScoreClass = LocalScoreClass(data=X, local_score_fun=local_score_BDeu, parameters=None)
+        localScoreClass = LocalScoreClass(
+            data=X, local_score_fun=local_score_BDeu, parameters=None
+        )
 
     else:
-        raise Exception('Unknown function!')
+        raise Exception("Unknown function!")
     score_func = localScoreClass
 
     if node_names is None:
@@ -113,8 +145,9 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
 
     ## --------------------------------------------------------------------
     ## forward greedy search
-    record_local_score = [[] for i in range(
-        N)]  # record the local score calculated each time. Thus when we transition to the second phase,
+    record_local_score = [
+        [] for i in range(N)
+    ]  # record the local score calculated each time. Thus when we transition to the second phase,
     # many of the operators can be scored without an explicit call the the scoring function
     # record_local_score{trial}{j} record the local scores when Xj as a parent
     score_new = score
@@ -132,17 +165,27 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         min_desc = []
         for i in range(N):
             for j in range(N):
-                if (G.graph[i, j] == Endpoint.NULL.value and G.graph[j, i] == Endpoint.NULL.value
-                        and i != j and len(np.where(G.graph[j, :] == Endpoint.ARROW.value)[0]) <= maxP):
+                if (
+                    G.graph[i, j] == Endpoint.NULL.value
+                    and G.graph[j, i] == Endpoint.NULL.value
+                    and i != j
+                    and len(np.where(G.graph[j, :] == Endpoint.ARROW.value)[0]) <= maxP
+                ):
                     # find a pair (Xi, Xj) that is not adjacent in the current graph , and restrict the number of parents
-                    Tj = np.intersect1d(np.where(G.graph[:, j] == Endpoint.TAIL.value)[0],
-                                        np.where(G.graph[j, :] == Endpoint.TAIL.value)[0])  # neighbors of Xj
+                    Tj = np.intersect1d(
+                        np.where(G.graph[:, j] == Endpoint.TAIL.value)[0],
+                        np.where(G.graph[j, :] == Endpoint.TAIL.value)[0],
+                    )  # neighbors of Xj
 
-                    Ti = np.union1d(np.where(G.graph[:, i] != Endpoint.NULL.value)[0],
-                                    np.where(G.graph[i, :] != Endpoint.NULL.value)[0])  # adjacent to Xi
+                    Ti = np.union1d(
+                        np.where(G.graph[:, i] != Endpoint.NULL.value)[0],
+                        np.where(G.graph[i, :] != Endpoint.NULL.value)[0],
+                    )  # adjacent to Xi
 
                     NTi = np.setdiff1d(np.arange(N), Ti)
-                    T0 = np.intersect1d(Tj, NTi)  # find the neighbours of Xj that are not adjacent to Xi
+                    T0 = np.intersect1d(
+                        Tj, NTi
+                    )  # find the neighbours of Xj that are not adjacent to Xi
                     # for any subset of T0
                     sub = Combinatorial(T0.tolist())  # find all the subsets for T0
                     S = np.zeros(len(sub))
@@ -151,34 +194,49 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
                     # 1: only check the first condition
                     # 2: check nothing and is not valid.
                     for k in range(len(sub)):
-                        if (S[k] < 2):  # S indicate whether we need to check subset(k)
-                            V1 = insert_validity_test1(G, i, j, sub[k])  # Insert operator validation test:condition 1
-                            if (V1):
-                                if (not S[k]):
-                                    V2 = insert_validity_test2(G, i, j,
-                                                               sub[k])  # Insert operator validation test:condition 2
+                        if S[k] < 2:  # S indicate whether we need to check subset(k)
+                            V1 = insert_validity_test1(
+                                G, i, j, sub[k]
+                            )  # Insert operator validation test:condition 1
+                            if V1:
+                                if not S[k]:
+                                    V2 = insert_validity_test2(
+                                        G, i, j, sub[k]
+                                    )  # Insert operator validation test:condition 2
                                 else:
                                     V2 = 1
-                                if (V2):
-                                    Idx = find_subset_include(sub[k], sub)  # find those subsets that include sub(k)
+                                if V2:
+                                    Idx = find_subset_include(
+                                        sub[k], sub
+                                    )  # find those subsets that include sub(k)
                                     S[np.where(Idx == 1)] = 1
-                                    chscore, desc, record_local_score = insert_changed_score(X, G, i, j, sub[k],
-                                                                                             record_local_score,
-                                                                                             score_func,
-                                                                                             parameters)
+                                    chscore, desc, record_local_score = (
+                                        insert_changed_score(
+                                            X,
+                                            G,
+                                            i,
+                                            j,
+                                            sub[k],
+                                            record_local_score,
+                                            score_func,
+                                            parameters,
+                                        )
+                                    )
                                     # calculate the changed score after Insert operator
                                     # desc{count} saves the corresponding (i,j,sub{k})
                                     # sub{k}:
-                                    if (chscore < min_chscore):
+                                    if chscore < min_chscore:
                                         min_chscore = chscore
                                         min_desc = desc
                             else:
-                                Idx = find_subset_include(sub[k], sub)  # find those subsets that include sub(k)
+                                Idx = find_subset_include(
+                                    sub[k], sub
+                                )  # find those subsets that include sub(k)
                                 S[np.where(Idx == 1)] = 2
 
-        if (len(min_desc) != 0):
+        if len(min_desc) != 0:
             score_new = score + min_chscore
-            if (score - score_new <= 0):
+            if score - score_new <= 0:
                 break
             G = insert(G, min_desc[0], min_desc[1], min_desc[2])
             update1.append([min_desc[0], min_desc[1], min_desc[2]])
@@ -206,35 +264,54 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
         min_desc = []
         for i in range(N):
             for j in range(N):
-                if ((G.graph[j, i] == Endpoint.TAIL.value and G.graph[i, j] == Endpoint.TAIL.value)
-                        or G.graph[j, i] == Endpoint.ARROW.value):  # if Xi - Xj or Xi -> Xj
-                    Hj = np.intersect1d(np.where(G.graph[:, j] == Endpoint.TAIL.value)[0],
-                                        np.where(G.graph[j, :] == Endpoint.TAIL.value)[0])  # neighbors of Xj
-                    Hi = np.union1d(np.where(G.graph[i, :] != Endpoint.NULL.value)[0],
-                                    np.where(G.graph[:, i] != Endpoint.NULL.value)[0])  # adjacent to Xi
-                    H0 = np.intersect1d(Hj, Hi)  # find the neighbours of Xj that are adjacent to Xi
+                if (
+                    G.graph[j, i] == Endpoint.TAIL.value
+                    and G.graph[i, j] == Endpoint.TAIL.value
+                ) or G.graph[
+                    j, i
+                ] == Endpoint.ARROW.value:  # if Xi - Xj or Xi -> Xj
+                    Hj = np.intersect1d(
+                        np.where(G.graph[:, j] == Endpoint.TAIL.value)[0],
+                        np.where(G.graph[j, :] == Endpoint.TAIL.value)[0],
+                    )  # neighbors of Xj
+                    Hi = np.union1d(
+                        np.where(G.graph[i, :] != Endpoint.NULL.value)[0],
+                        np.where(G.graph[:, i] != Endpoint.NULL.value)[0],
+                    )  # adjacent to Xi
+                    H0 = np.intersect1d(
+                        Hj, Hi
+                    )  # find the neighbours of Xj that are adjacent to Xi
                     # for any subset of H0
                     sub = Combinatorial(H0.tolist())  # find all the subsets for H0
                     S = np.ones(len(sub))  # S indicate whether we need to check sub{k}.
                     # 1: check the condition,
                     # 2: check nothing and is valid;
                     for k in range(len(sub)):
-                        if (S[k] == 1):
-                            V = delete_validity_test(G, i, j, sub[k])  # Delete operator validation test
-                            if (V):
+                        if S[k] == 1:
+                            V = delete_validity_test(
+                                G, i, j, sub[k]
+                            )  # Delete operator validation test
+                            if V:
                                 # find those subsets that include sub(k)
                                 Idx = find_subset_include(sub[k], sub)
                                 S[np.where(Idx == 1)] = 2  # and set their S to 2
                         else:
                             V = 1
 
-                        if (V):
-                            chscore, desc, record_local_score = delete_changed_score(X, G, i, j, sub[k],
-                                                                                     record_local_score, score_func,
-                                                                                     parameters)
+                        if V:
+                            chscore, desc, record_local_score = delete_changed_score(
+                                X,
+                                G,
+                                i,
+                                j,
+                                sub[k],
+                                record_local_score,
+                                score_func,
+                                parameters,
+                            )
                             # calculate the changed score after Insert operator
                             # desc{count} saves the corresponding (i,j,sub{k})
-                            if (chscore < min_chscore):
+                            if chscore < min_chscore:
                                 min_chscore = chscore
                                 min_desc = desc
 
@@ -251,5 +328,12 @@ def ges(X: ndarray, score_func: str = 'local_score_BIC', maxP: Optional[float] =
             score_new = score
             break
 
-    Record = {'update1': update1, 'update2': update2, 'G_step1': G_step1, 'G_step2': G_step2, 'G': G, 'score': score}
+    Record = {
+        "update1": update1,
+        "update2": update2,
+        "G_step1": G_step1,
+        "G_step2": G_step2,
+        "G": G,
+        "score": score,
+    }
     return Record
