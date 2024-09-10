@@ -10,10 +10,24 @@ Usage
 --------
 .. code-block:: python
 
+    import numpy as np
     from causallearn.utils.cit import CIT
-    fisherz_obj = CIT(data, "fisherz") # construct a CIT instance with data and method name
-    pValue = fisherz_obj(X, Y, S)
 
+    # Randomly initialize the data array with shape (100, 5)
+    data = np.random.rand(100, 5)
+
+    # X, Y are indices of columns, Z is an iterable of column indices
+    X = 0
+    Y = 1
+    Z = [2]  # Example of Z being iterable
+
+    # Construct a CIT instance with the data and method name
+    fisherz_obj = CIT(data, "fisherz")
+
+    # Perform the test with X, Y, and Z
+    pValue = kci_obj(X, Y, Z)
+    print(f'p-value: {pValue}')
+    
 Please be kindly informed that we have refactored the independence tests from functions to classes since the release `v0.1.2.8 <https://github.com/cmu-phil/causal-learn/releases/tag/0.1.2.8>`_. Speed gain and a more flexible parameters specification are enabled.
 
 For users, you may need to adjust your codes accordingly. Specifically,
