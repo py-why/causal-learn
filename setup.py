@@ -22,7 +22,8 @@ setuptools.setup(
         'matplotlib',
         'networkx',
         'pydot',
-        'tqdm'
+        'tqdm',
+        'momentchi2'
     ],
     url='https://github.com/py-why/causal-learn',
     packages=setuptools.find_packages(),
