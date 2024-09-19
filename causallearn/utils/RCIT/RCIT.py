@@ -132,7 +132,7 @@ class RCIT(object):
 
         return feat
 
-    def matrix_cov(mat_a, mat_b):
+    def matrix_cov(self, mat_a, mat_b):
         n_obs = mat_a.shape[0]
 
         assert mat_a.shape == mat_b.shape
@@ -184,8 +184,8 @@ class RIT(object):
             p = 1 - (np.sum(sta >= stas) / len(stas))
 
         else:
-            res_x = f_x - np.meshgrid(f_x.mean(axis=0), (r, 1))
-            res_y = f_y - np.meshgrid(f_y.mean(axis=0), (r, 1))
+            res_x = f_x - f_x.mean(axis=0)
+            res_y = f_y - f_y.mean(axis=0)
 
             d = list(itertools.product(range(f_x.shape[1]), range(f_y.shape[1])))
             res = np.array([res_x[:, idx_x] * res_y[:, idx_y] for idx_x, idx_y in d]).T
@@ -239,7 +239,7 @@ class RIT(object):
 
         return feat
 
-    def matrix_cov(mat_a, mat_b):
+    def matrix_cov(self, mat_a, mat_b):
         n_obs = mat_a.shape[0]
 
         assert mat_a.shape == mat_b.shape
