@@ -6,7 +6,8 @@ from scipy.stats import chi2, norm
 
 from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
 from causallearn.utils.FastKCI.FastKCI import FastKCI_CInd, FastKCI_UInd
-from causallearn.utils.RCIT.RCIT import RCIT, RIT
+from causallearn.utils.RCIT.RCIT import RCIT as RCIT_CInd
+from causallearn.utils.RCIT.RCIT import RIT as RCIT_UInd
 from causallearn.utils.PCUtils import Helper
 
 CONST_BINCOUNT_UNIQUE_THRESHOLD = 1e5
@@ -222,7 +223,7 @@ class FastKCI(CIT_Base):
             self.kci_ci.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
         self.pvalue_cache[cache_key] = p
         return p
-  
+
 class RCIT(CIT_Base):
     def __init__(self, data, **kwargs):
         super().__init__(data, **kwargs)
@@ -233,8 +234,8 @@ class RCIT(CIT_Base):
         self.check_cache_method_consistent(
             'kci', hashlib.md5(json.dumps(rcit_kwargs, sort_keys=True).encode('utf-8')).hexdigest())
         self.assert_input_data_is_valid()
-        self.rit = RIT(**rit_kwargs)
-        self.rcit = RCIT(**rcit_kwargs)
+        self.rit = RCIT_UInd(**rit_kwargs)
+        self.rcit = RCIT_CInd(**rcit_kwargs)
 
     def __call__(self, X, Y, condition_set=None):
         # Kernel-based conditional independence test.
