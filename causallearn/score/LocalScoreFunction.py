@@ -209,7 +209,7 @@ def local_score_cv_general(
         PA = Data[:, PAi].reshape(-1, 1)
 
         # set the kernel for X
-        GX = np.sum(np.multiply(X, X)).reshape(-1, 1)
+        GX = np.multiply(X, X).reshape(-1, 1)
         Q = np.tile(GX, (1, T))
         R = np.tile(GX.T, (T, 1))
         dists = Q + R - 2 * X @ X.T
@@ -235,10 +235,10 @@ def local_score_cv_general(
         Kpa = np.ones((T, T))
 
         for m in range(PA.shape[1]):
-            G = np.sum((np.multiply(PA[:, m], PA[:, m]))).reshape(-1, 1)
+            G = np.multiply(PA[:, [m]], PA[:, [m]]).reshape(-1, 1)
             Q = np.tile(G, (1, T))
             R = np.tile(G.T, (T, 1))
-            dists = Q + R - 2 * PA[:, m] @ PA[:, m].T
+            dists = Q + R - 2 * PA[:, [m]] @ PA[:, [m]].T
             dists = dists - np.tril(dists)
             dists = np.reshape(dists, (T**2, 1))
             width = np.sqrt(0.5 * np.median(dists[np.where(dists > 0)]))
@@ -467,7 +467,7 @@ def local_score_cv_multi(
 
     if len(PAi):
         # set the kernel for X
-        GX = np.sum(np.multiply(X, X)).reshape(-1, 1)
+        GX = np.multiply(X, X).reshape(-1, 1)
         Q = np.tile(GX, (1, T))
         R = np.tile(GX.T, (T, 1))
         dists = Q + R - 2 * X * X.T
@@ -488,7 +488,7 @@ def local_score_cv_multi(
 
         for m in range(len(PAi)):
             PA = Data[:, parameters["dlabel"][PAi[m]]].reshape(-1, 1)
-            G = np.sum((np.multiply(PA, PA))).reshape(-1, 1)
+            G = np.multiply(PA, PA).reshape(-1, 1)
             Q = np.tile(G, (1, T))
             R = np.tile(G.T, (T, 1))
             dists = Q + R - 2 * PA * PA.T
@@ -729,10 +729,10 @@ def local_score_marginal_general(
         widthPA = np.empty((PA.shape[1], 1))
         # set the kernel for PA
         for m in range(PA.shape[1]):
-            G = np.sum((np.multiply(PA[:, m], PA[:, m]))).reshape(-1, 1)
+            G = np.multiply(PA[:, [m]], PA[:, [m]]).reshape(-1, 1)
             Q = np.tile(G, (1, T))
             R = np.tile(G.T, (T, 1))
-            dists = Q + R - 2 * PA[:, m] * PA[:, m].T
+            dists = Q + R - 2 * PA[:, [m]] * PA[:, [m]].T
             dists = dists - np.tril(dists)
             dists = np.reshape(dists, (T**2, 1))
             widthPA[m] = np.sqrt(0.5 * np.median(dists[np.where(dists > 0)]))
