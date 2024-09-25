@@ -82,17 +82,19 @@ def existsSemiDirectedPath(node_from: Node, node_to: Node, G: Graph) -> bool: ##
 
     return False
 
-def GetUncoveredCirclePath(node_from: Node, node_to: Node, G: Graph) -> Generator[Node] | None:
+def GetUncoveredCirclePath(node_from: Node, node_to: Node, G: Graph, exclude_node: List[Node]) -> Generator[Node] | None:
     Q = Queue()
     V = set()
 
     path = [node_from]
 
     for node_u in G.get_adjacent_nodes(node_from):
+        if node_u in exclude_node:
+            continue
         edge = G.get_edge(node_from, node_u)
         node_c = traverseCircle(node_from, edge)
 
-        if node_c is None:
+        if node_c is None or node_c in exclude_node:
             continue
 
         if not V.__contains__(node_c):
@@ -108,14 +110,13 @@ def GetUncoveredCirclePath(node_from: Node, node_to: Node, G: Graph) -> Generato
             edge = G.get_edge(node_t, node_u)
             node_c = traverseCircle(node_t, edge)
 
-            if node_c is None:
+            if node_c is None or node_c in exclude_node:
                 continue
 
             if not V.__contains__(node_c):
                 V.add(node_c)
                 Q.put((node_c, path + [node_c]))
 
-    return None
 
 
 def existOnePathWithPossibleParents(previous, node_w: Node, node_x: Node, node_b: Node, graph: Graph) -> bool:
@@ -440,10 +441,32 @@ def ruleR5(graph: Graph, changeFlag: bool,
     double tail.
     """
     nodes = graph.get_nodes()
+    def orient_on_path_helper(path, node_A, node_B):
+        # orient A - C, D - B
+        edge = graph.get_edge(node_A, path[0])
+        graph.remove_edge(edge)
+        graph.add_edge(Edge(node_A, path[0], Endpoint.TAIL, Endpoint.TAIL))
+
+        edge = graph.get_edge(node_B, path[-1])
+        graph.remove_edge(edge)
+        graph.add_edge(Edge(node_B, path[-1], Endpoint.TAIL, Endpoint.TAIL))
+        if verbose:
+            print("Orienting edge A - C (Double tail): " + graph.get_edge(node_A, path[0]).__str__())
+            print("Orienting edge B - D (Double tail): " + graph.get_edge(node_B, path[-1]).__str__())
+
+        # orient everything on the path to both tails
+        for i in range(len(path) - 1):
+            edge = graph.get_edge(path[i], path[i + 1])
+            graph.remove_edge(edge)
+            graph.add_edge(Edge(path[i], path[i + 1], Endpoint.TAIL, Endpoint.TAIL))
+            if verbose:
+                print("Orienting edge (Double tail): " + graph.get_edge(path[i], path[i + 1]).__str__())
+    
     for node_B in nodes:
         intoBCircles = graph.get_nodes_into(node_B, Endpoint.CIRCLE)
 
         for node_A in intoBCircles:
+            found_paths_between_AB = []
             if graph.get_endpoint(node_B, node_A) != Endpoint.CIRCLE:
                 continue
             else:
@@ -467,33 +490,17 @@ def ruleR5(graph: Graph, changeFlag: bool,
                     for node_D in b_circle_adj_nodes_set:
                         if graph.is_adjacent_to(node_A, node_D):
                             continue
-                        paths = GetUncoveredCirclePath(node_from=node_C, node_to=node_D, G=graph)
-                        if paths is not None:                            
-                            # Mark the change if find at least one path
-                            changeFlag = True
-                            for path in paths:
-                                # orient A - C, D - B
-                                edge = graph.get_edge(node_A, path[0])
-                                graph.remove_edge(edge)
-                                graph.add_edge(Edge(node_A, path[0], Endpoint.TAIL, Endpoint.TAIL))
+                        paths = GetUncoveredCirclePath(node_from=node_C, node_to=node_D, G=graph, exclude_node=[node_A, node_B]) # get the uncovered circle path between C and D, excluding A and B
+                        found_paths_between_AB.append(paths)
 
-                                edge = graph.get_edge(node_B, path[-1])
-                                graph.remove_edge(edge)
-                                graph.add_edge(Edge(node_B, path[-1], Endpoint.TAIL, Endpoint.TAIL))
-                                if verbose:
-                                    print("Orienting edge (Double tail): " + graph.get_edge(node_A, path[0]).__str__())
-                                    print("Orienting edge (Double tail): " + graph.get_edge(node_B, path[-1]).__str__())
+                # Orient the uncovered circle path between A and B
+                for paths in found_paths_between_AB:                    
+                    for path in paths:
+                        changeFlag = True
+                        if verbose:
+                            print("Find uncovered circle path between A and B: " + graph.get_edge(node_A, node_B).__str__())
+                        orient_on_path_helper(path, node_A, node_B)
 
-                                # orient everything on the path to both tails
-                                for i in range(len(path) - 1):
-                                    edge = graph.get_edge(path[i], path[i + 1])
-                                    graph.remove_edge(edge)
-                                    graph.add_edge(Edge(path[i], path[i + 1], Endpoint.TAIL, Endpoint.TAIL))
-                                    if verbose:
-                                        print("Orienting edge (Double tail): " + graph.get_edge(path[i], path[i + 1]).__str__())
-                                
-                            continue
-                        
     return changeFlag
 
 def ruleR6(graph: Graph, changeFlag: bool,
