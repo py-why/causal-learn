@@ -72,3 +72,17 @@ class TestDAG2PAG(unittest.TestCase):
         print(pag)
         graphviz_pag = GraphUtils.to_pgv(pag)
         graphviz_pag.draw("pag.png", prog='dot', format='png')
+
+    def test_case_selection(self):
+        nodes = []
+        for i in range(5):
+            nodes.append(GraphNode(str(i)))
+        dag = Dag(nodes)
+        dag.add_directed_edge(nodes[0], nodes[1])
+        dag.add_directed_edge(nodes[1], nodes[2])
+        dag.add_directed_edge(nodes[2], nodes[3])
+        # Selection nodes
+        dag.add_directed_edge(nodes[3], nodes[4])
+        dag.add_directed_edge(nodes[0], nodes[4])
+        pag = dag2pag(dag, islatent=[], isselection=[nodes[4]])
+        print(pag)
