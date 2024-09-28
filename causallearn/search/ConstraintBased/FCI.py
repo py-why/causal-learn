@@ -724,9 +724,8 @@ def ruleR4B(graph: Graph, maxPathLength: int, data: ndarray, independence_test_m
 
 
 
-def rule8(graph: Graph, nodes: List[Node]):
-    nodes = graph.get_nodes()
-    changeFlag = False
+def rule8(graph: Graph, nodes: List[Node], changeFlag):
+    nodes = graph.get_nodes() if nodes is None else nodes
     for node_B in nodes:
         adj = graph.get_adjacent_nodes(node_B)
         if len(adj) < 2:
@@ -781,9 +780,9 @@ def find_possible_children(graph: Graph, parent_node, en_nodes=None):
 
     return potential_child_nodes
 
-def rule9(graph: Graph, nodes: List[Node]):
-    changeFlag = False
-    nodes = graph.get_nodes()
+def rule9(graph: Graph, nodes: List[Node], changeFlag):
+    # changeFlag = False
+    nodes = graph.get_nodes() if nodes is None else nodes
     for node_C in nodes:
         intoCArrows = graph.get_nodes_into(node_C, Endpoint.ARROW)
         for node_A in intoCArrows:
@@ -809,8 +808,8 @@ def rule9(graph: Graph, nodes: List[Node]):
     return changeFlag
 
 
-def rule10(graph: Graph):
-    changeFlag = False
+def rule10(graph: Graph, changeFlag):
+    # changeFlag = False
     nodes = graph.get_nodes()
     for node_C in nodes:
         intoCArrows = graph.get_nodes_into(node_C, Endpoint.ARROW)
@@ -1116,12 +1115,12 @@ def fci(dataset: ndarray, independence_test_method: str=fisherz, alpha: float = 
         change_flag = ruleR7(graph, change_flag, verbose)
         
         # rule 8
-        change_flag = rule8(graph,nodes)
+        change_flag = rule8(graph,nodes, change_flag)
         
         # rule 9
-        change_flag = rule9(graph, nodes)
+        change_flag = rule9(graph, nodes, change_flag)
         # rule 10
-        change_flag = rule10(graph)
+        change_flag = rule10(graph, change_flag)
 
     graph.set_pag(True)
 
