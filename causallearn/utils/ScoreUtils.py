@@ -10,7 +10,7 @@ import scipy.sparse
 def kernel(x, xKern, theta):
     # KERNEL Compute the rbf kernel
     n2 = dist2(x, xKern)
-    if (theta[0] == 0):
+    if theta[0] == 0:
         theta[0] = 2 / np.median(n2[np.where(np.tril(n2) > 0)])
         theta_new = theta[0]
     wi2 = theta[0] / 2
@@ -36,12 +36,14 @@ def dist2(x, c):
 
     ndata, dimx = x.shape
     ncentres, dimc = c.shape
-    if (dimx != dimc):
-        raise Exception('Data dimension does not match dimension of centres')
+    if dimx != dimc:
+        raise Exception("Data dimension does not match dimension of centres")
 
-    n2 = (np.mat(np.ones((ncentres, 1))) * np.sum(np.multiply(x, x).T, axis=0)).T + \
-         np.mat(np.ones((ndata, 1))) * np.sum(np.multiply(c, c).T, axis=0) - \
-         2 * (x * c.T)
+    n2 = (
+        (np.ones((ncentres, 1)) * np.sum(np.multiply(x, x).T, axis=0)).T
+        + np.ones((ndata, 1)) * np.sum(np.multiply(c, c).T, axis=0)
+        - 2 * (x * c.T)
+    )
 
     # Rounding errors occasionally cause negative entries in n2
     n2[np.where(n2 < 0)] = 0
@@ -56,52 +58,52 @@ def pdinv(A):
         invU = np.eye(numData).dot(np.linalg.inv(U))
         Ainv = invU.dot(invU.T)
     except numpy.linalg.LinAlgError as e:
-        warnings.warn('Matrix is not positive definite in pdinv, inverting using svd')
+        warnings.warn("Matrix is not positive definite in pdinv, inverting using svd")
         u, s, vh = np.linalg.svd(A, full_matrices=True)
         Ainv = vh.T.dot(np.diag(1 / s)).dot(u.T)
     except Exception as e:
         raise e
-    return np.mat(Ainv)
+    return Ainv
 
 
 def eigdec(x, N, evals_only=False):
     # EIGDEC	Sorted eigendecomposition
     #
-    #	Description
-    #	 EVALS = EIGDEC(X, N computes the largest N eigenvalues of the
-    #	matrix X in descending order.  [EVALS, EVEC] = EIGDEC(X, N) also
-    #	computes the corresponding eigenvectors.
+    # 	Description
+    # 	 EVALS = EIGDEC(X, N computes the largest N eigenvalues of the
+    # 	matrix X in descending order.  [EVALS, EVEC] = EIGDEC(X, N) also
+    # 	computes the corresponding eigenvectors.
     #
-    #	See also
-    #	PCA, PPCA
+    # 	See also
+    # 	PCA, PPCA
     #
 
-    if (N != np.round(N) or N < 1 or N > x.shape[1]):
-        raise Exception('Number of PCs must be integer, >0, < dim')
+    if N != np.round(N) or N < 1 or N > x.shape[1]:
+        raise Exception("Number of PCs must be integer, >0, < dim")
 
     # Find the eigenvalues of the data covariance matrix
-    if (evals_only):
+    if evals_only:
         # Use eig function as always more efficient than eigs here
         temp_evals, _ = np.linalg.eig(x)
     else:
         # Use eig function unless fraction of eigenvalues required is tiny
-        if ((N / x.shape[1]) > 0.04):
+        if (N / x.shape[1]) > 0.04:
             temp_evals, temp_evec = np.linalg.eig(x)
         else:
-            temp_evals, temp_evec = scipy.sparse.linalg.eigs(x, k=N, which='LM')
+            temp_evals, temp_evec = scipy.sparse.linalg.eigs(x, k=N, which="LM")
 
     # Eigenvalues nearly always returned in descending order, but just to make sure.....
     evals = np.sort(-temp_evals)
     perm = np.argsort(-temp_evals)
     evals = -evals[0:N]
 
-    if (not evals_only):
-        if (np.all(evals == temp_evals[0:N])):
+    if not evals_only:
+        if np.all(evals == temp_evals[0:N]):
             # Originals were in order
-            evec = temp_evec[:, 0: N]
+            evec = temp_evec[:, 0:N]
         else:
             # Need to reorder the eigenvectors
-            evec = np.empty_like(temp_evec[:, 0: N])
+            evec = np.empty_like(temp_evec[:, 0:N])
             for i in range(N):
                 evec[:, i] = temp_evec[:, perm[i]]
 
@@ -179,9 +181,9 @@ def minimize(X, f, length, *varargin):
         red = 1
 
     if length > 0:
-        S = 'Linesearch'
+        S = "Linesearch"
     else:
-        S = 'Function evaluation'
+        S = "Function evaluation"
 
     i = 0  # zero the run length counter
     ls_failed = 0  # no previous line search has failed
@@ -213,7 +215,7 @@ def minimize(X, f, length, *varargin):
             df3 = df0
             success = False
 
-            while (not success and M > 0):
+            while not success and M > 0:
                 try:
                     M = M - 1
                     i = i + (1 if length < 0 else 0)  # count epochs?!
@@ -221,8 +223,13 @@ def minimize(X, f, length, *varargin):
                     temp.extend(varargin)
                     temp.extend([None, 2])
                     f3, df3 = feval(temp)
-                    if np.isnan(f3) or np.isinf(f3) or np.any(np.isnan(df3)) or np.any(np.isinf(df3)):
-                        raise Exception('')
+                    if (
+                        np.isnan(f3)
+                        or np.isinf(f3)
+                        or np.any(np.isnan(df3))
+                        or np.any(np.isinf(df3))
+                    ):
+                        raise Exception("")
                     success = True
                 except Exception as e:  # catch any error which occurred in f
                     x3 = (x2 + x3) / 2  # bisect and try again
@@ -232,7 +239,9 @@ def minimize(X, f, length, *varargin):
                 F0 = f3
                 dF0 = df3
             d3 = (df3.T * s)[0, 0]  # new slope
-            if d3 > SIG * d0 or f3 > f0 + x3 * RHO * d0 or M == 0:  # are we done extrapolating?
+            if (
+                d3 > SIG * d0 or f3 > f0 + x3 * RHO * d0 or M == 0
+            ):  # are we done extrapolating?
                 break
 
             x1 = x2  # move point 2 to point 1
@@ -243,8 +252,12 @@ def minimize(X, f, length, *varargin):
             d2 = d3
             A = 6 * (f1 - f2) + 3 * (d2 + d1) * (x2 - x1)  # make cubic extrapolation
             B = 3 * (f2 - f1) - (2 * d1 + d2) * (x2 - x1)
-            x3 = x1 - d1 * (x2 - x1) ** 2 / (B + np.sqrt(B * B - A * d1 * (x2 - x1)))  # num. error possible, ok!
-            if not np.isreal(x3) or np.isnan(x3) or np.isinf(x3) or x3 < 0:  # num prob | wrong sign?
+            x3 = x1 - d1 * (x2 - x1) ** 2 / (
+                B + np.sqrt(B * B - A * d1 * (x2 - x1))
+            )  # num. error possible, ok!
+            if (
+                not np.isreal(x3) or np.isnan(x3) or np.isinf(x3) or x3 < 0
+            ):  # num prob | wrong sign?
                 x3 = x2 * EXT  # extrapolate maximum amount
             elif x3 > x2 * EXT:  # new point beyond extrapolation limit?
                 x3 = x2 * EXT  # extrapolate maximum amount
@@ -252,7 +265,9 @@ def minimize(X, f, length, *varargin):
                 x3 = x2 + INT * (x2 - x1)
         # end extrapolation
 
-        while (abs(d3) > -SIG * d0 or f3 > f0 + x3 * RHO * d0) and M > 0:  # keep interpolating
+        while (
+            abs(d3) > -SIG * d0 or f3 > f0 + x3 * RHO * d0
+        ) and M > 0:  # keep interpolating
             if d3 > 0 or f3 > f0 + x3 * RHO * d0:  # choose subinterval
                 x4 = x3  # move point 3 to point 4
                 f4 = f3
@@ -263,16 +278,22 @@ def minimize(X, f, length, *varargin):
                 d2 = d3
 
             if f4 > f0:
-                x3 = x2 - (0.5 * d2 * (x4 - x2) ** 2) / (f4 - f2 - d2 * (x4 - x2))  # quadratic interpolation
+                x3 = x2 - (0.5 * d2 * (x4 - x2) ** 2) / (
+                    f4 - f2 - d2 * (x4 - x2)
+                )  # quadratic interpolation
             else:
                 A = 6 * (f2 - f4) / (x4 - x2) + 3 * (d4 + d2)  # cubic interpolation
                 B = 3 * (f4 - f2) - (2 * d2 + d4) * (x4 - x2)
-                x3 = x2 + (np.sqrt(B * B - A * d2 * (x4 - x2) ** 2) - B) / A  # num. error possible, ok!
+                x3 = (
+                    x2 + (np.sqrt(B * B - A * d2 * (x4 - x2) ** 2) - B) / A
+                )  # num. error possible, ok!
 
             if np.isnan(x3) or np.isinf(x3):
                 x3 = (x2 + x4) / 2  # if we had a numerical problem then bisect
 
-            x3 = max(min(x3, x4 - INT * (x4 - x2)), x2 + INT * (x4 - x2))  # don't accept too close
+            x3 = max(
+                min(x3, x4 - INT * (x4 - x2)), x2 + INT * (x4 - x2)
+            )  # don't accept too close
             temp = [f, X + x3 * s]
             temp.extend(varargin)
             temp.extend([None, 2])
@@ -286,24 +307,28 @@ def minimize(X, f, length, *varargin):
             d3 = (df3.T * s)[0, 0]  # new slope
         # end interpolation
 
-        if (abs(d3) < -SIG * d0 and f3 < f0 + x3 * RHO * d0):  # if line search succeeded
+        if abs(d3) < -SIG * d0 and f3 < f0 + x3 * RHO * d0:  # if line search succeeded
             X = X + x3 * s
             f0 = f3
             fX = np.vstack([fX, f0])  # update variables
-            s = ((df3.T * df3)[0, 0] - df0.T * df3[0, 0]) / (df0.T * df0)[0, 0] * s - df3  # Polack-Ribiere CG direction
+            s = ((df3.T * df3)[0, 0] - df0.T * df3[0, 0]) / (df0.T * df0)[
+                0, 0
+            ] * s - df3  # Polack-Ribiere CG direction
             df0 = df3  # swap derivatives
             d3 = d0
             d0 = (df0.T * s)[0, 0]
-            if (d0 > 0):  # new slope must be negative
+            if d0 > 0:  # new slope must be negative
                 s = -df0
                 d0 = -(s.T * s)[0, 0]
-            x3 = x3 * min(RATIO, d3 / (d0 - sys.float_info.min))  # slope ratio but max RATIO
+            x3 = x3 * min(
+                RATIO, d3 / (d0 - sys.float_info.min)
+            )  # slope ratio but max RATIO
             ls_failed = 0  # this line search did not fail
         else:
             X = X0  # restore best point so far
             f0 = F0
             df0 = dF0
-            if (ls_failed or i > abs(length)):  # line search failed twice in a row
+            if ls_failed or i > abs(length):  # line search failed twice in a row
                 break  # or we ran out of time, so we give up
             s = -df0  # try steepest
             d0 = -(s.T * s)[0, 0]
@@ -313,72 +338,98 @@ def minimize(X, f, length, *varargin):
 
 
 def feval(parameters):
-    if parameters[0] == 'covSum':
-        if (len(parameters) == 1):
+    if parameters[0] == "covSum":
+        if len(parameters) == 1:
             return cov_sum()
-        elif (len(parameters) == 2):
+        elif len(parameters) == 2:
             return cov_sum(parameters[1])
-        elif (len(parameters) == 3):
+        elif len(parameters) == 3:
             return cov_sum(parameters[1], parameters[2])
-        elif (len(parameters) == 4):
+        elif len(parameters) == 4:
             return cov_sum(parameters[1], parameters[2], parameters[3])
-        elif (len(parameters) == 5):
+        elif len(parameters) == 5:
             return cov_sum(parameters[1], parameters[2], parameters[3], parameters[4])
-        elif (len(parameters) == 6):
-            return cov_sum(parameters[1], parameters[2], parameters[3], parameters[4], parameters[5])
-    elif parameters[0] == 'covNoise':
-        if (len(parameters) == 1):
+        elif len(parameters) == 6:
+            return cov_sum(
+                parameters[1],
+                parameters[2],
+                parameters[3],
+                parameters[4],
+                parameters[5],
+            )
+    elif parameters[0] == "covNoise":
+        if len(parameters) == 1:
             return cov_noise()
-        elif (len(parameters) == 2):
+        elif len(parameters) == 2:
             return cov_noise(parameters[1])
-        elif (len(parameters) == 3):
+        elif len(parameters) == 3:
             return cov_noise(parameters[1], parameters[2])
-        elif (len(parameters) == 4):
+        elif len(parameters) == 4:
             return cov_noise(parameters[1], parameters[2], parameters[3])
         else:
             return cov_noise(parameters[1], parameters[2], parameters[3], parameters[4])
-    elif parameters[0] == 'covSEard':
-        if (len(parameters) == 1):
+    elif parameters[0] == "covSEard":
+        if len(parameters) == 1:
             return cov_seard()
-        elif (len(parameters) == 2):
+        elif len(parameters) == 2:
             return cov_seard(parameters[1])
-        elif (len(parameters) == 3):
+        elif len(parameters) == 3:
             return cov_seard(parameters[1], parameters[2])
-        elif (len(parameters) == 4):
+        elif len(parameters) == 4:
             return cov_seard(parameters[1], parameters[2], parameters[3])
         else:
             return cov_seard(parameters[1], parameters[2], parameters[3], parameters[4])
-    elif parameters[0] == 'covSum':
-        if (len(parameters) == 1):
+    elif parameters[0] == "covSum":
+        if len(parameters) == 1:
             return cov_sum()
-        elif (len(parameters) == 2):
+        elif len(parameters) == 2:
             return cov_sum(parameters[1])
-        elif (len(parameters) == 3):
+        elif len(parameters) == 3:
             return cov_sum(parameters[1], parameters[2])
-        elif (len(parameters) == 4):
+        elif len(parameters) == 4:
             return cov_sum(parameters[1], parameters[2], parameters[3])
-        elif (len(parameters) == 5):
+        elif len(parameters) == 5:
             return cov_sum(parameters[1], parameters[2], parameters[3], parameters[4])
-        elif (len(parameters) == 6):
-            return cov_sum(parameters[1], parameters[2], parameters[3], parameters[4], parameters[5])
-    elif parameters[0] == 'gpr_multi_new':
-        if (len(parameters) == 1):
+        elif len(parameters) == 6:
+            return cov_sum(
+                parameters[1],
+                parameters[2],
+                parameters[3],
+                parameters[4],
+                parameters[5],
+            )
+    elif parameters[0] == "gpr_multi_new":
+        if len(parameters) == 1:
             return gpr_multi_new()
-        elif (len(parameters) == 2):
+        elif len(parameters) == 2:
             return gpr_multi_new(parameters[1])
-        elif (len(parameters) == 3):
+        elif len(parameters) == 3:
             return gpr_multi_new(parameters[1], parameters[2])
-        elif (len(parameters) == 4):
+        elif len(parameters) == 4:
             return gpr_multi_new(parameters[1], parameters[2], parameters[3])
-        elif (len(parameters) == 5):
-            return gpr_multi_new(parameters[1], parameters[2], parameters[3], parameters[4])
-        elif (len(parameters) == 6):
-            return gpr_multi_new(parameters[1], parameters[2], parameters[3], parameters[4], parameters[5])
-        elif (len(parameters) == 7):
-            return gpr_multi_new(parameters[1], parameters[2], parameters[3], parameters[4], parameters[5],
-                                 parameters[6])
+        elif len(parameters) == 5:
+            return gpr_multi_new(
+                parameters[1], parameters[2], parameters[3], parameters[4]
+            )
+        elif len(parameters) == 6:
+            return gpr_multi_new(
+                parameters[1],
+                parameters[2],
+                parameters[3],
+                parameters[4],
+                parameters[5],
+            )
+        elif len(parameters) == 7:
+            return gpr_multi_new(
+                parameters[1],
+                parameters[2],
+                parameters[3],
+                parameters[4],
+                parameters[5],
+                parameters[6],
+            )
     else:
-        raise Exception('Undefined function')
+        raise Exception("Undefined function")
 
 
 def gpr_multi_new(logtheta=None, covfunc=None, x=None, y=None, xstar=None, nargout=1):
@@ -418,7 +469,9 @@ def gpr_multi_new(logtheta=None, covfunc=None, x=None, y=None, xstar=None, nargo
     n, D = x.shape
     n, m = y.shape
     if eval(feval(covfunc)) != logtheta.shape[0]:
-        raise Exception('Error: Number of parameters do not agree with covariance function')
+        raise Exception(
+            "Error: Number of parameters do not agree with covariance function"
+        )
 
     temp = list(covfunc.copy())
     temp.append(logtheta)
@@ -429,13 +482,25 @@ def gpr_multi_new(logtheta=None, covfunc=None, x=None, y=None, xstar=None, nargo
     alpha = solve_chol(L.T, y)
 
     if (
-            logtheta is not None and covfunc is not None and x is not None and y is not None and xstar is None):  # if no test cases, compute the negative log marginal likelihood
-        out1 = 0.5 * np.trace(y.T * alpha) + m * np.sum(np.log(np.diag(L)), axis=0) + 0.5 * m * n * np.log(
-            2 * np.pi)
+        logtheta is not None
+        and covfunc is not None
+        and x is not None
+        and y is not None
+        and xstar is None
+    ):  # if no test cases, compute the negative log marginal likelihood
+        out1 = (
+            0.5 * np.trace(y.T @ alpha)
+            + m * np.sum(np.log(np.diag(L)), axis=0)
+            + 0.5 * m * n * np.log(2 * np.pi)
+        )
         if nargout == 2:  # ... and if requested, its partial derivatives
-            out2 = np.mat(np.zeros((logtheta.shape[0], 1)))  # set the size of the derivative vector
-            W = m * (np.linalg.inv(L.T) * (
-                    np.linalg.inv(L) * np.mat(np.eye(n)))) - alpha * alpha.T  # precompute for convenience
+            out2 = np.zeros(
+                (logtheta.shape[0], 1)
+            )  # set the size of the derivative vector
+            W = (
+                m * (np.linalg.inv(L.T) * (np.linalg.inv(L) * np.eye(n)))
+                - alpha @ alpha.T
+            )  # precompute for convenience
             for i in range(len(out2) - 1, len(out2)):
                 temp = list(covfunc.copy())
                 temp.append(logtheta)
@@ -453,7 +518,7 @@ def gpr_multi_new(logtheta=None, covfunc=None, x=None, y=None, xstar=None, nargo
 
         if nargout == 2:
             v = np.linalg.inv(L) * Kstar
-            v = np.mat(v)
+            v = v
             out2 = Kss - np.sum(np.multiply(v, v), axis=0).T
 
     if nargout == 1:
@@ -476,16 +541,16 @@ def solve_chol(A, B):
     # takes precedence over the matlab code in this file.
 
     if A is None or B is None:
-        raise Exception('Wrong number of arguments.')
+        raise Exception("Wrong number of arguments.")
 
-    if (A.shape[0] != A.shape[1] or A.shape[0] != B.shape[0]):
-        raise Exception('Wrong sizes of matrix arguments.')
+    if A.shape[0] != A.shape[1] or A.shape[0] != B.shape[0]:
+        raise Exception("Wrong sizes of matrix arguments.")
 
-    res = np.linalg.inv(A) * (np.linalg.inv(A.T) * B)
+    res = np.linalg.inv(A) @ (np.linalg.inv(A.T) @ B)
     return res
 
 
-K = np.mat(np.empty((0, 0)))
+K = np.empty((0, 0))
 
 
 def cov_noise(logtheta=None, x=None, z=None, nargout=1):
@@ -501,22 +566,24 @@ def cov_noise(logtheta=None, x=None, z=None, nargout=1):
     #
     # For more help on design of covariance functions, see "covFunctions".
 
-    if (logtheta is None and x is None and z is None):  # report number of parameters
-        A = '1'
+    if logtheta is None and x is None and z is None:  # report number of parameters
+        A = "1"
 
         return A
 
-    s2 = np.exp(2 * logtheta)[0, 0]  # noise variance
+    s2 = np.exp(2 * logtheta)[0]  # noise variance
 
-    if (logtheta is not None and x is not None and z is None):  # compute covariance matrix
-        A = s2 * np.mat(np.eye(x.shape[0]))
-    elif (nargout == 2):  # compute test set covariances
+    if (
+        logtheta is not None and x is not None and z is None
+    ):  # compute covariance matrix
+        A = s2 * np.eye(x.shape[0])
+    elif nargout == 2:  # compute test set covariances
         A = s2
         B = 0  # zeros cross covariance by independence
     else:  # compute derivative matrix
-        A = 2 * s2 * np.mat(np.eye(x.shape[0]))
+        A = 2 * s2 * np.eye(x.shape[0])
 
-    if (nargout == 2):
+    if nargout == 2:
         return A, B
     else:
         return A
@@ -541,8 +608,8 @@ def cov_seard(loghyper=None, x=None, z=None, nargout=1):
     # For more help on design of covariance functions, see "covFunctions".
     global K
 
-    if (loghyper is None and x is None and z is None):
-        A = '(D+1)'
+    if loghyper is None and x is None and z is None:
+        A = "(D+1)"
 
         return A  # report number of parameters
 
@@ -551,24 +618,24 @@ def cov_seard(loghyper=None, x=None, z=None, nargout=1):
     ell = np.exp(loghyper[0:D])  # characteristic length scale
     sf2 = np.exp(2 * loghyper[D])  # signal variance
 
-    if (loghyper is not None and x is not None):
-        K = sf2 * np.exp(-sq_dist(np.mat(np.diag(1 / ell) * x.T)) / 2)
+    if loghyper is not None and x is not None:
+        K = sf2 * np.exp(-sq_dist(np.diag(1 / ell) * x.T) / 2)
         A = K
     elif nargout == 2:  # compute test set covariances
-        A = sf2 * np.mat(np.ones((z, 1)))
-        B = sf2 * np.exp(-sq_dist(np.mat(np.diag(1 / ell)) * x.T, np.mat(np.diag(1 / ell)) * z) / 2)
+        A = sf2 * np.ones((z, 1))
+        B = sf2 * np.exp(-sq_dist(np.diag(1 / ell) * x.T, np.diag(1 / ell) * z) / 2)
     else:
         # check for correct dimension of the previously calculated kernel matrix
-        if (K.shape[0] != n or K.shape[1] != n):
-            K = sf2 * np.exp(-sq_dist(np.mat(np.diag(1 / ell) * x.T)) / 2)
+        if K.shape[0] != n or K.shape[1] != n:
+            K = sf2 * np.exp(-sq_dist(np.diag(1 / ell) * x.T) / 2)
 
         if z <= D:  # length scale parameters
             A = np.multiply(K, sq_dist(x[:, z].T / ell[z]))
         else:  # magnitude parameter
             A = 2 * K
-            K = np.mat(np.empty((0, 0)))
+            K = np.empty((0, 0))
 
-    if (nargout == 2):
+    if nargout == 2:
         return A, B
     else:
         return A
@@ -600,30 +667,34 @@ def sq_dist(a, b=None, Q=None):
     # where a is of size D by n, b is of size D by m (or empty), C and Q are of
     # size n by m and c is of size D by 1.
 
-    if b is None or len(b) == 0:  # input arguments are taken to be identical if b is missing or empty
+    if (
+        b is None or len(b) == 0
+    ):  # input arguments are taken to be identical if b is missing or empty
         b = a
 
     D, n = a.shape
     d, m = b.shape
 
     if d != D:
-        raise Exception('Error: column lengths must agree.')
+        raise Exception("Error: column lengths must agree.")
 
     if Q is None:
-        C = np.mat(np.zeros((n, m)))
+        C = np.zeros((n, m))
         for d in range(D):
-            temp = np.tile(b[d, :], (n, 1)) - np.tile(a[d, :].T, (1, m))
+            temp = np.tile(b[d, :], (n, 1)) - np.tile(a[d, :].reshape(-1, 1), (1, m))
             C = C + np.multiply(temp, temp)
     else:
         if (n, m) == Q.shape:
-            C = np.mat(np.zeros((D, 1)))
+            C = np.zeros((D, 1))
             for d in range(D):
-                temp = np.tile(b[d, :], (n, 1)) - np.tile(a[d, :].T, (1, m))
+                temp = np.tile(b[d, :], (n, 1)) - np.tile(
+                    a[d, :].reshape(-1, 1), (1, m)
+                )
                 temp = np.multiply(temp, temp)
                 temp = np.multiply(temp, Q)
                 C[d] = np.sum(temp)
         else:
-            raise Exception('Third argument has wrong size.')
+            raise Exception("Third argument has wrong size.")
     return C
 
 
@@ -640,10 +711,10 @@ def cov_sum(covfunc, logtheta=None, x=None, z=None, nargout=1):
         f = covfunc[i]
         j.append([feval([f])])
 
-    if (logtheta is None and x is None and z is None):  # report number of parameters
+    if logtheta is None and x is None and z is None:  # report number of parameters
         A = j[0][0]
         for i in range(1, len(covfunc)):
-            A = A + '+' + j[i][0]
+            A = A + "+" + j[i][0]
 
         return A
 
@@ -655,8 +726,10 @@ def cov_sum(covfunc, logtheta=None, x=None, z=None, nargout=1):
             v.append(i)
     v = np.asarray(v)
 
-    if (logtheta is not None and x is not None and z is None):  # compute covariance matrix
-        A = np.mat(np.zeros((n, n)))  # allocate space for covariance matrix
+    if (
+        logtheta is not None and x is not None and z is None
+    ):  # compute covariance matrix
+        A = np.zeros((n, n))  # allocate space for covariance matrix
         for i in range(len(covfunc)):  # iteration over summand functions
             f = covfunc[i]
             temp = [f]
@@ -666,10 +739,11 @@ def cov_sum(covfunc, logtheta=None, x=None, z=None, nargout=1):
             A = A + feval(temp)
 
     if (
-            logtheta is not None and x is not None and z is not None):  # compute derivative matrix or test set covariances
+        logtheta is not None and x is not None and z is not None
+    ):  # compute derivative matrix or test set covariances
         if nargout == 2:  # compute test set cavariances
-            A = np.mat(np.zeros((z, 1)))
-            B = np.mat(np.zeros((x.shape[0], z)))  # allocate space
+            A = np.zeros((z, 1))
+            B = np.zeros((x.shape[0], z))  # allocate space
             for i in range(len(covfunc)):
                 f = covfunc[i]
                 temp = [f]
@@ -683,7 +757,9 @@ def cov_sum(covfunc, logtheta=None, x=None, z=None, nargout=1):
                 B = B + BB
         else:  # compute derivative matrices
             i = v[z]  # which covariance function
-            j = np.sum(np.where(v[0:z] == i, 1, 0))  # which parameter in that covariance
+            j = np.sum(
+                np.where(v[0:z] == i, 1, 0)
+            )  # which parameter in that covariance
             f = covfunc[i]
             temp = [f]
             t = logtheta[np.where(v == i)]
@@ -692,7 +768,7 @@ def cov_sum(covfunc, logtheta=None, x=None, z=None, nargout=1):
             temp.append(j)
             A = feval(temp)
 
-    if (nargout == 2):
+    if nargout == 2:
         return A, B
     else:
         return A
