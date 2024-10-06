@@ -10,8 +10,11 @@ import numpy as np
 import pandas as pd
 
 from causallearn.graph.Dag import Dag
+from causallearn.graph.Edge import Edge
+from causallearn.graph.Endpoint import Endpoint
+from causallearn.graph.GeneralGraph import GeneralGraph
 from causallearn.graph.GraphNode import GraphNode
-from causallearn.search.ConstraintBased.FCI import fci
+from causallearn.search.ConstraintBased.FCI import fci, ruleR5
 from causallearn.utils.cit import chisq, fisherz, kci, d_separation
 from causallearn.utils.DAG2PAG import dag2pag
 from causallearn.utils.GraphUtils import GraphUtils
@@ -30,21 +33,21 @@ from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 ######################################### Test Notes ###########################################
 
 BENCHMARK_TXTFILE_TO_MD5 = {
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_asia_fci_chisq_0.05.txt": "65f54932a9d8224459e56c40129e6d8b",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_cancer_fci_chisq_0.05.txt": "0312381641cb3b4818e0c8539f74e802",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_earthquake_fci_chisq_0.05.txt": "a1160b92ce15a700858552f08e43b7de",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_sachs_fci_chisq_0.05.txt": "dced4a202fc32eceb75f53159fc81f3b",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_survey_fci_chisq_0.05.txt": "b1a28eee1e0c6ea8a64ac1624585c3f4",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_alarm_fci_chisq_0.05.txt": "c3bbc2b8aba456a4258dd071a42085bc",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_barley_fci_chisq_0.05.txt": "4a5000e7a582083859ee6aef15073676",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_child_fci_chisq_0.05.txt": "6b7858589e12f04b0f489ba4589a1254",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_insurance_fci_chisq_0.05.txt": "9975942b936aa2b1fc90c09318ca2d08",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_water_fci_chisq_0.05.txt": "48eee804d59526187b7ecd0519556ee5",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_hailfinder_fci_chisq_0.05.txt": "6b9a6b95b6474f8530e85c022f4e749c",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_hepar2_fci_chisq_0.05.txt": "4aae21ff3d9aa2435515ed2ee402294c",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_win95pts_fci_chisq_0.05.txt": "648fdf271e1440c06ca2b31b55ef1f3f",
-    "tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_andes_fci_chisq_0.05.txt": "04092ae93e54c727579f08bf5dc34c77",
-    "tests/TestData/benchmark_returned_results/linear_10_fci_fisherz_0.05.txt": "289c86f9c665bf82bbcc4c9e1dcec3e7"
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_asia_fci_chisq_0.05.txt': '4b014aa90aee456bc02dddd008d8be1f',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_cancer_fci_chisq_0.05.txt': '0312381641cb3b4818e0c8539f74e802',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_earthquake_fci_chisq_0.05.txt': 'a1160b92ce15a700858552f08e43b7de',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_sachs_fci_chisq_0.05.txt': 'dced4a202fc32eceb75f53159fc81f3b',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_survey_fci_chisq_0.05.txt': 'b1a28eee1e0c6ea8a64ac1624585c3f4',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_alarm_fci_chisq_0.05.txt': '4b06f6ea7fefe66255a3d16cb8a3711f',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_barley_fci_chisq_0.05.txt': 'a926e329b2bf2b397d3676e9d2020483',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_child_fci_chisq_0.05.txt': '5eff3ea6ce2e2daa53d6b649bd9c31fe',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_insurance_fci_chisq_0.05.txt': '55eed065b8dfc6a21610d3d6e18423c6',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_water_fci_chisq_0.05.txt': '48917f914c8f80684ae2abde87417d5c',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_hailfinder_fci_chisq_0.05.txt': 'bcffe793866db6ddfe9cc602081789cd',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_hepar2_fci_chisq_0.05.txt': '3558683a485588a41493b1a2f2c1d370',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_win95pts_fci_chisq_0.05.txt': '52596ace09c45656f61c70d0e66bdd6a',
+    'tests/TestData/benchmark_returned_results/bnlearn_discrete_10000_andes_fci_chisq_0.05.txt': '4b7e2ecba5eb50c7266f24670d0d0ae9',
+    'tests/TestData/benchmark_returned_results/linear_10_fci_fisherz_0.05.txt': 'eaabd1fbb16bc152b45e456c30166c55'
 }
 #
 INCONSISTENT_RESULT_GRAPH_ERRMSG = "Returned graph is inconsistent with the benchmark. Please check your code with the commit 5918419."
@@ -211,3 +214,23 @@ class TestFCI(unittest.TestCase):
             print(G)
             print(f'fci(data, d_separation, 0.05):')
             self.run_simulate_data_test(pag, G)
+
+    def test_rule5(self):
+        nodes = []
+        for i in range(7):
+            nodes.append(GraphNode(str(i)))
+        g = GeneralGraph(nodes)
+        g.add_edge(Edge(nodes[0], nodes[1], Endpoint.CIRCLE, Endpoint.CIRCLE))
+        g.add_edge(Edge(nodes[0], nodes[2], Endpoint.CIRCLE, Endpoint.CIRCLE))
+        g.add_edge(Edge(nodes[0], nodes[5], Endpoint.CIRCLE, Endpoint.CIRCLE))
+        g.add_edge(Edge(nodes[0], nodes[6], Endpoint.CIRCLE, Endpoint.CIRCLE))
+        g.add_edge(Edge(nodes[1], nodes[3], Endpoint.CIRCLE, Endpoint.CIRCLE))
+        g.add_edge(Edge(nodes[2], nodes[4], Endpoint.CIRCLE, Endpoint.CIRCLE))
+        g.add_edge(Edge(nodes[3], nodes[5], Endpoint.CIRCLE, Endpoint.CIRCLE))
+        g.add_edge(Edge(nodes[4], nodes[6], Endpoint.CIRCLE, Endpoint.CIRCLE))
+
+        ruleR5(g, changeFlag=True, verbose=True)
+
+        for edge in g.get_graph_edges():
+            assert edge.get_endpoint1() == Endpoint.TAIL
+            assert edge.get_endpoint2() == Endpoint.TAIL
