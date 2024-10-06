@@ -499,6 +499,9 @@ def ruleR5(graph: Graph, changeFlag: bool,
                         changeFlag = True
                         if verbose:
                             print("Find uncovered circle path between A and B: " + graph.get_edge(node_A, node_B).__str__())
+                        edge = graph.get_edge(node_A, node_B)
+                        graph.remove_edge(edge)
+                        graph.add_edge(Edge(node_A, node_B, Endpoint.TAIL, Endpoint.TAIL))
                         orient_on_path_helper(path, node_A, node_B)
 
     return changeFlag
