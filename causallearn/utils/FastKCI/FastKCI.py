@@ -9,19 +9,21 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel, WhiteKernel, RBF
 import warnings
 
+
 class FastKCI_CInd(object):
     """
-    Python implementation of as speed-up version of the Kernel-based Conditional Independence (KCI) test. Unconditional version.
+    Python implementation of as speed-up version of the Kernel-based Conditional Independence (KCI) test.
+    Unconditional version.
 
     References
     ----------
     [1] K. Zhang, J. Peters, D. Janzing, and B. Schölkopf,
-    "A kernel-based conditional independence test and application in causal discovery," In UAI 2011.
+    "A kernel-based conditional independence test and application in causal discovery", In UAI 2011.
     [2] M. Zhang, and S. Williamson,
-    "Embarrassingly Parallel Inference for Gaussian Processes" In JMLR 20 (2019)
+    "Embarrassingly Parallel Inference for Gaussian Processes", In JMLR 20 (2019)
 
-    """          
-    def __init__(self, K=10, J=8, alpha=500, epsilon=1e-3, eig_thresh = 1e-6, trimming_thresh = 1e-3, use_gp=False):
+    """
+    def __init__(self, K=10, J=8, alpha=500, epsilon=1e-3, eig_thresh=1e-6, trimming_thresh=1e-3, use_gp=False):
         """
         Initialize the FastKCI_CInd object.
 
@@ -33,7 +35,7 @@ class FastKCI_CInd(object):
         epsilon: Penalty for the matrix ridge regression.
         eig_threshold: Threshold for Eigenvalues.
         use_gp: Whether to use Gaussian Process Regression to determine the kernel widths
-        """ 
+        """
         self.K = K
         self.J = J
         self.alpha = alpha
@@ -42,7 +44,6 @@ class FastKCI_CInd(object):
         self.trimming_thresh = trimming_thresh
         self.use_gp = use_gp
         self.nullss = 5000
-        # TODO: Adjust to causal-learn API
 
     def compute_pvalue(self, data_x=None, data_y=None, data_z=None):
         """
@@ -67,21 +68,21 @@ class FastKCI_CInd(object):
         self.Z_proposal, self.prob_Z = zip(*Z_proposal)
         block_res = Parallel(n_jobs=-1)(delayed(self.pvalue_onblocks)(self.Z_proposal[i]) for i in range(self.J))
         test_stat, null_samples, log_likelihood = zip(*block_res)
-        
+
         log_likelihood = np.array(log_likelihood)
         self.prob_Z += log_likelihood
-        self.prob_Z = np.around(np.exp(self.prob_Z-logsumexp(self.prob_Z)), 6) # experimental, not used
+        self.prob_Z = np.around(np.exp(self.prob_Z-logsumexp(self.prob_Z)), 6)  # experimental, not used
         self.all_null_samples = np.vstack(null_samples)
         self.all_p = np.array([np.sum(self.all_null_samples[i,] > test_stat[i]) / float(self.nullss) for i in range(self.J)])
         self.prob_weights = np.around(np.exp(log_likelihood-logsumexp(log_likelihood)), 6)
         self.all_test_stats = np.array(test_stat)
-        self.test_stat = np.average(np.array(test_stat), weights = self.prob_weights)
-        self.null_samples = np.average(null_samples, axis = 0, weights = self.prob_weights)
+        self.test_stat = np.average(np.array(test_stat), weights=self.prob_weights)
+        self.null_samples = np.average(null_samples, axis=0, weights=self.prob_weights)
         # experimental, not used
-        self.pvalue_alt = np.sum(np.average(null_samples, axis = 0, weights = self.prob_Z) > np.average(np.array(test_stat), weights = self.prob_Z)) / float(self.nullss)
+        self.pvalue_alt = np.sum(np.average(null_samples, axis=0, weights=self.prob_Z) > np.average(np.array(test_stat), weights=self.prob_Z)) / float(self.nullss)
         self.pvalue = np.sum(self.null_samples > self.test_stat) / float(self.nullss)
 
-        return self.pvalue, self.test_stat          
+        return self.pvalue, self.test_stat
 
     def partition_data(self):
         """
@@ -94,18 +95,18 @@ class FastKCI_CInd(object):
         """
         Z_mean = self.data_z.mean(axis=0)
         Z_sd = self.data_z.std(axis=0)
-        mu_k = np.random.normal(Z_mean, Z_sd, size = (self.K,self.data_z.shape[1]))
+        mu_k = np.random.normal(Z_mean, Z_sd, size=(self.K, self.data_z.shape[1]))
         sigma_k = np.eye(self.data_z.shape[1])
         pi_j = np.random.dirichlet([self.alpha]*self.K)
-        ll = np.tile(np.log(pi_j),(self.n,1))
+        ll = np.tile(np.log(pi_j), (self.n, 1))
         for k in range(self.K):
-            ll[:,k] += stats.multivariate_normal.logpdf(self.data_z, mu_k[k,:], cov=sigma_k, allow_singular=True)
-        Z = np.array([ np.random.multinomial(1,np.exp(ll[n,:]-logsumexp(ll[n,:]))).argmax() for n in range(self.n)])
+            ll[:, k] += stats.multivariate_normal.logpdf(self.data_z, mu_k[k, :], cov=sigma_k, allow_singular=True)
+        Z = np.array([np.random.multinomial(1, np.exp(ll[n, :]-logsumexp(ll[n, :]))).argmax() for n in range(self.n)])
         le = LabelEncoder()
         Z = le.fit_transform(Z)
-        prob_Z = np.take_along_axis(ll, Z[:, None], axis=1).sum() # experimental, might be removed
+        prob_Z = np.take_along_axis(ll, Z[:, None], axis=1).sum()  # experimental, might be removed
         return Z, prob_Z
-    
+
     def pvalue_onblocks(self, Z_proposal):
         """
         Calculate p value on given partitions of the data.
@@ -113,7 +114,7 @@ class FastKCI_CInd(object):
         Parameters
         ----------
         Z_proposal: partition of the data into K clusters (nxd1 array)
-        
+
         Returns
         _________
         test_stat: test statistic (scalar)
@@ -123,13 +124,13 @@ class FastKCI_CInd(object):
         unique_Z_j = np.unique(Z_proposal)
         test_stat = 0
         log_likelihood = 0
-        null_samples = np.zeros((1,self.nullss))
+        null_samples = np.zeros((1, self.nullss))
         for k in unique_Z_j:
-            K_mask = (Z_proposal==k)
+            K_mask = (Z_proposal == k)
             X_k = np.copy(self.data[0][K_mask])
             Y_k = np.copy(self.data[1][K_mask])
             Z_k = np.copy(self.data_z[K_mask])
-            if (Z_k.shape[0]<6): # small blocks cause problems in GP, experimental
+            if (Z_k.shape[0] < 6):  # small blocks cause problems in GP, experimental
                 continue
             Kx, Ky, Kzx, Kzy, epsilon_x, epsilon_y, likelihood_x, likelihood_y = self.kernel_matrix(X_k, Y_k, Z_k)
             KxR, Rzx = Kernel.center_kernel_matrix_regression(Kx, Kzx, epsilon_x)
@@ -142,7 +143,6 @@ class FastKCI_CInd(object):
             null_samples += self.null_sample_spectral(uu_prod, size_u, Kx.shape[0])
             log_likelihood += likelihood_x + likelihood_y
         return test_stat, null_samples, log_likelihood
-
 
     def kernel_matrix(self, data_x, data_y, data_z):
         """
@@ -157,10 +157,10 @@ class FastKCI_CInd(object):
 
         data_x = stats.zscore(data_x, ddof=1, axis=0)
         data_x[np.isnan(data_x)] = 0.
-        
+
         data_y = stats.zscore(data_y, ddof=1, axis=0)
         data_y[np.isnan(data_y)] = 0.
-        
+
         data_z = stats.zscore(data_z, ddof=1, axis=0)
         data_z[np.isnan(data_z)] = 0.
 
@@ -189,23 +189,23 @@ class FastKCI_CInd(object):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=Warning)
                 # P(X|Z)
-                gpx.fit(X = data_z, y = data_x)
+                gpx.fit(X=data_z, y=data_x)
             likelihood_x = gpx.log_marginal_likelihood_value_
             gpy = GaussianProcessRegressor()
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=Warning)
                 # P(Y|X,Z)
-                gpy.fit(X = np.c_[data_x,data_z], y=data_y)
+                gpy.fit(X=np.c_[data_x, data_z], y=data_y)
             likelihood_y = gpy.log_marginal_likelihood_value_
 
-        else: 
+        else:
             n, Dz = data_z.shape
-            
+
             widthz = np.sqrt(1.0 / (kernelX.width * data_x.shape[1]))
 
             # Instantiate a Gaussian Process model for x
             wx, vx = eigh(Kx)
-            topkx = int(np.max([np.min([400, np.floor(n / 4)]), np.min([n+1,8])]))
+            topkx = int(np.max([np.min([400, np.floor(n / 4)]), np.min([n+1, 8])]))
             idx = np.argsort(-wx)
             wx = wx[idx]
             vx = vx[:, idx]
@@ -228,7 +228,7 @@ class FastKCI_CInd(object):
 
             # Instantiate a Gaussian Process model for y
             wy, vy = eigh(Ky)
-            topky = int(np.max([np.min([400, np.floor(n / 4)]), np.min([n+1,8])]))
+            topky = int(np.max([np.min([400, np.floor(n / 4)]), np.min([n+1, 8])]))
             idy = np.argsort(-wy)
             wy = wy[idy]
             vy = vy[:, idy]
@@ -297,7 +297,7 @@ class FastKCI_CInd(object):
             uu_prod = uu.T.dot(uu)
 
         return uu_prod, size_u
-        
+
     def get_kappa(self, mean_appr, var_appr):
         """
         Get parameters for the approximated gamma distribution
@@ -333,10 +333,11 @@ class FastKCI_CInd(object):
         eig_uu = -np.sort(-eig_uu)
         eig_uu = eig_uu[0:np.min((T, size_u))]
         eig_uu = eig_uu[eig_uu > np.max(eig_uu) * self.eig_thresh]
-        
+
         f_rand = np.random.chisquare(1, (eig_uu.shape[0], self.nullss))
         null_dstr = eig_uu.T.dot(f_rand)
         return null_dstr
+
 
 class FastKCI_UInd(object):
     """
@@ -348,8 +349,8 @@ class FastKCI_UInd(object):
     "A kernel-based conditional independence test and application in causal discovery," In UAI 2011.
     [2] M. Zhang, and S. Williamson,
     "Embarrassingly Parallel Inference for Gaussian Processes" In JMLR 20 (2019)
-    """         
-    def __init__(self, K=10, J=8, alpha=500, trimming_thresh = 1e-3):
+    """
+    def __init__(self, K=10, J=8, alpha=500, trimming_thresh=1e-3):
         """
         Construct the FastKCI_UInd model.
 
@@ -359,14 +360,13 @@ class FastKCI_UInd(object):
         J: Number of independent repittitions.
         alpha: Parameter for the Dirichlet distribution.
         trimming_thresh: Threshold for trimming the propensity weights.
-        """ 
+        """
         self.K = K
         self.J = J
         self.alpha = alpha
         self.trimming_thresh = trimming_thresh
         self.nullss = 5000
         self.eig_thresh = 1e-5
-        # TODO: Adjust to causal-learn API
 
     def compute_pvalue(self, data_x=None, data_y=None):
         """
@@ -385,17 +385,17 @@ class FastKCI_UInd(object):
         self.data_x = data_x
         self.data_y = data_y
         self.n = data_x.shape[0]
-        
+
         Z_proposal = Parallel(n_jobs=-1)(delayed(self.partition_data)() for i in range(self.J))
         self.Z_proposal, self.prob_Y = zip(*Z_proposal)
         block_res = Parallel(n_jobs=-1)(delayed(self.pvalue_onblocks)(self.Z_proposal[i]) for i in range(self.J))
         test_stat, null_samples, log_likelihood = zip(*block_res)
         self.prob_weights = np.around(np.exp(log_likelihood-logsumexp(log_likelihood)), 6)
-        self.test_stat = np.average(np.array(test_stat), weights = self.prob_weights)
-        self.null_samples = np.average(null_samples, axis = 0, weights = self.prob_weights)
+        self.test_stat = np.average(np.array(test_stat), weights=self.prob_weights)
+        self.null_samples = np.average(null_samples, axis=0, weights=self.prob_weights)
         self.pvalue = np.sum(self.null_samples > self.test_stat) / float(self.nullss)
 
-        return self.pvalue, self.test_stat          
+        return self.pvalue, self.test_stat
 
     def partition_data(self):
         """
@@ -408,25 +408,25 @@ class FastKCI_UInd(object):
         """
         Y_mean = self.data_y.mean(axis=0)
         Y_sd = self.data_y.std(axis=0)
-        mu_k = np.random.normal(Y_mean, Y_sd, size = (self.K,self.data_y.shape[1]))
+        mu_k = np.random.normal(Y_mean, Y_sd, size=(self.K, self.data_y.shape[1]))
         sigma_k = np.eye(self.data_y.shape[1])
         pi_j = np.random.dirichlet([self.alpha]*self.K)
-        ll = np.tile(np.log(pi_j),(self.n,1))
+        ll = np.tile(np.log(pi_j), (self.n, 1))
         for k in range(self.K):
-            ll[:,k] += stats.multivariate_normal.logpdf(self.data_y, mu_k[k,:], cov=sigma_k, allow_singular=True)
-        Z = np.array([ np.random.multinomial(1,np.exp(ll[n,:]-logsumexp(ll[n,:]))).argmax() for n in range(self.n)])
+            ll[:, k] += stats.multivariate_normal.logpdf(self.data_y, mu_k[k, :], cov=sigma_k, allow_singular=True)
+        Z = np.array([np.random.multinomial(1, np.exp(ll[n, :]-logsumexp(ll[n, :]))).argmax() for n in range(self.n)])
         prop_Y = np.take_along_axis(ll, Z[:, None], axis=1).sum()
         le = LabelEncoder()
         Z = le.fit_transform(Z)
         return (Z, prop_Y)
-    
+
     def pvalue_onblocks(self, Z_proposal):
         unique_Z_j = np.unique(Z_proposal)
         test_stat = 0
         log_likelihood = 0
-        null_samples = np.zeros((1,self.nullss))
+        null_samples = np.zeros((1, self.nullss))
         for k in unique_Z_j:
-            K_mask = (Z_proposal==k)
+            K_mask = (Z_proposal == k)
             X_k = np.copy(self.data_x[K_mask])
             Y_k = np.copy(self.data_y[K_mask])
 
@@ -442,12 +442,12 @@ class FastKCI_UInd(object):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=Warning)
                 # P(X|Y)
-                gpx.fit(X = Y_k, y = X_k)
+                gpx.fit(X=Y_k, y=X_k)
             likelihood = gpx.log_marginal_likelihood_value_
             log_likelihood += likelihood
-            
+
         return test_stat, null_samples, log_likelihood
-    
+
     def kernel_matrix(self, data):
         """
         Calculates the Gaussian Kernel for given data inputs.
@@ -460,12 +460,12 @@ class FastKCI_UInd(object):
         kernel_obj.set_width_empirical_hsic(data)
 
         data = stats.zscore(data, ddof=1, axis=0)
-        data[np.isnan(data)] = 0. 
+        data[np.isnan(data)] = 0.
 
         K = kernel_obj.kernel(data)
 
         return K
-    
+
     def get_kappa(self, mean_appr, var_appr):
         """
         Get parameters for the approximated gamma distribution
@@ -513,7 +513,7 @@ class FastKCI_UInd(object):
         f_rand = np.random.chisquare(1, (lambda_prod.shape[0], self.nullss))
         null_dstr = lambda_prod.T.dot(f_rand) / T
         return null_dstr
-    
+
     def HSIC_V_statistic(self, Kx, Ky):
         """
         Compute V test statistic from kernel matrices Kx and Ky
