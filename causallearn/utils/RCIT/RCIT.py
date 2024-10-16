@@ -7,13 +7,56 @@ from scipy.spatial.distance import pdist, squareform
 
 
 class RCIT(object):
+    """
+    Python implementation of Randomized Conditional Independence Test (RCIT) test.
+    The original R implementation can be found at https://github.com/ericstrobl/RCIT/tree/master
+
+    References
+    ----------
+    [1] Strobl, E. V., Zhang, K., and Visweswaran, S. (2019). "Approximate kernel-based conditional
+    independence tests for fast non-parametric causal discovery." Journal of Causal Inference, 7(1), 20180017.
+    """
     def __init__(self, approx="lpd4", num_f=100, num_f2=5, rcit=True):
+        """
+        Initialize the RCIT object.
+
+        Parameters
+        ----------
+        approx : str
+            Method for approximating the null distribution.
+            - "lpd4" for the Lindsay-Pilla-Basak method
+            - "hbe" for the Hall-Buckley-Eagleson method
+            - "gamma" for the Satterthwaite-Welch method
+            - "chi2" for a normalized chi-squared statistic
+            - "perm" for permutation testing
+            Default is "lpd4".
+        num_f : int
+            Number of features for conditioning set. Default is 25.
+        num_f2 : int
+            Number of features for non-conditioning sets. Default is 5.
+        rcit : bool
+            Whether to use RCIT or RCoT. Default is True.
+        """
         self.approx = approx
         self.num_f = num_f
         self.num_f2 = num_f2
         self.rcit = rcit
 
     def compute_pvalue(self, data_x, data_y, data_z):
+        """
+        Compute the p value and return it together with the test statistic.
+
+        Parameters
+        ----------
+        data_x: input data for x (nxd1 array)
+        data_y: input data for y (nxd2 array)
+        data_z: input data for z (nxd3 array)
+
+        Returns
+        -------
+        p: p value
+        sta: test statistic
+        """
         d = data_z.shape[1]
         r = data_x.shape[0]
         r1 = 500 if (r > 500) else r
@@ -114,7 +157,27 @@ class RCIT(object):
         return p, sta
 
     def random_fourier_features(self, x, w=None, b=None, num_f=None, sigma=None):
+        """
+        Generate random Fourier features.
 
+        Parameters
+        ----------
+        x : np.ndarray
+            Random variable x.
+        w : np.ndarray
+            RRandom coefficients.
+        b : np.ndarray
+            Random offsets.
+        num_f : int
+            Number of random Fourier features.
+        sigma : float
+            Smooth parameter of RBF kernel.
+
+        Returns
+        -------
+        feat : np.ndarray
+            Random Fourier features.
+        """
         if num_f is None:
             num_f = 25
 
@@ -133,6 +196,22 @@ class RCIT(object):
         return feat
 
     def matrix_cov(self, mat_a, mat_b):
+        """
+        Compute the covariance matrix between two matrices.
+        Equivalent to ``cov()`` between two matrices in R.
+
+        Parameters
+        ----------
+        mat_a : np.ndarray
+            First data matrix.
+        mat_b : np.ndarray
+            Second data matrix.
+
+        Returns
+        -------
+        mat_cov : np.ndarray
+            Covariance matrix.
+        """
         n_obs = mat_a.shape[0]
 
         assert mat_a.shape == mat_b.shape
@@ -145,10 +224,47 @@ class RCIT(object):
 
 
 class RIT(object):
+    """
+    Python implementation of Randomized Independence Test (RIT) test.
+    The original R implementation can be found at https://github.com/ericstrobl/RCIT/tree/master
+
+    References
+    ----------
+    [1] Strobl, E. V., Zhang, K., and Visweswaran, S. (2019). "Approximate kernel-based conditional
+    independence tests for fast non-parametric causal discovery." Journal of Causal Inference, 7(1), 20180017.
+    """
     def __init__(self, approx="lpd4"):
+        """
+        Initialize the RIT object.
+
+        Parameters
+        ----------
+        approx : str
+            Method for approximating the null distribution.
+            - "lpd4" for the Lindsay-Pilla-Basak method
+            - "hbe" for the Hall-Buckley-Eagleson method
+            - "gamma" for the Satterthwaite-Welch method
+            - "chi2" for a normalized chi-squared statistic
+            - "perm" for permutation testing
+            Default is "lpd4".
+        """
         self.approx = approx
 
     def compute_pvalue(self, data_x, data_y):
+        """
+        Compute the p value and return it together with the test statistic.
+
+        Parameters
+        ----------
+        data_x: input data for x (nxd1 array)
+        data_y: input data for y (nxd2 array)
+        data_z: input data for z (nxd3 array)
+
+        Returns
+        -------
+        p: p value
+        sta: test statistic
+        """
         r = data_x.shape[0]
         r1 = 500 if (r > 500) else r
 
@@ -221,7 +337,27 @@ class RIT(object):
         return p, sta
 
     def random_fourier_features(self, x, w=None, b=None, num_f=None, sigma=None):
+        """
+        Generate random Fourier features.
 
+        Parameters
+        ----------
+        x : np.ndarray
+            Random variable x.
+        w : np.ndarray
+            RRandom coefficients.
+        b : np.ndarray
+            Random offsets.
+        num_f : int
+            Number of random Fourier features.
+        sigma : float
+            Smooth parameter of RBF kernel.
+
+        Returns
+        -------
+        feat : np.ndarray
+            Random Fourier features.
+        """
         if num_f is None:
             num_f = 25
 
@@ -240,6 +376,22 @@ class RIT(object):
         return feat
 
     def matrix_cov(self, mat_a, mat_b):
+        """
+        Compute the covariance matrix between two matrices.
+        Equivalent to ``cov()`` between two matrices in R.
+
+        Parameters
+        ----------
+        mat_a : np.ndarray
+            First data matrix.
+        mat_b : np.ndarray
+            Second data matrix.
+
+        Returns
+        -------
+        mat_cov : np.ndarray
+            Covariance matrix.
+        """
         n_obs = mat_a.shape[0]
 
         assert mat_a.shape == mat_b.shape
