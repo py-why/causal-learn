@@ -21,6 +21,9 @@ class FastKCI_CInd(object):
     "A kernel-based conditional independence test and application in causal discovery", In UAI 2011.
     [2] M. Zhang, and S. Williamson,
     "Embarrassingly Parallel Inference for Gaussian Processes", In JMLR 20 (2019)
+    [3] O. Schacht, and B. Huang
+    "FastKCI: A fast Kernel-based Conditional Indepdence test with application to causal discovery",
+    Working Paper.
 
     """
     def __init__(self, K=10, J=8, alpha=500, epsilon=1e-3, eig_thresh=1e-6, trimming_thresh=1e-3, use_gp=False):
@@ -65,21 +68,17 @@ class FastKCI_CInd(object):
         self.n = data_x.shape[0]
 
         Z_proposal = Parallel(n_jobs=-1)(delayed(self.partition_data)() for i in range(self.J))
-        self.Z_proposal, self.prob_Z = zip(*Z_proposal)
+        self.Z_proposal = zip(*Z_proposal)
         block_res = Parallel(n_jobs=-1)(delayed(self.pvalue_onblocks)(self.Z_proposal[i]) for i in range(self.J))
         test_stat, null_samples, log_likelihood = zip(*block_res)
 
         log_likelihood = np.array(log_likelihood)
-        self.prob_Z += log_likelihood
-        self.prob_Z = np.around(np.exp(self.prob_Z-logsumexp(self.prob_Z)), 6)  # experimental, not used
         self.all_null_samples = np.vstack(null_samples)
         self.all_p = np.array([np.sum(self.all_null_samples[i,] > test_stat[i]) / float(self.nullss) for i in range(self.J)])
         self.prob_weights = np.around(np.exp(log_likelihood-logsumexp(log_likelihood)), 6)
         self.all_test_stats = np.array(test_stat)
         self.test_stat = np.average(np.array(test_stat), weights=self.prob_weights)
         self.null_samples = np.average(null_samples, axis=0, weights=self.prob_weights)
-        # experimental, not used
-        self.pvalue_alt = np.sum(np.average(null_samples, axis=0, weights=self.prob_Z) > np.average(np.array(test_stat), weights=self.prob_Z)) / float(self.nullss)
         self.pvalue = np.sum(self.null_samples > self.test_stat) / float(self.nullss)
 
         return self.pvalue, self.test_stat
@@ -104,8 +103,7 @@ class FastKCI_CInd(object):
         Z = np.array([np.random.multinomial(1, np.exp(ll[n, :]-logsumexp(ll[n, :]))).argmax() for n in range(self.n)])
         le = LabelEncoder()
         Z = le.fit_transform(Z)
-        prob_Z = np.take_along_axis(ll, Z[:, None], axis=1).sum()  # experimental, might be removed
-        return Z, prob_Z
+        return Z
 
     def pvalue_onblocks(self, Z_proposal):
         """
@@ -130,7 +128,7 @@ class FastKCI_CInd(object):
             X_k = np.copy(self.data[0][K_mask])
             Y_k = np.copy(self.data[1][K_mask])
             Z_k = np.copy(self.data_z[K_mask])
-            if (Z_k.shape[0] < 6):  # small blocks cause problems in GP, experimental
+            if (Z_k.shape[0] < 6):  # small blocks cause problems in GP
                 continue
             Kx, Ky, Kzx, Kzy, epsilon_x, epsilon_y, likelihood_x, likelihood_y = self.kernel_matrix(X_k, Y_k, Z_k)
             KxR, Rzx = Kernel.center_kernel_matrix_regression(Kx, Kzx, epsilon_x)
@@ -214,7 +212,8 @@ class FastKCI_CInd(object):
             vx = vx[:, np.abs(wx) > np.abs(wx).max() * 1e-10]
             wx = wx[np.abs(wx) > np.abs(wx).max() * 1e-10]
             vx = 2 * np.sqrt(n) * vx.dot(np.diag(np.sqrt(wx))) / np.sqrt(wx[0])
-            kernelx = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(widthz * np.ones(Dz), (1e-2, 1e2)) + WhiteKernel(0.1, (1e-10, 1e+1))
+            kernelx = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(widthz * np.ones(Dz), (1e-2, 1e2)) \
+                + WhiteKernel(0.1, (1e-10, 1e+1))
             gpx = GaussianProcessRegressor(kernel=kernelx)
             # fit Gaussian process, including hyperparameter optimization
             with warnings.catch_warnings():
@@ -237,7 +236,8 @@ class FastKCI_CInd(object):
             vy = vy[:, np.abs(wy) > np.abs(wy).max() * 1e-10]
             wy = wy[np.abs(wy) > np.abs(wy).max() * 1e-10]
             vy = 2 * np.sqrt(n) * vy.dot(np.diag(np.sqrt(wy))) / np.sqrt(wy[0])
-            kernely = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(widthz * np.ones(Dz), (1e-2, 1e2)) + WhiteKernel(0.1, (1e-10, 1e+1))
+            kernely = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(widthz * np.ones(Dz), (1e-2, 1e2)) \
+                + WhiteKernel(0.1, (1e-10, 1e+1))
             gpy = GaussianProcessRegressor(kernel=kernely)
             # fit Gaussian process, including hyperparameter optimization
             with warnings.catch_warnings():
@@ -341,7 +341,8 @@ class FastKCI_CInd(object):
 
 class FastKCI_UInd(object):
     """
-    Python implementation of as speed-up version of the Kernel-based Conditional Independence (KCI) test. Unconditional version.
+    Python implementation of as speed-up version of the Kernel-based Conditional Independence (KCI) test. 
+    Unconditional version.
 
     References
     ----------
@@ -349,6 +350,9 @@ class FastKCI_UInd(object):
     "A kernel-based conditional independence test and application in causal discovery," In UAI 2011.
     [2] M. Zhang, and S. Williamson,
     "Embarrassingly Parallel Inference for Gaussian Processes" In JMLR 20 (2019)
+    [3] O. Schacht, and B. Huang
+    "FastKCI: A fast Kernel-based Conditional Indepdence test with application to causal discovery",
+    Working Paper.
     """
     def __init__(self, K=10, J=8, alpha=500, trimming_thresh=1e-3):
         """
