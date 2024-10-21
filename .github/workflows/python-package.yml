@@ -39,7 +39,7 @@ jobs:
 
     - name: Run tests with unittest
       run: |
-        python -m unittest discover -s tests -p "test*.py"
+        python -m unittest discover -s tests -p "Test*.py"
 
   codespell:
     name: Check for spelling errors
