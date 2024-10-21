@@ -22,7 +22,7 @@ class FastKCI_CInd(object):
     [2] M. Zhang, and S. Williamson,
     "Embarrassingly Parallel Inference for Gaussian Processes", In JMLR 20 (2019)
     [3] O. Schacht, and B. Huang
-    "FastKCI: A fast Kernel-based Conditional Indepdence test with application to causal discovery",
+    "FastKCI: A fast Kernel-based Conditional Independence test with application to causal discovery",
     Working Paper.
 
     """
@@ -349,7 +349,7 @@ class FastKCI_UInd(object):
     [2] M. Zhang, and S. Williamson,
     "Embarrassingly Parallel Inference for Gaussian Processes" In JMLR 20 (2019)
     [3] O. Schacht, and B. Huang
-    "FastKCI: A fast Kernel-based Conditional Indepdence test with application to causal discovery",
+    "FastKCI: A fast Kernel-based Conditional Independence test with application to causal discovery",
     Working Paper.
     """
     def __init__(self, K=10, J=8, alpha=500):
