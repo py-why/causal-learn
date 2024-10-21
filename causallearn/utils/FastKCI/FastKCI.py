@@ -26,7 +26,7 @@ class FastKCI_CInd(object):
     Working Paper.
 
     """
-    def __init__(self, K=10, J=8, alpha=500, epsilon=1e-3, eig_thresh=1e-6, trimming_thresh=1e-3, use_gp=False):
+    def __init__(self, K=10, J=8, alpha=500, epsilon=1e-3, eig_thresh=1e-6, use_gp=False):
         """
         Initialize the FastKCI_CInd object.
 
@@ -44,7 +44,6 @@ class FastKCI_CInd(object):
         self.alpha = alpha
         self.epsilon = epsilon
         self.eig_thresh = eig_thresh
-        self.trimming_thresh = trimming_thresh
         self.use_gp = use_gp
         self.nullss = 5000
 
@@ -67,8 +66,7 @@ class FastKCI_CInd(object):
         self.data_z = data_z
         self.n = data_x.shape[0]
 
-        Z_proposal = Parallel(n_jobs=-1)(delayed(self.partition_data)() for i in range(self.J))
-        self.Z_proposal = zip(*Z_proposal)
+        self.Z_proposal = Parallel(n_jobs=-1)(delayed(self.partition_data)() for i in range(self.J))
         block_res = Parallel(n_jobs=-1)(delayed(self.pvalue_onblocks)(self.Z_proposal[i]) for i in range(self.J))
         test_stat, null_samples, log_likelihood = zip(*block_res)
 
@@ -354,7 +352,7 @@ class FastKCI_UInd(object):
     "FastKCI: A fast Kernel-based Conditional Indepdence test with application to causal discovery",
     Working Paper.
     """
-    def __init__(self, K=10, J=8, alpha=500, trimming_thresh=1e-3):
+    def __init__(self, K=10, J=8, alpha=500):
         """
         Construct the FastKCI_UInd model.
 
@@ -363,12 +361,10 @@ class FastKCI_UInd(object):
         K: Number of Gaussians that are assumed to be in the mixture
         J: Number of independent repittitions.
         alpha: Parameter for the Dirichlet distribution.
-        trimming_thresh: Threshold for trimming the propensity weights.
         """
         self.K = K
         self.J = J
         self.alpha = alpha
-        self.trimming_thresh = trimming_thresh
         self.nullss = 5000
         self.eig_thresh = 1e-5
 
