@@ -27,6 +27,9 @@ class TestCIT_RCIT(unittest.TestCase):
                         pvalue03.append(round(cit_CIT(0, 3), 4))
                         pvalue032.append(round(cit_CIT(0, 3, {2}), 4))
 
+        pvalue01 = np.array(pvalue01)
+        pvalue03 = np.array(pvalue03)
+        pvalue032 = np.array(pvalue032)
         self.assertTrue(np.all((0.0 <= pvalue01) & (pvalue01 <= 1.0)),
                         "pvalue01 contains invalid values")
         self.assertTrue(np.all((0.0 <= pvalue03) & (pvalue03 <= 1.0)),
