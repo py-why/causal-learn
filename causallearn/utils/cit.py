@@ -288,7 +288,7 @@ class Chisq_or_Gsq(CIT_Base):
         def _Fill3DCountTable(dataSXY, cardSXY):
             # about the threshold 1e5, see a rough performance example at:
             # https://gist.github.com/MarkDana/e7d9663a26091585eb6882170108485e#file-count-unique-in-array-performance-md
-            if np.prod(cardSXY) < CONST_BINCOUNT_UNIQUE_THRESHOLD: return _Fill3DCountTableByBincount(dataSXY, cardSXY)
+            if 0 < np.prod(cardSXY) < CONST_BINCOUNT_UNIQUE_THRESHOLD: return _Fill3DCountTableByBincount(dataSXY, cardSXY)
             return _Fill3DCountTableByUnique(dataSXY, cardSXY)
 
         def _CalculatePValue(cTables, eTables):
