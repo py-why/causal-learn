@@ -1,6 +1,6 @@
-.. _GRaSP:
+.. _BOSS:
 
-GRaSP
+BOSS
 ==============================================
 
 Algorithm Introduction
