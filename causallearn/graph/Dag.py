@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from itertools import combinations
-from typing import List
+from typing import List, Optional, Union
 
 import networkx as nx
 import numpy as np
@@ -18,8 +18,23 @@ from causallearn.utils.GraphUtils import GraphUtils
 # or latent, with at most one edge per node pair, and no edges to self.
 class Dag(GeneralGraph):
 
-    def __init__(self, nodes: List[Node]):
-
+    def __init__(self, nodes: Optional[List[Node]]=None, graph: Union[np.ndarray, nx.Graph, None]=None):
+        if nodes is not None:
+            self._init_from_nodes(nodes)
+        elif graph is not None:
+            if isinstance(graph, np.ndarray):
+                nodes = [Node(node_name=str(i)) for i in range(len(graph))]
+                self._init_from_nodes(nodes)
+                for i in range(len(nodes)):
+                    for j in range(len(nodes)):
+                        if graph[i, j] == 1:
+                            self.add_directed_edge(nodes[i], nodes[j])
+            else:
+                pass
+        else:
+            raise ValueError("Dag.__init__() requires argument 'nodes' or 'graph'")
+    
+    def _init_from_nodes(self, nodes: List[Node]):
         # for node in nodes:
         #     if not isinstance(node, type(GraphNode)):
         #         raise TypeError("Graphs must be instantiated with a list of GraphNodes")
