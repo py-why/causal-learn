@@ -1,4 +1,3 @@
-from typing import Union
 import numpy as np
 
 from causallearn.graph.Dag import Dag
@@ -7,7 +6,7 @@ from causallearn.graph.Endpoint import Endpoint
 from causallearn.graph.GeneralGraph import GeneralGraph
 
 
-def dag2cpdag(G: Union[Dag, np.ndarray]) -> GeneralGraph:
+def dag2cpdag(G: Dag) -> GeneralGraph:
     """
     Convert a DAG to its corresponding PDAG
 
@@ -23,13 +22,7 @@ def dag2cpdag(G: Union[Dag, np.ndarray]) -> GeneralGraph:
     -------
     Yuequn Liu@dmirlab, Wei Chen@dmirlab, Kun Zhang@CMU
     """
-    
-    if isinstance(G, np.ndarray):
-        # convert np array to Dag graph
-        G = Dag(graph=G)
-    elif not isinstance(G, Dag):
-        raise TypeError("parameter graph should be `Dag` or `np.ndarry`")
-    
+
     # order the edges in G
     nodes_order = list(
         map(lambda x: G.node_map[x], G.get_causal_ordering())
