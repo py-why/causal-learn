@@ -23,7 +23,7 @@ from causallearn.utils.DAG2CPDAG import dag2cpdag
 
 def boss(
     X: np.ndarray,
-    score_func: str = "local_score_BIC_from_cov",
+    score_func: str = "local_score_BIC",
     parameters: Optional[Dict[str, Any]] = None,
     verbose: Optional[bool] = True,
     node_names: Optional[List[str]] = None,
