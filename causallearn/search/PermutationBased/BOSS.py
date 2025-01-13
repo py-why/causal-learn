@@ -95,11 +95,11 @@ def boss(
         )
     elif score_func == "local_score_BIC":
         # SEM BIC score
-        warnings.warn("Please use 'local_score_BIC_from_cov' instead")
+        warnings.warn("Using 'local_score_BIC_from_cov' instead for efficiency")
         if parameters is None:
             parameters = {"lambda_value": 2}
         localScoreClass = LocalScoreClass(
-            data=X, local_score_fun=local_score_BIC, parameters=parameters
+            data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
     elif score_func == "local_score_BIC_from_cov":
         # SEM BIC score
