@@ -545,7 +545,7 @@ def ruleR7(graph: Graph, changeFlag: bool,
         for node_C in intoBCircles:
             # pdb.set_trace()
             for node_A in node_A_list:
-                # pdb.set_trace()
+                if node_A == node_C: continue
                 if not graph.is_adjacent_to(node_A, node_C):
                     changeFlag = True
                     edge = graph.get_edge(node_B, node_C)
