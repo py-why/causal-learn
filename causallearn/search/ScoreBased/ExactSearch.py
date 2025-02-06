@@ -365,6 +365,8 @@ def bic_score_node(X, i, structure):
                                             b=X[:, i],
                                             rcond=None)
     bic = n * np.log(residual / n) + len(structure) * np.log(n)
+    if bic.size == 0:
+        return NEGINF   # Return negative infinity if bic is empty
     return bic.item()
 
 

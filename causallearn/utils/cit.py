@@ -5,6 +5,9 @@ from collections.abc import Iterable
 from scipy.stats import chi2, norm
 
 from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
+from causallearn.utils.FastKCI.FastKCI import FastKCI_CInd, FastKCI_UInd
+from causallearn.utils.RCIT.RCIT import RCIT as RCIT_CInd
+from causallearn.utils.RCIT.RCIT import RIT as RCIT_UInd
 from causallearn.utils.PCUtils import Helper
 
 CONST_BINCOUNT_UNIQUE_THRESHOLD = 1e5
@@ -13,6 +16,8 @@ fisherz = "fisherz"
 mv_fisherz = "mv_fisherz"
 mc_fisherz = "mc_fisherz"
 kci = "kci"
+rcit = "rcit"
+fastkci = "fastkci"
 chisq = "chisq"
 gsq = "gsq"
 d_separation = "d_separation"
@@ -23,8 +28,8 @@ def CIT(data, method='fisherz', **kwargs):
     Parameters
     ----------
     data: numpy.ndarray of shape (n_samples, n_features)
-    method: str, in ["fisherz", "mv_fisherz", "mc_fisherz", "kci", "chisq", "gsq"]
-    kwargs: placeholder for future arguments, or for KCI specific arguments now
+    method: str, in ["fisherz", "mv_fisherz", "mc_fisherz", "kci", "rcit", "fastkci", "chisq", "gsq"]
+    kwargs: placeholder for future arguments, or for KCI, FastKCI or RCIT specific arguments now
         TODO: utimately kwargs should be replaced by explicit named parameters.
               check https://github.com/cmu-phil/causal-learn/pull/62#discussion_r927239028
     '''
@@ -32,6 +37,10 @@ def CIT(data, method='fisherz', **kwargs):
         return FisherZ(data, **kwargs)
     elif method == kci:
         return KCI(data, **kwargs)
+    elif method == fastkci:
+        return FastKCI(data, **kwargs)
+    elif method == rcit:
+        return RCIT(data, **kwargs)
     elif method in [chisq, gsq]:
         return Chisq_or_Gsq(data, method_name=method, **kwargs)
     elif method == mv_fisherz:
@@ -42,6 +51,7 @@ def CIT(data, method='fisherz', **kwargs):
         return D_Separation(data, **kwargs)
     else:
         raise ValueError("Unknown method: {}".format(method))
+
 
 class CIT_Base(object):
     # Base class for CIT, contains basic operations for input check and caching, etc.
@@ -193,6 +203,50 @@ class KCI(CIT_Base):
         self.pvalue_cache[cache_key] = p
         return p
 
+class FastKCI(CIT_Base):
+    def __init__(self, data, **kwargs):
+        super().__init__(data, **kwargs)
+        kci_ui_kwargs = {k: v for k, v in kwargs.items() if k in
+                         ['K', 'J', 'alpha']}
+        kci_ci_kwargs = {k: v for k, v in kwargs.items() if k in
+                         ['K', 'J', 'alpha', 'use_gp']}
+        self.check_cache_method_consistent(
+            'kci', hashlib.md5(json.dumps(kci_ci_kwargs, sort_keys=True).encode('utf-8')).hexdigest())
+        self.assert_input_data_is_valid()
+        self.kci_ui = FastKCI_UInd(**kci_ui_kwargs)
+        self.kci_ci = FastKCI_CInd(**kci_ci_kwargs)
+
+    def __call__(self, X, Y, condition_set=None):
+        # Kernel-based conditional independence test.
+        Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
+        if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
+        p = self.kci_ui.compute_pvalue(self.data[:, Xs], self.data[:, Ys])[0] if len(condition_set) == 0 else \
+            self.kci_ci.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
+        self.pvalue_cache[cache_key] = p
+        return p
+
+class RCIT(CIT_Base):
+    def __init__(self, data, **kwargs):
+        super().__init__(data, **kwargs)
+        rit_kwargs = {k: v for k, v in kwargs.items() if k in
+                      ['approx']}
+        rcit_kwargs = {k: v for k, v in kwargs.items() if k in
+                       ['approx', 'num_f', 'num_f2', 'rcit']}
+        self.check_cache_method_consistent(
+            'kci', hashlib.md5(json.dumps(rcit_kwargs, sort_keys=True).encode('utf-8')).hexdigest())
+        self.assert_input_data_is_valid()
+        self.rit = RCIT_UInd(**rit_kwargs)
+        self.rcit = RCIT_CInd(**rcit_kwargs)
+
+    def __call__(self, X, Y, condition_set=None):
+        # Kernel-based conditional independence test.
+        Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
+        if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
+        p = self.rit.compute_pvalue(self.data[:, Xs], self.data[:, Ys])[0] if len(condition_set) == 0 else \
+            self.rcit.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
+        self.pvalue_cache[cache_key] = p
+        return p
+
 class Chisq_or_Gsq(CIT_Base):
     def __init__(self, data, method_name, **kwargs):
         def _unique(column):
@@ -288,7 +342,7 @@ class Chisq_or_Gsq(CIT_Base):
         def _Fill3DCountTable(dataSXY, cardSXY):
             # about the threshold 1e5, see a rough performance example at:
             # https://gist.github.com/MarkDana/e7d9663a26091585eb6882170108485e#file-count-unique-in-array-performance-md
-            if np.prod(cardSXY) < CONST_BINCOUNT_UNIQUE_THRESHOLD: return _Fill3DCountTableByBincount(dataSXY, cardSXY)
+            if 0 < np.prod(cardSXY) < CONST_BINCOUNT_UNIQUE_THRESHOLD: return _Fill3DCountTableByBincount(dataSXY, cardSXY)
             return _Fill3DCountTableByUnique(dataSXY, cardSXY)
 
         def _CalculatePValue(cTables, eTables):

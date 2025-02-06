@@ -16,7 +16,7 @@ from causallearn.score.LocalScoreFunction import (
     local_score_marginal_general,
     local_score_marginal_multi,
 )
-from causallearn.search.PermutationBased.gst import GST;
+from causallearn.search.PermutationBased.gst import GST
 from causallearn.score.LocalScoreFunctionClass import LocalScoreClass
 from causallearn.utils.DAG2CPDAG import dag2cpdag
 
@@ -111,7 +111,7 @@ def grasp(
     if n < p:
         warnings.warn("The number of features is much larger than the sample size!")
 
-    if score_func == "local_score_CV_general":  
+    if score_func == "local_score_CV_general":
         # k-fold negative cross validated likelihood based on regression in RKHS
         if parameters is None:
             parameters = {
@@ -127,7 +127,7 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_general, parameters=parameters
         )
-    elif score_func == "local_score_CV_multi": 
+    elif score_func == "local_score_CV_multi":
         # k-fold negative cross validated likelihood based on regression in RKHS
         # for data with multi-variate dimensions
         if parameters is None:
@@ -141,7 +141,7 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_multi, parameters=parameters
         )
-    elif score_func == "local_score_marginal_multi":  
+    elif score_func == "local_score_marginal_multi":
         # negative marginal likelihood based on regression in RKHS
         # for data with multi-variate dimensions
         if parameters is None:
@@ -151,22 +151,22 @@ def grasp(
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_multi, parameters=parameters
         )
-    elif score_func == "local_score_BIC":  
+    elif score_func == "local_score_BIC":
         # SEM BIC score
-        warnings.warn("Please use 'local_score_BIC_from_cov' instead")
+        warnings.warn("Using 'local_score_BIC_from_cov' instead for efficiency")
         if parameters is None:
             parameters = {"lambda_value": 2}
         localScoreClass = LocalScoreClass(
-            data=X, local_score_fun=local_score_BIC, parameters=parameters
+            data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
-    elif score_func == "local_score_BIC_from_cov":  
+    elif score_func == "local_score_BIC_from_cov":
         # SEM BIC score
         if parameters is None:
             parameters = {"lambda_value": 2}
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
         )
-    elif score_func == "local_score_BDeu":  
+    elif score_func == "local_score_BDeu":
         # BDeu score
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BDeu, parameters=None
@@ -204,7 +204,7 @@ def grasp(
             sys.stdout.flush()
 
     runtime = time.perf_counter() - runtime
-    
+
     if verbose:
         sys.stdout.write("\nGRaSP completed in: %.2fs \n" % runtime)
         sys.stdout.flush()

@@ -29,7 +29,7 @@ class LocalScoreClass(object):
         self.parameters = parameters
         self.score_cache = {}
 
-        if self.local_score_fun == local_score_BIC_from_cov:
+        if self.local_score_fun.__name__ == 'local_score_BIC_from_cov':
             self.cov = np.cov(self.data.T)
             self.n = self.data.shape[0]
 
@@ -40,7 +40,7 @@ class LocalScoreClass(object):
         hash_key = tuple(sorted(PAi))
 
         if not self.score_cache[i].__contains__(hash_key):
-            if self.local_score_fun == local_score_BIC_from_cov:
+            if self.local_score_fun.__name__ == 'local_score_BIC_from_cov':
                 self.score_cache[i][hash_key] = self.local_score_fun((self.cov, self.n), i, PAi, self.parameters)
             else:
                 self.score_cache[i][hash_key] = self.local_score_fun(self.data, i, PAi, self.parameters)
@@ -48,7 +48,7 @@ class LocalScoreClass(object):
         return self.score_cache[i][hash_key]
 
     def score_nocache(self, i: int, PAi: List[int]) -> float:
-        if self.local_score_fun == local_score_BIC_from_cov:
+        if self.local_score_fun.__name__ == 'local_score_BIC_from_cov':
             return self.local_score_fun((self.cov, self.n), i, PAi, self.parameters)
         else:
             return self.local_score_fun(self.data, i, PAi, self.parameters)

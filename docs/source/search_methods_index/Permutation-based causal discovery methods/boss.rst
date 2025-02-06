@@ -1,25 +1,25 @@
-.. _GRaSP:
+.. _BOSS:
 
-GRaSP
+BOSS
 ==============================================
 
 Algorithm Introduction
 --------------------------------------
 
-Greedy relaxations of the sparsest permutation (GRaSP) algorithm [1]_.
+Best order score search (BOSS) algorithm [1]_.
 
 
 Usage
 ----------------------------
 .. code-block:: python
 
-    from causallearn.search.PermutationBased.GRaSP import grasp
+    from causallearn.search.PermutationBased.BOSS import boss
 
     # default parameters
-    G = grasp(X)
+    G = boss(X)
 
     # or customized parameters
-    G = grasp(X, score_func, depth, parameters)
+    G = boss(X, score_func, parameters)
 
     # Visualization using pydot
     from causallearn.utils.GraphUtils import GraphUtils
@@ -35,7 +35,7 @@ Usage
     plt.imshow(img)
     plt.show()
 
-Visualization using pydot is recommended (`usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestGRaSP.py>`_). If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/e4e73f8b58510a3cd5a9125ba50c0ac62a425ef3/tests/TestGraphVisualization.py#L106>`_ (e.g., GraphUtils.to_pydot(G, labels=["A", "B", "C"]).
+Visualization using pydot is recommended (`usage example <https://github.com/cmu-phil/causal-learn/blob/main/tests/TestBOSS.py>`_). If specific label names are needed, please refer to this `usage example <https://github.com/cmu-phil/causal-learn/blob/e4e73f8b58510a3cd5a9125ba50c0ac62a425ef3/tests/TestGraphVisualization.py#L106>`_ (e.g., GraphUtils.to_pydot(G, labels=["A", "B", "C"]).
 
 Parameters
 -------------------
@@ -62,7 +62,7 @@ Returns
 - **G**: learned general graph, where G.graph[j,i]=1 and G.graph[i,j]=-1 indicate i --> j; G.graph[i,j] = G.graph[j,i] = -1 indicates i --- j.
 
 
-.. [1] Lam, W. Y., Andrews, B., & Ramsey, J. (2022, February). Greedy Relaxations of the Sparsest Permutation Algorithm. In The 38th Conference on Uncertainty in Artificial Intelligence.
+.. [1] Andrews, B., Ramsey, J., Sanchez Romero, R., Camchong, J., & Kummerfeld, E. (2023). Fast scalable and accurate discovery of dags using the best order score search and grow shrink trees. Advances in Neural Information Processing Systems, 36, 63945-63956.
 .. [2] Huang, B., Zhang, K., Lin, Y., Schölkopf, B., & Glymour, C. (2018, July). Generalized score functions for causal discovery. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (pp. 1551-1560).
 .. [3] Schwarz, G. (1978). Estimating the dimension of a model. The annals of statistics, 461-464.
 .. [4] Buntine, W. (1991). Theory refinement on Bayesian networks. In Uncertainty proceedings 1991 (pp. 52-60). Morgan Kaufmann.
