@@ -206,7 +206,7 @@ def local_score_cv_general(
     Thresh = 1e-5
 
     if len(PAi):
-        PA = Data[:, PAi].reshape(-1, 1)
+        PA = Data[:, PAi]
 
         # set the kernel for X
         GX = np.multiply(X, X).reshape(-1, 1)
@@ -354,7 +354,7 @@ def local_score_cv_general(
         CV = CV / k
     else:
         # set the kernel for X
-        GX = np.sum(np.multiply(X, X), axis=1)
+        GX = np.sum(np.multiply(X, X), axis=1).reshape(-1, 1)
         Q = np.tile(GX, (1, T))
         R = np.tile(GX.T, (T, 1))
         dists = Q + R - 2 * X * X.T
@@ -416,8 +416,8 @@ def local_score_cv_general(
                 - 1
                 / (gamma * n1)
                 * Kx_tr_te.T
-                * pdinv(np.eye(n1) + 1 / (gamma * n1) * Kx_tr)
-                * Kx_tr_te
+                @ pdinv(np.eye(n1) + 1 / (gamma * n1) * Kx_tr)
+                @ Kx_tr_te
             ) / gamma
             B = 1 / (gamma * n1) * Kx_tr + np.eye(n1)
             L = np.linalg.cholesky(B)
@@ -604,7 +604,7 @@ def local_score_cv_multi(
         CV = CV / k
     else:
         # set the kernel for X
-        GX = np.sum(np.multiply(X, X), axis=1)
+        GX = np.sum(np.multiply(X, X), axis=1).reshape(-1, 1)
         Q = np.tile(GX, (1, T))
         R = np.tile(GX.T, (T, 1))
         dists = Q + R - 2 * X * X.T
