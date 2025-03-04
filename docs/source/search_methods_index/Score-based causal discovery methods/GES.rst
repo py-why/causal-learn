@@ -49,9 +49,9 @@ and n_features is the number of features.
 **score_func**: The score function you would like to use, including (see :ref:`score_functions`.). Default: 'local_score_BIC'.
               - ":ref:`local_score_BIC <BIC score>`": BIC score [3]_.
               - ":ref:`local_score_BDeu <BDeu score>`": BDeu score [4]_.
-              - ":ref:`local_score_cv_general <Generalized score with cross validation>`": Generalized score with cross validation for data with single-dimensional variables [2]_.
+              - ":ref:`local_score_CV_general <Generalized score with cross validation>`": Generalized score with cross validation for data with single-dimensional variables [2]_.
               - ":ref:`local_score_marginal_general <Generalized score with marginal likelihood>`": Generalized score with marginal likelihood for data with single-dimensional variables [2]_.
-              - ":ref:`local_score_cv_multi <Generalized score with cross validation>`": Generalized score with cross validation for data with multi-dimensional variables [2]_.
+              - ":ref:`local_score_CV_multi <Generalized score with cross validation>`": Generalized score with cross validation for data with multi-dimensional variables [2]_.
               - ":ref:`local_score_marginal_multi <Generalized score with marginal likelihood>`": Generalized score with marginal likelihood for data with multi-dimensional variables [2]_.
 
 **maxP**: Allowed maximum number of parents when searching the graph. Default: None.

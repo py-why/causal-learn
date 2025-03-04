@@ -4,6 +4,8 @@ In this section, we would like to introduce (conditional) independence tests in 
 Missing-value Fisher-z test, Chi-Square test, Kernel-based conditional independence (KCI) test and independence test [2]_,
 and G-Square test [3]_.
 
+(For more efficient nonparametric test, you may try `FastKCI and RCIT  <https://github.com/py-why/causal-learn/pull/202>`_. Both implementations are still preliminary and there might be some issues.)
+
 
 Contents:
 

@@ -75,11 +75,11 @@ Contributors
 - Wai-Yin Lam: :ref:`PC <pc>`.
 - Biwei Huang: :ref:`CD-NOD <cdnod>`.
 - Ignavier Ng, Yujia Zheng: :ref:`Exact search <exactsearch>`.
-- Bryan Andrews, Joseph Ramsey: :ref:`GRaSP <GRaSP>`.
+- Bryan Andrews, Joseph Ramsey: :ref:`GRaSP <GRaSP>`, :ref:`BOSS <BOSS>`.
 - Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
 
 
-**Quality control**: Yewen Fan, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
+**Quality control**: Yewen Fan, Zhiyi Huang, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
 
 Citation
 ^^^^^^^^^^^^

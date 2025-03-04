@@ -51,6 +51,9 @@ and n_features is the number of features.
        - ":ref:`kci <Kernel-based conditional independence (KCI) test and independence test>`": kernel-based conditional independence test. (As a kernel method, its complexity is cubic in the sample size, so it might be slow if the same size is not small.)
        - ":ref:`mv_fisherz <Missing-value Fisher-z test>`": Missing-value Fisher's Z conditional independence test.
 
+(For more efficient nonparametric test, you may try `FastKCI and RCIT  <https://github.com/py-why/causal-learn/pull/202>`_. Both implementations are still preliminary and there might be some issues.)
+
+
 **stable**: run stabilized skeleton discovery [3]_ if True. Default: True.
 
 **uc_rule**: how unshielded colliders are oriented. Default: 0.
