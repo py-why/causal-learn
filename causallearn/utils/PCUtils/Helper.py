@@ -547,9 +547,9 @@ def get_predictor_ws(mdata, num_test_var, effective_sz):
     np.random.shuffle(arr)
 
     ## 3. effective sample size
-    indx_W_shuffle = arr[:effective_sz]
+    index_W_shuffle = arr[:effective_sz]
 
-    W_del_shuffle_eff = Ws_del[indx_W_shuffle, :]  # the sample size of W should be equal to effective sample size
+    W_del_shuffle_eff = Ws_del[index_W_shuffle, :]  # the sample size of W should be equal to effective sample size
     return W_del_shuffle_eff.reshape(-1, Ws_ncol)
 
 
@@ -597,11 +597,11 @@ def contain_common_neighbors_prt_mvar(X, Y, condition_set, skel, prt_m):
 
     common_neighbor = (X_child == 1) & (Y_child == 1)
     if sum(common_neighbor) > 0:  # have at least one common neighbor
-        indx = np.array([i for i in range(len(Y_child))])
-        common_neighbor_indx = indx[common_neighbor]
+        index = np.array([i for i in range(len(Y_child))])
+        common_neighbor_index = index[common_neighbor]
         var = [X] + [Y] + list(condition_set)
         prt_ls = get_prt_mvars(var, prt_m)
-        if len(list(set(common_neighbor_indx) & set(prt_ls))):
+        if len(list(set(common_neighbor_index) & set(prt_ls))):
             # at least one common neighbor is the parent of M
             return True
         else:  # the common neighbors are not the parent of M
@@ -615,14 +615,14 @@ def get_prt_mvars(var, prt_m):
     :params:
         - var: a list or a tuple
     :return:
-        - W_indx_: a list with unique elements
+        - W_index_: a list with unique elements
     """
-    W_indx_ = []
+    W_index_ = []
     for vi in var:
         if vi in prt_m['m']:  # vi has a missingness indicator requiring correction
-            W_indx_ += get_prt_of_mi(vi, prt_m)
-    W_indx_ = list(np.unique(W_indx_))
-    return W_indx_
+            W_index_ += get_prt_of_mi(vi, prt_m)
+    W_index_ = list(np.unique(W_index_))
+    return W_index_
 
 
 def get_prt_of_mi(vi, prt_m):
@@ -633,30 +633,30 @@ def get_prt_of_mi(vi, prt_m):
             return list(prti)
 
 
-def get_prt_mw(W_indx_, prt_m):
+def get_prt_mw(W_index_, prt_m):
     """Iteratively get the parents of missingness indicators of W
     :params:
-        W_indx_: a list with unique elements
+        W_index_: a list with unique elements
     :return:
-        W_indx: a list with unique elements
+        W_index: a list with unique elements
     """
-    W_indx = W_indx_
-    prt_W = get_prt_mvars(W_indx, prt_m)
-    stop_cond = list(set(prt_W) - set(W_indx))
-    while len(stop_cond) > 0:  # There are parents of W_indx
-        W_indx += prt_W
-        W_indx = list(np.unique(W_indx))
-        prt_W = get_prt_mvars(W_indx, prt_m)
-        stop_cond = list(set(prt_W) - set(W_indx))
+    W_index = W_index_
+    prt_W = get_prt_mvars(W_index, prt_m)
+    stop_cond = list(set(prt_W) - set(W_index))
+    while len(stop_cond) > 0:  # There are parents of W_index
+        W_index += prt_W
+        W_index = list(np.unique(W_index))
+        prt_W = get_prt_mvars(W_index, prt_m)
+        stop_cond = list(set(prt_W) - set(W_index))
 
-    # No more parents of W_indx outside of the list W_indx
-    return list(np.unique(W_indx))
+    # No more parents of W_index outside of the list W_index
+    return list(np.unique(W_index))
 
 
 def test_wise_deletion(data):
     """dataset after test-wise deletion"""
-    indxCompleteRows = get_indx_complete_rows(data)
-    return data[indxCompleteRows, :]
+    indexCompleteRows = get_index_complete_rows(data)
+    return data[indexCompleteRows, :]
 
 
 def learn_regression_model(tdel_data, num_model):
@@ -699,13 +699,13 @@ def get_sub_correlation_matrix(mvdata):
     matrix: the correlation matrix of all the variables
     sample_size: the sample size of the dataset after test-wise deletion
     """
-    indxRows = get_indx_complete_rows(mvdata)
-    matrix = np.corrcoef(mvdata[indxRows, :], rowvar=False)
-    sample_size = len(indxRows)
+    indexRows = get_index_complete_rows(mvdata)
+    matrix = np.corrcoef(mvdata[indexRows, :], rowvar=False)
+    sample_size = len(indexRows)
     return matrix, sample_size
 
 
-def get_indx_complete_rows(mvdata):
+def get_index_complete_rows(mvdata):
     """
     Get the index of the rows with complete records
     -------
@@ -718,9 +718,9 @@ def get_indx_complete_rows(mvdata):
     the index of the rows with complete records
     """
     nrow, ncol = np.shape(mvdata)
-    bindxRows = np.ones((nrow,), dtype=bool)
-    indxRows = np.array(list(range(nrow)))
+    bindexRows = np.ones((nrow,), dtype=bool)
+    indexRows = np.array(list(range(nrow)))
     for i in range(ncol):
-        bindxRows = np.logical_and(bindxRows, ~np.isnan(mvdata[:, i]))
-    indxRows = indxRows[bindxRows]
-    return indxRows
+        bindexRows = np.logical_and(bindexRows, ~np.isnan(mvdata[:, i]))
+    indexRows = indexRows[bindexRows]
+    return indexRows

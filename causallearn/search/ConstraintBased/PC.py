@@ -399,8 +399,8 @@ def get_parent(r: int, cg_skel_adj: ndarray) -> ndarray:
     prt: list, parents of the missingness indicator r
     """
     num_var = len(cg_skel_adj[0, :])
-    indx = np.array([i for i in range(num_var)])
-    prt = indx[cg_skel_adj[r, :] == 1]
+    index = np.array([i for i in range(num_var)])
+    prt = index[cg_skel_adj[r, :] == 1]
     return prt
 
 

@@ -459,7 +459,7 @@ def gpr_multi_new(logtheta=None, covfunc=None, x=None, y=None, xstar=None, nargo
     #   nlml     is the returned value of the negative log marginal likelihood
     #   dnlml    is a (column) vector of partial derivatives of the negative
     #                 log marginal likelihood wrt each log hyperparameter
-    #   mu       is a (column) vector (of size nn) of prediced means
+    #   mu       is a (column) vector (of size nn) of predicted means
     #   S2       is a (column) vector (of size nn) of predicted variances
     #
     # For more help on covariance functions, see "covFunctions".
