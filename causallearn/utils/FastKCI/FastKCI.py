@@ -98,7 +98,11 @@ class FastKCI_CInd(object):
         ll = np.tile(np.log(pi_j), (self.n, 1))
         for k in range(self.K):
             ll[:, k] += stats.multivariate_normal.logpdf(self.data_z, mu_k[k, :], cov=sigma_k, allow_singular=True)
-        Z = np.array([np.random.multinomial(1, np.exp(ll[n, :]-logsumexp(ll[n, :]))).argmax() for n in range(self.n)])
+
+        ll = np.exp(ll - logsumexp(ll, axis=1, keepdims=True))
+        ll = ll / ll.sum(axis=1, keepdims=True)
+
+        Z = np.array([np.random.multinomial(1, ll[n, :]).argmax() for n in range(self.n)])
         le = LabelEncoder()
         Z = le.fit_transform(Z)
         return Z
@@ -414,7 +418,11 @@ class FastKCI_UInd(object):
         ll = np.tile(np.log(pi_j), (self.n, 1))
         for k in range(self.K):
             ll[:, k] += stats.multivariate_normal.logpdf(self.data_y, mu_k[k, :], cov=sigma_k, allow_singular=True)
-        Z = np.array([np.random.multinomial(1, np.exp(ll[n, :]-logsumexp(ll[n, :]))).argmax() for n in range(self.n)])
+
+        ll = np.exp(ll - logsumexp(ll, axis=1, keepdims=True))
+        ll = ll / ll.sum(axis=1, keepdims=True)
+
+        Z = np.array([np.random.multinomial(1, ll[n, :]).argmax() for n in range(self.n)])
         prop_Y = np.take_along_axis(ll, Z[:, None], axis=1).sum()
         le = LabelEncoder()
         Z = le.fit_transform(Z)
