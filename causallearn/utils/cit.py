@@ -529,8 +529,8 @@ class D_Separation(CIT_Base):
     def __call__(self, X, Y, condition_set=None):
         Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(X, Y, condition_set)
         if cache_key in self.pvalue_cache: return self.pvalue_cache[cache_key]
-        p = float(nx.d_separated(self.true_dag, {Xs[0]}, {Ys[0]}, set(condition_set)))
-        # pvalue is bool here: 1 if is_d_separated and 0 otherwise. So heuristic comparison-based uc_rules will not work.
+        p = float(nx.is_d_separator(self.true_dag, {Xs[0]}, {Ys[0]}, set(condition_set)))
+        # pvalue is bool here: 1 if is_d_separator and 0 otherwise. So heuristic comparison-based uc_rules will not work.
 
         # here we use networkx's d_separation implementation.
         # an alternative is to use causal-learn's own d_separation implementation in graph class:

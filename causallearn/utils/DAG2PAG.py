@@ -3,7 +3,6 @@ from typing import List
 
 import numpy as np
 import networkx as nx
-from networkx.algorithms import d_separated
 
 from causallearn.graph.Dag import Dag
 from causallearn.graph.Edge import Edge
@@ -66,7 +65,7 @@ def dag2pag(dag: Dag, islatent: List[Node], isselection: List[Node] = []) -> Gen
             for Z in combinations(observed_nodes, l):
                 if nodex in Z or nodey in Z:
                     continue
-                if d_separated(dg, {nodes_ids[nodex]}, {nodes_ids[nodey]}, set(nodes_ids[z] for z in Z) | set([nodes_ids[s] for s in isselection])):
+                if nx.is_d_separator(dg, {nodes_ids[nodex]}, {nodes_ids[nodey]}, set(nodes_ids[z] for z in Z) | set([nodes_ids[s] for s in isselection])):
                     if edge:
                         PAG.remove_edge(edge)
                     sepset[(nodes_ids[nodex], nodes_ids[nodey])] |= set(Z)
