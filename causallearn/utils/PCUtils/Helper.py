@@ -419,7 +419,7 @@ def draw_graph(nx_graph):
 def is_dsep(nx_graph, x, y, Z):
     "Return True if x and y are d-separated by the set Z in nx_graph (networkx graph object) and False otherwise"
     S = set([str(i) for i in Z])
-    return nx.d_separated(nx_graph, {str(x)}, {str(y)}, S)
+    return nx.is_d_separator(nx_graph, {str(x)}, {str(y)}, S)
 
 
 #######################################################################################################################
