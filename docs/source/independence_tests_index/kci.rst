@@ -52,7 +52,7 @@ and n_features is the number of features.
 
 + Either for specifying parameters of KCI, including:
 
-  **KernelX/Y/Z (condition_set)**: ['GaussianKernel', 'LinearKernel', 'PolynomialKernel']. (For 'PolynomialKernel', the default degree is 2. Currently, users can change it by setting the 'degree' of 'class PolynomialKernel()'.
+  **KernelX/Y/Z (condition_set)**: ['Gaussian', 'Linear', 'Polynomial']. (For 'Polynomial', the default degree is 2. Currently, users can change it by setting the 'degree' of 'class PolynomialKernel()'.
 
   **est_width**: set kernel width for Gaussian kernels.
    - 'empirical': set kernel width using empirical rules (default).
