@@ -6,6 +6,7 @@ from itertools import combinations, permutations
 from typing import Dict, List, Tuple, Set, Callable
 
 import networkx as nx
+from networkx.algorithms.components.connected import connected_components
 import numpy as np
 from numpy import ndarray
 
@@ -16,7 +17,9 @@ from causallearn.utils.PCUtils import Helper, Meek, SkeletonDiscovery, UCSepset
 from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
     orient_by_background_knowledge
 
-def prefix_set(nodes: Set[int], ci_test: Callable[[int, int, set[int]], bool], pset: Set[int], verbose: bool = False) -> Set[int]:
+
+def prefix_set(nodes: Set[int], ci_test: Callable[[int, int, set[int]], bool], pset: Set[int], verbose: bool = False) -> \
+Set[int]:
     # d
     d_set = set()
     for w in nodes - pset:
@@ -62,6 +65,7 @@ def prefix_set(nodes: Set[int], ci_test: Callable[[int, int, set[int]], bool], p
 
     return nodes - d_set - e_set - f_set
 
+
 def set_ci(ci_test: Callable[[int, int, set[int]], bool], set1: Set[int], set2: Set[int], cond_set: Set[int]):
     for u in set1:
         for v in set2:
@@ -69,46 +73,91 @@ def set_ci(ci_test: Callable[[int, int, set[int]], bool], set1: Set[int], set2: 
                 return False
     return True
 
-# TODO: Pull in the combinations() tool, setup connected components steps correctly, add more type info (better alignment with causal-learn)
-def ccpg_alg(nodes: Set[int], ci_test: Callable[[int, int, set[int]], bool], verbose = False) ->
+
+def ccpg_alg(nodes: Set[int], ci_test: Callable[[int, int, set[int]], bool], verbose=False):
     # Step 1: learn prefix subsets
-    s = set()
-    S = []
-    while s != nodes:
-        s = prefix_set(nodes, ci_test, s)
+    p_set: Set[int] = set()
+    S: List[Set[int]] = []
+    while p_set != nodes:
+        p_set = prefix_set(nodes, ci_test, p_set)
         # enforce termination when ci test are not perfect
         if len(S):
-            if s == S[-1] and s != nodes:
+            if p_set == S[-1] and p_set != nodes:
                 S.append(nodes)
                 break
-        if verbose: print(f"Prefix set: {s}")
-        S.append(s)
+        if verbose: print(f"Prefix set: {p_set}")
+        S.append(p_set)
 
     # Step 2: determine connected components of the graph
-    components = []
-    for i in range(len(S)):
+    components: List[Set[int]] = []
+    for i, s_i in enumerate(S):
+        cond_set = S[i - 1] if i > 0 else set()
         edges = set()
-        cond_set = S[i-1] if i > 0 else set()
-        for u, v in itertools.combinations(S[i]-cond_set, 2):
+        for u, v in combinations(s_i - cond_set, 2):
             if not ci_test(u, v, cond_set):
                 edges.add(frozenset({u, v}))
 
         ug = nx.Graph()
-        ug.add_nodes_from(S[i]-cond_set)
+        ug.add_nodes_from(s_i - cond_set)
         ug.add_edges_from(edges)
         cc = connected_components(ug)
         if verbose: print(f"Connected components: {list(cc)}")
-        components.extend([set(c) for c in connected_components(ug)])
+        components.extend([set(c) for c in cc])
 
     # Step 3: determine outer component edges
     edges = set()
-    for i, j in itertools.combinations(range(len(components)), 2):
-        cond_set = set().union(*components[:i-1]) if i > 0 else set()
+    # edges: Set[{int, int}] = set()
+    for i, j in combinations(range(len(components)), 2):
+        cond_set = set().union(*components[:i - 1]) if i > 0 else set()
         if not set_ci(ci_test, components[i], components[j], cond_set):
-            edges.add((i,j))
+            edges.add((i, j))
 
     return components, edges
 
-# TODO: use the below function as the entrypoint for the above functions. This function should put the CausalGraph together, and setup a lambda for the ci_test being passed into above functions.
-def ccpg():
-    return
+
+def ccpg(
+        data: ndarray,
+        alpha: float = 0.05,
+        ci_test_name: str = "fisherz",
+        verbose: bool = False,
+        **kwargs
+) -> CausalGraph:
+    # Setup lambda for ci_test:
+    # ci = CIT(data, ci_test_name, **kwargs)
+    ci = MemoizedCIT(data, ci_test_name, **kwargs)
+
+    # def ci_test(i: int, j: int, cond: Set[int]) -> bool:
+    #     return ci(i, j, list(cond)) > alpha
+
+    # Discover CCPG nodes and edges
+    n, d = data.shape
+    components, edges = ccpg_alg(set(range(d)), ci.is_ci, verbose)
+
+    # build graph from edges
+    k = len(edges)
+    # make names like "{x,y}"
+    names = ["{" + ",".join(map(str, comp)) + "}" for comp in components]
+    cg = CausalGraph(k, node_names=names)
+    cg.G.remove_edges(cg.G.get_graph_edges())
+    # add edges between components
+    for (i, j) in edges:
+        cg.G.add_directed_edge(cg.G.nodes[i], cg.G.nodes[j])
+
+    return cg
+
+
+# A memoized version of CIT to match the memoizing nature of the Author's CCPG CI_Tester
+class MemoizedCIT:
+    def __init__(self, data, ci_test_name, alpha: float = 0.05, **kwargs):
+        self.cit = CIT(data, ci_test_name, **kwargs)
+        self.cache: dict[tuple[int, int, tuple[int,...]], float] = {}
+        self.alpha = alpha
+
+    def pvalue(self, i: int, j: int, cond_set: set[int]) -> float:
+        cache_key = (i, j, tuple(sorted(cond_set)))
+        if cache_key not in self.cache:
+            self.cache[cache_key] = self.cit(i, j, list(cond_set))
+        return self.cache[cache_key]
+
+    def is_ci(self, i: int, j: int, cond_set: set[int]) -> bool:
+        return self.pvalue(i, j, cond_set) > self.alpha
