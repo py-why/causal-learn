@@ -11,11 +11,7 @@ import numpy as np
 from numpy import ndarray
 
 from causallearn.graph.GraphClass import CausalGraph
-from causallearn.utils.PCUtils.BackgroundKnowledge import BackgroundKnowledge
 from causallearn.utils.cit import *
-from causallearn.utils.PCUtils import Helper, Meek, SkeletonDiscovery, UCSepset
-from causallearn.utils.PCUtils.BackgroundKnowledgeOrientUtils import \
-    orient_by_background_knowledge
 
 
 def prefix_set(nodes: Set[int], ci_test: Callable[[int, int, set[int]], bool], pset: Set[int], verbose: bool = False) -> \
@@ -122,7 +118,7 @@ def ccpg(
         verbose: bool = False,
         **kwargs
 ) -> CausalGraph:
-    # Setup lambda for ci_test:
+    # Setup ci_test:
     # ci = CIT(data, ci_test_name, **kwargs)
     ci = MemoizedCIT(data, ci_test_name, **kwargs)
 
