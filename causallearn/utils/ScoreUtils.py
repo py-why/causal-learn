@@ -619,15 +619,15 @@ def cov_seard(loghyper=None, x=None, z=None, nargout=1):
     sf2 = np.exp(2 * loghyper[D])  # signal variance
 
     if loghyper is not None and x is not None:
-        K = sf2 * np.exp(-sq_dist(np.diag(1 / ell) * x.T) / 2)
+        K = sf2 * np.exp(-sq_dist(np.diag(1 / ell) @ x.T) / 2)
         A = K
     elif nargout == 2:  # compute test set covariances
         A = sf2 * np.ones((z, 1))
-        B = sf2 * np.exp(-sq_dist(np.diag(1 / ell) * x.T, np.diag(1 / ell) * z) / 2)
+        B = sf2 * np.exp(-sq_dist(np.diag(1 / ell) @ x.T, np.diag(1 / ell) @ z) / 2)
     else:
         # check for correct dimension of the previously calculated kernel matrix
         if K.shape[0] != n or K.shape[1] != n:
-            K = sf2 * np.exp(-sq_dist(np.diag(1 / ell) * x.T) / 2)
+            K = sf2 * np.exp(-sq_dist(np.diag(1 / ell) @ x.T) / 2)
 
         if z <= D:  # length scale parameters
             A = np.multiply(K, sq_dist(x[:, z].T / ell[z]))
