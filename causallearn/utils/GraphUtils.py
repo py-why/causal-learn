@@ -536,10 +536,9 @@ class GraphUtils:
 
         pydot_g = pydot.Dot(title, graph_type="digraph", fontsize=18)
         pydot_g.obj_dict["attributes"]["dpi"] = dpi
-        nodes = G.get_nodes()
+        
         for i, node in enumerate(nodes):
             node_name = labels[i] if labels is not None else node.get_name()
-            pydot_g.add_node(pydot.Node(i, label=node.get_name()))
             if node.get_node_type() == NodeType.LATENT:
                 pydot_g.add_node(pydot.Node(i, label=node_name, shape='square'))
             else:
