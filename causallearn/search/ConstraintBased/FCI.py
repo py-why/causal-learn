@@ -82,6 +82,54 @@ def existsSemiDirectedPath(node_from: Node, node_to: Node, G: Graph) -> bool: ##
 
     return False
 
+
+
+def traversePotentiallyDirected(node: Node, edge: Edge) -> Node | None:
+    if node == edge.get_node1():
+        if (edge.get_endpoint1() == Endpoint.TAIL or edge.get_endpoint1() == Endpoint.CIRCLE) and \
+            (edge.get_endpoint2() == Endpoint.ARROW or edge.get_endpoint2() == Endpoint.CIRCLE):
+            return edge.get_node2()
+    elif node == edge.get_node2():
+        if (edge.get_endpoint2() == Endpoint.TAIL or edge.get_endpoint2() == Endpoint.CIRCLE) and \
+            (edge.get_endpoint1() == Endpoint.ARROW or edge.get_endpoint1() == Endpoint.CIRCLE):
+            return edge.get_node1()
+    return None
+
+
+def existsUncoveredPdPath(node_from: Node, node_next: Node, node_to: Node, G: Graph) -> bool:
+    Q = Queue()
+    V = set([node_from, node_next])
+
+    for node_u in G.get_adjacent_nodes(node_next):
+        edge = G.get_edge(node_next, node_u)
+        node_c = traversePotentiallyDirected(node_next, edge)
+
+        if node_c is None:
+            continue
+
+        if not V.__contains__(node_c):
+            V.add(node_c)
+            Q.put((node_c, [node_from, node_next, node_c]))
+
+    while not Q.empty():
+        node_t, path = Q.get_nowait()
+        if node_t == node_to and is_uncovered_path(path, G):
+            # print(f"Found uncovered pd path: {[node.get_name() for node in path]}")
+            return True
+
+        for node_u in G.get_adjacent_nodes(node_t):
+            edge = G.get_edge(node_t, node_u)
+            node_c = traversePotentiallyDirected(node_t, edge)
+
+            if node_c is None:
+                continue
+
+            if not V.__contains__(node_c):
+                V.add(node_c)
+                Q.put((node_c, path + [node_c]))
+
+    return False
+
 def GetUncoveredCirclePath(node_from: Node, node_to: Node, G: Graph, exclude_node: List[Node]) -> Generator[Node] | None:
     Q = Queue()
     V = set()
@@ -802,7 +850,8 @@ def rule9(graph: Graph, nodes: List[Node], changeFlag):
             for node_B in possible_children:
                 if graph.is_adjacent_to(node_B, node_C):
                     continue
-                if existsSemiDirectedPath(node_from=node_B, node_to=node_C, G=graph):
+
+                if existsUncoveredPdPath(node_from=node_A, node_next=node_B, node_to=node_C, G=graph):
                     edge1 = graph.get_edge(node_A, node_C)
                     graph.remove_edge(edge1)
                     graph.add_edge(Edge(node_A, node_C, Endpoint.TAIL, Endpoint.ARROW))
