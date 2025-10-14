@@ -86,3 +86,31 @@ class TestDAG2PAG(unittest.TestCase):
         dag.add_directed_edge(nodes[0], nodes[4])
         pag = dag2pag(dag, islatent=[], isselection=[nodes[4]])
         print(pag)
+
+    def test_case_orient_rules(self):
+        nodes = []
+        X = {}
+        L = {}
+        for i in range(7):
+            node_name = f"X{i + 1}"
+            if i + 1 == 2:
+                node_name = f"L{i + 1}"
+            node = GraphNode(node_name)
+            nodes.append(node)
+            if i + 1 == 2:
+                L[2] = node
+            else:
+                X[i + 1] = node
+        dag = Dag(nodes)
+        dag.add_directed_edge(L[2], X[4])
+        dag.add_directed_edge(L[2], X[5])   
+        dag.add_directed_edge(L[2], X[6])
+
+        dag.add_directed_edge(X[5], X[7])
+        dag.add_directed_edge(X[1], X[4])
+        dag.add_directed_edge(X[1], X[7])
+        dag.add_directed_edge(X[3], X[7])   
+        pag = dag2pag(dag, [L[2]])
+        print(pag)
+        graphviz_pag = GraphUtils.to_pgv(pag)
+        graphviz_pag.draw("pag.png", prog='dot', format='png')
