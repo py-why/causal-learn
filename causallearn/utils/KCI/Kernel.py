@@ -41,7 +41,7 @@ class Kernel(object):
         return K - (K_colsums[None, :] + K_colsums[:, None]) / n + (K_allsum / n ** 2)
 
     def center_kernel_matrix_regression(K: ndarray, Kz: ndarray, epsilon: float):
-        """
+        r"""
         Centers the kernel matrix via a centering matrix R=I-Kz(Kz+\epsilonI)^{-1} and returns RKR
         """
         n = shape(K)[0]

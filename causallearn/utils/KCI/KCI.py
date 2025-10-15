@@ -474,7 +474,7 @@ class KCI_CInd(object):
         return Kx, Ky, Kzx, Kzy
 
     def KCI_V_statistic(self, Kx, Ky, Kzx, Kzy):
-        """
+        r"""
         Compute V test statistic from kernel matrices Kx and Ky
         Parameters
         ----------
