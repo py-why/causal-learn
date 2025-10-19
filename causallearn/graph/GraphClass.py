@@ -153,6 +153,7 @@ class CausalGraph:
         nodes = range(len(self.G.graph))
         self.labels = {i: self.G.nodes[i].get_name() for i in nodes}
         self.nx_graph.add_nodes_from(nodes)
+        self.nx_graph = nx.relabel_nodes(self.nx_graph, self.labels)
         undirected = self.find_undirected()
         directed = self.find_fully_directed()
         bidirected = self.find_bi_directed()
