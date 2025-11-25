@@ -682,7 +682,7 @@ def local_score_marginal_general(
     Data: ndarray, Xi: int, PAi: List[int], parameters=None
 ) -> float:
     """
-    Calculate the local score by negative marginal likelihood
+    Calculate the local score by negative marginal log-likelihood
     based on a regression model in RKHS
 
     Parameters
@@ -784,7 +784,7 @@ def local_score_marginal_multi(
     Data: ndarray, Xi: int, PAi: List[int], parameters: Dict[str, Any]
 ) -> float:
     """
-    Calculate the local score by negative marginal likelihood
+    Calculate the local score by negative marginal log-likelihood
     based on a regression model in RKHS
     for variables with multi-variate dimensions
 
