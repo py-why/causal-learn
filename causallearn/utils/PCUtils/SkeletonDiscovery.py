@@ -21,7 +21,7 @@ def skeleton_discovery(
     background_knowledge: BackgroundKnowledge | None = None, 
     verbose: bool = False,
     show_progress: bool = True,
-    node_names: List[str] | None = None, 
+    node_names: List[str] | None = None, max_k=None,
 ) -> CausalGraph:
     """
     Perform skeleton discovery
@@ -63,6 +63,8 @@ def skeleton_discovery(
     pbar = tqdm(total=no_of_var) if show_progress else None
     while cg.max_degree() - 1 > depth:
         depth += 1
+        if max_k is not None and depth > max_k:
+            break
         edge_removal = []
         if show_progress:
             pbar.reset()
