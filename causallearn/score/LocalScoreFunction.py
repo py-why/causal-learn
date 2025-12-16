@@ -148,7 +148,7 @@ def local_score_BDeu(Data: ndarray, i: int, PAi: List[int], parameters=None) -> 
 
     BDeu_score = 0
     # first term
-    vm = Data.shape[0] - 1
+    vm = Data.shape[1] - 1
     BDeu_score += len(PAi) * np.log(structure_prior / vm) + (vm - len(PAi)) * np.log(
         1 - (structure_prior / vm)
     )
