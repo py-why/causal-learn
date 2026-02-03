@@ -12,6 +12,7 @@ class BackgroundKnowledge(object):
         self.required_pattern_rules_specs: Set[Tuple[str, str]] = set()
         self.tier_map: Dict[int, Set[Node]] = {}
         self.tier_value_map: Dict[Node, int] = {}
+        self.forbidden_within_tiers: Set[int] = set()
 
     def add_forbidden_by_node(self, node1: Node, node2: Node):
         """
@@ -165,7 +166,9 @@ class BackgroundKnowledge(object):
 
         # then check in tier_map
         if self.tier_value_map.keys().__contains__(node1) and self.tier_value_map.keys().__contains__(node2):
-            if self.tier_value_map.get(node1) > self.tier_value_map.get(node2): # Allow orientation within the same tier
+            node1_tier = self.tier_value_map.get(node1)
+            node2_tier = self.tier_value_map.get(node2)
+            if node2_tier > node2_tier or node1_tier == node2_tier and node1_tier in self.forbidden_within_tiers: # If nodes are from the same tier, check if orientation within the same tier is allowed for that tier
                 return True
 
         return False
@@ -331,3 +334,49 @@ class BackgroundKnowledge(object):
         """
         return self.tier_value_map[node] if self.tier_value_map.__contains__(node) else -1
 
+    def forbid_within_tier(self, tier: int):
+        """
+        Forbid all edges within the specified tier.
+        
+        Parameters
+        ----------
+        tier: tier to forbid edges within.
+
+        Returns
+        -------
+        The object itself, which is for the convenience of construction.
+        """
+        if type(tier) != int:
+            raise TypeError(
+                'tier must be int type. tier = ' + str(type(tier)))
+        if tier < 0:
+            raise TypeError('tier must be a non-negative integer. tier = ' + str(tier))
+        
+        self._ensure_tiers(tier)
+        self.forbidden_within_tiers.add(tier)
+
+        return self
+    
+    def allow_within_tier(self, tier: int):
+        """
+        If tier forbid all orientation within it, allow it again.
+        
+        Parameters
+        ----------
+        tier: tier to allow edges within.
+
+        Returns
+        -------
+        The object itself, which is for the convenience of construction.
+        """
+        if type(tier) != int:
+            raise TypeError(
+                'tier must be int type. tier = ' + str(type(tier)))
+        if tier < 0:
+            raise TypeError('tier must be a non-negative integer. tier = ' + str(tier))
+        
+        self._ensure_tiers(tier)
+        if self.forbidden_within_tiers.__contains__(tier):
+            self.forbidden_within_tiers.remove(tier)
+
+        return self
