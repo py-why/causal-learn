@@ -92,6 +92,29 @@ class TestPC(unittest.TestCase):
         assert not bk.tier_value_map.keys().__contains__(node1)
         assert not bk.is_forbidden(node1, node2)
 
+    def test_forbid_allow_within_tier(self):
+        node1 = GraphNode('spam')
+        node2 = GraphNode('ham')
+
+        bk = BackgroundKnowledge().add_node_to_tier(node1, 1).add_node_to_tier(node2, 1)
+
+        assert bk.tier_map.get(1).__contains__(node1)
+        assert bk.tier_map.get(1).__contains__(node2)
+        assert bk.tier_value_map[node1] == 1
+        assert bk.tier_value_map[node2] == 1
+        assert not bk.is_forbidden(node1, node2)
+        assert not bk.is_forbidden(node2, node1)
+
+        bk.forbid_within_tier(1)
+
+        assert bk.is_forbidden(node1, node2)
+        assert bk.is_forbidden(node2, node1)
+
+        bk.allow_within_tier(1)
+
+        assert not bk.is_forbidden(node1, node2)
+        assert not bk.is_forbidden(node2, node1)
+
     def test_orient_by_background_knowledge(self):
         cg = CausalGraph(4)
         nodes = cg.G.get_nodes()
