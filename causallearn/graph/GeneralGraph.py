@@ -331,13 +331,19 @@ class GeneralGraph(Graph, ABC):
     # directed edges and one undirected edge between nodes A and B.
     def __eq__(self, other):
         if isinstance(other, GeneralGraph):
-            sorted_list = self.nodes.sort()
-            if sorted_list == other.nodes.sort() and np.array_equal(self.graph, other.graph):
-                return True
+            sorted_list = sorted(self.nodes)
+            if sorted_list == sorted(other.nodes):
+                permutation = [other.node_map[node] for node in self.nodes]
+                other_reordered = other.graph[np.ix_(permutation, permutation)]
+                return np.array_equal(self.graph, other_reordered)
             else:
                 return False
         else:
             return False
+
+    def __hash__(self) -> int:
+        permutation = [self.node_map[node] for node in sorted(self.nodes)]
+        return hash(sorted(self.get_node_names())) + hash(self.graph[np.ix_(permutation, permutation)])
 
     # Returns a mutable list of nodes adjacent to the given node.
     def get_adjacent_nodes(self, node: Node) -> List[Node]:
