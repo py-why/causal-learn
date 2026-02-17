@@ -344,7 +344,8 @@ class GeneralGraph(Graph, ABC):
     def __hash__(self) -> int:
         permutation = [self.node_map[node] for node in sorted(self.nodes)]
         graph_tuple = tuple(tuple(arr) for arr in self.graph[np.ix_(permutation, permutation)])
-        return hash(tuple(sorted(self.get_node_names()))) + hash(graph_tuple)
+        node_tuple = tuple(sorted(self.get_node_names()))
+        return hash((node_tuple, graph_tuple))
 
     # Returns a mutable list of nodes adjacent to the given node.
     def get_adjacent_nodes(self, node: Node) -> List[Node]:
