@@ -203,6 +203,9 @@ class Edge:
             raise TypeError("Not an edge")
 
         return self.endpoint1 == other.endpoint1 and self.endpoint2 == other.endpoint2 and self.node1 == other.node1 and self.node2 == other.node2
+    
+    def __hash__(self) -> int:
+        return hash(str(self))
 
     def __lt__(self, other):
         return self.node1 < other.node1 or self.node2 < other.node2
