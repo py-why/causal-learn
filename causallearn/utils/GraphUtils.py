@@ -460,10 +460,10 @@ class GraphUtils:
 
                 if c is None:
                     continue
-                if c in V:
-                    continue
                 if c == node_to:
                     return True
+                if c in V:
+                    continue
 
                 V.append(c)
                 Q.append(c)
