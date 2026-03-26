@@ -206,49 +206,21 @@ def insert_changed_score(Data, G, i, j, T, record_local_score, score_func, param
     tmp2 = np.union1d(tmp1, Paj)
     tmp3 = np.union1d(tmp2, [i]).astype(int)
 
-    # before you calculate the local score, firstly you search in the
-    # "record_local_score", to see whether you have calculated it before
-    r = len(record_local_score[j])
-    s1 = 0
-    s2 = 0
-    score1 = 0
-    score2 = 0
+    # look up or compute local scores using dict cache: key = (node, tuple(sorted(parents)))
+    key1 = (j, tuple(sorted(tmp3)))
+    key2 = (j, tuple(sorted(tmp2)))
 
-    for r0 in range(r):
-        if not np.setxor1d(record_local_score[j][r0][0:-1], tmp3).size:
-            score1 = record_local_score[j][r0][-1]
-            s1 = 1
-
-        if not np.setxor1d(
-            record_local_score[j][r0][0:-1], tmp2
-        ).size:  # notice the difference between 0*0 empty matrix and 1*0 empty matrix
-            score2 = record_local_score[j][r0][-1]
-            s2 = 1
-        else:
-            if (not np.setxor1d(record_local_score[j][r0][0:-1], [-1]).size) and (
-                not tmp2.size
-            ):
-                score2 = record_local_score[j][r0][-1]
-                s2 = 1
-
-        if s1 and s2:
-            break
-
-    if not s1:
+    if key1 in record_local_score:
+        score1 = record_local_score[key1]
+    else:
         score1 = feval([score_func, Data, j, tmp3, parameters])
-        temp = list(tmp3)
-        temp.append(score1)
-        record_local_score[j].append(temp)
+        record_local_score[key1] = score1
 
-    if not s2:
+    if key2 in record_local_score:
+        score2 = record_local_score[key2]
+    else:
         score2 = feval([score_func, Data, j, tmp2, parameters])
-        # r = len(record_local_score[j])
-        if len(tmp2) != 0:
-            temp = list(tmp2)
-            temp.append(score2)
-            record_local_score[j].append(temp)
-        else:
-            record_local_score[j].append([-1, score2])
+        record_local_score[key2] = score2
 
     ch_score = score1 - score2
     desc = [i, j, T]
@@ -313,47 +285,21 @@ def delete_changed_score(Data, G, i, j, H, record_local_score, score_func, param
     tmp2 = set.union(tmp1, set(Paj))
     tmp3 = tmp2 - {i}
 
-    # before you calculate the local score, firstly you search in the
-    # "record_local_score", to see whether you have calculated it before
-    r = len(record_local_score[j])
-    s1 = 0
-    s2 = 0
-    score1 = 0
-    score2 = 0
+    # look up or compute local scores using dict cache: key = (node, tuple(sorted(parents)))
+    key1 = (j, tuple(sorted(tmp3)))
+    key2 = (j, tuple(sorted(tmp2)))
 
-    for r0 in range(r):
-        if set(record_local_score[j][r0][0:-1]) == tmp3:
-            score1 = record_local_score[j][r0][-1]
-            s1 = 1
-
-        if (
-            set(record_local_score[j][r0][0:-1]) == tmp2
-        ):  # notice the difference between 0*0 empty matrix and 1*0 empty matrix
-            score2 = record_local_score[j][r0][-1]
-            s2 = 1
-        else:
-            if (set(record_local_score[j][r0][0:-1]) == {-1}) and len(tmp2) == 0:
-                score2 = record_local_score[j][r0][-1]
-                s2 = 1
-
-        if s1 and s2:
-            break
-
-    if not s1:
+    if key1 in record_local_score:
+        score1 = record_local_score[key1]
+    else:
         score1 = feval([score_func, Data, j, list(tmp3), parameters])
-        temp = list(tmp3)
-        temp.append(score1)
-        record_local_score[j].append(temp)
+        record_local_score[key1] = score1
 
-    if not s2:
+    if key2 in record_local_score:
+        score2 = record_local_score[key2]
+    else:
         score2 = feval([score_func, Data, j, list(tmp2), parameters])
-        r = len(record_local_score[j])
-        if len(tmp2) != 0:
-            temp = list(tmp2)
-            temp.append(score2)
-            record_local_score[j].append(temp)
-        else:
-            record_local_score[j].append([-1, score2])
+        record_local_score[key2] = score2
 
     ch_score = score1 - score2
     desc = [i, j, H]
@@ -421,3 +367,153 @@ def pdinv(A):
     except Exception as e:
         raise e
     return Ainv
+
+
+# ===========================================================
+# Fast versions of hot-path functions (set-based, no deepcopy)
+# ===========================================================
+
+def precompute_graph_info(G, N):
+    """Precompute neighbors, adjacent, parents, and semi-directed successors for all nodes.
+
+    Returns dicts keyed by node index, with Python set values.
+    Should be called once per outer iteration of GES (graph doesn't change within iteration).
+    """
+    # Cache Endpoint values to avoid repeated enum lookups
+    TAIL = Endpoint.TAIL.value   # -1
+    ARROW = Endpoint.ARROW.value  # 1
+
+    nbrs = {}   # undirected neighbors
+    adj = {}    # all adjacent nodes
+    pa = {}     # parents (directed into)
+    semi = {}   # semi-directed successors (children + undirected neighbors)
+
+    for node in range(N):
+        row = G.graph[node, :]  # G.graph[node, other]
+        col = G.graph[:, node]  # G.graph[other, node]
+        nbrs[node] = set(np.where((col == TAIL) & (row == TAIL))[0])
+        adj[node] = set(np.where((col != 0) | (row != 0))[0])
+        pa[node] = set(np.where(row == ARROW)[0])
+        children = set(np.where(col == ARROW)[0])
+        semi[node] = children | nbrs[node]
+
+    return nbrs, adj, pa, semi
+
+
+def check_clique_fast(G, nodes):
+    """Check if nodes form a clique (ignoring edge direction). No deepcopy."""
+    nodes = list(nodes)
+    ns = len(nodes)
+    if ns <= 1:
+        return 1
+    for a in range(ns):
+        for b in range(a + 1, ns):
+            ni, nj = nodes[a], nodes[b]
+            if G.graph[ni, nj] == 0 and G.graph[nj, ni] == 0:
+                return 0
+    return 1
+
+
+def insert_vc2_fast(j, i, NAT_set, semi_succ):
+    """Check if every semi-directed path from j to i contains a node in NAT_set.
+
+    Uses precomputed semi_succ[node] and set-based NAT membership (O(1) lookup).
+    """
+    start = j
+    target = i
+    stack = [{"value": start, "pa": {}}]
+    sign = 1
+
+    while len(stack):
+        top = stack[0]
+        stack = stack[1:]
+        if top["value"] == target:
+            curr = top
+            ss = 0
+            while True:
+                if curr["pa"]:
+                    if curr["pa"]["value"] in NAT_set:
+                        ss = 1
+                        break
+                else:
+                    break
+                curr = curr["pa"]
+            if not ss:
+                sign = 0
+                break
+        else:
+            children = semi_succ.get(top["value"], set())
+            for child in children:
+                # Check if child has appeared in path before
+                curr = top
+                appeared = False
+                while True:
+                    if curr["pa"]:
+                        if curr["pa"]["value"] == child:
+                            appeared = True
+                            break
+                    else:
+                        break
+                    curr = curr["pa"]
+                if not appeared:
+                    stack.insert(0, {"value": child, "pa": top})
+    return sign
+
+
+def insert_changed_score_fast(Data, i, j, T, NA_set, Paj_set,
+                               record_local_score, score_func, parameters):
+    """Compute score change for insert i->j using precomputed NA and Paj sets."""
+    tmp2 = NA_set | set(T) | Paj_set
+    tmp3 = tmp2 | {i}
+
+    tmp3_key = tuple(sorted(tmp3))
+    tmp2_key = tuple(sorted(tmp2))
+
+    key1 = (j, tmp3_key)
+    key2 = (j, tmp2_key)
+
+    if key1 in record_local_score:
+        score1 = record_local_score[key1]
+    else:
+        score1 = feval([score_func, Data, j, list(tmp3_key), parameters])
+        record_local_score[key1] = score1
+
+    if key2 in record_local_score:
+        score2 = record_local_score[key2]
+    else:
+        score2 = feval([score_func, Data, j, list(tmp2_key), parameters])
+        record_local_score[key2] = score2
+
+    ch_score = score1 - score2
+    desc = [i, j, T]
+    return ch_score, desc, record_local_score
+
+
+def delete_changed_score_fast(Data, i, j, H, NA_set, Paj_set,
+                               record_local_score, score_func, parameters):
+    """Compute score change for delete i-j/i->j using precomputed NA and Paj sets."""
+    tmp1 = NA_set - set(H)
+    tmp2 = tmp1 | Paj_set | {i}
+    tmp3 = tmp2 - {i}
+
+    tmp3_key = tuple(sorted(tmp3))
+    tmp2_key = tuple(sorted(tmp2))
+
+    key1 = (j, tmp3_key)
+    key2 = (j, tmp2_key)
+
+    if key1 in record_local_score:
+        score1 = record_local_score[key1]
+    else:
+        score1 = feval([score_func, Data, j, list(tmp3_key), parameters])
+        record_local_score[key1] = score1
+
+    if key2 in record_local_score:
+        score2 = record_local_score[key2]
+    else:
+        score2 = feval([score_func, Data, j, list(tmp2_key), parameters])
+        record_local_score[key2] = score2
+
+    ch_score = score1 - score2
+    desc = [i, j, list(H) if not isinstance(H, list) else H]
+    return ch_score, desc, record_local_score

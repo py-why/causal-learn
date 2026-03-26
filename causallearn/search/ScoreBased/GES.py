@@ -9,18 +9,22 @@ from typing import Union
 
 
 def ges(
-    X: ndarray,
+    X: ndarray = None,
     score_func: str = "local_score_BIC",
     maxP: Optional[float] = None,
     parameters: Optional[Dict[str, Any]] = None,
     node_names: Union[List[str], None] = None,
+    cov: Optional[ndarray] = None,
+    n: Optional[int] = None,
+    lambda_value: Optional[float] = None,
 ) -> Dict[str, Any]:
     """
     Perform greedy equivalence search (GES) algorithm
 
     Parameters
     ----------
-    X : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of samples and n_features is the number of features.
+    X : data set (numpy ndarray), shape (n_samples, n_features). The input data, where n_samples is the number of
+        samples and n_features is the number of features. Can be None if cov and n are provided (only for BIC scores).
     score_func : the string name of score function. (str(one of 'local_score_CV_general', 'local_score_marginal_general',
                     'local_score_CV_multi', 'local_score_marginal_multi', 'local_score_BIC', 'local_score_BDeu')).
     maxP : allowed maximum number of parents when searching the graph
@@ -29,6 +33,17 @@ def ges(
                   parameters['lambda']: regularization parameter
                   parameters['dlabel']: for variables with multi-dimensions,
                                indicate which dimensions belong to the i-th variable.
+    cov : covariance matrix (numpy ndarray), shape (n_features, n_features). If provided together with n,
+          used directly instead of computing from X. Only valid for BIC-based score functions.
+    n : sample size (int). Required when cov is provided.
+    lambda_value : float, optional
+        Penalty hyperparameter for BIC-based score functions. Controls the sparsity of the learned graph:
+          - Larger lambda_value → stronger penalty → sparser graph (fewer edges)
+          - Smaller lambda_value → weaker penalty → denser graph (more edges)
+          - Default is 0.5, consistent with the standard BIC penalty (0.5 * log(n) per parameter).
+        This parameter is only used by BIC-based scores ('local_score_BIC', 'local_score_BIC_from_cov',
+        'local_score_BIC_from_cov_deterministic'). For other score functions, it is ignored.
+        If both lambda_value and parameters['lambda_value'] are provided, lambda_value takes precedence.
 
     Returns
     -------
@@ -41,20 +56,39 @@ def ges(
     Record['score']: the score of the learned graph
     """
 
-    if X.shape[0] < X.shape[1]:
+    # Handle covariance matrix input
+    if cov is not None and n is not None:
+        if X is not None:
+            warnings.warn("Both X and cov/n provided. Using cov and n, ignoring X.")
+        X = None
+    elif X is None:
+        raise ValueError("Either X or (cov, n) must be provided.")
+
+    if X is not None and X.shape[0] < X.shape[1]:
         warnings.warn("The number of features is much larger than the sample size!")
+
+    # Determine number of variables
+    n_features = cov.shape[0] if cov is not None else X.shape[1]
+
+    # Inject lambda_value into parameters if provided as a top-level argument
+    if lambda_value is not None:
+        if parameters is None:
+            parameters = {}
+        parameters["lambda_value"] = lambda_value
 
     if (
         score_func == "local_score_CV_general"
     ):  # % k-fold negative cross validated likelihood based on regression in RKHS
+        if X is None:
+            raise ValueError("local_score_CV_general requires raw data X, not cov/n.")
         if parameters is None:
             parameters = {
                 "kfold": 10,  # 10 fold cross validation
                 "lambda": 0.01,
             }  # regularization parameter
         if maxP is None:
-            maxP = X.shape[1] / 2  # maximum number of parents
-        N = X.shape[1]  # number of variables
+            maxP = n_features
+        N = n_features
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_general, parameters=parameters
         )
@@ -62,10 +96,12 @@ def ges(
     elif (
         score_func == "local_score_marginal_general"
     ):  # negative marginal likelihood based on regression in RKHS
+        if X is None:
+            raise ValueError("local_score_marginal_general requires raw data X, not cov/n.")
         parameters = {}
         if maxP is None:
-            maxP = X.shape[1] / 2  # maximum number of parents
-        N = X.shape[1]  # number of variables
+            maxP = n_features
+        N = n_features
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_general, parameters=parameters
         )
@@ -74,16 +110,18 @@ def ges(
         score_func == "local_score_CV_multi"
     ):  # k-fold negative cross validated likelihood based on regression in RKHS
         # for data with multi-variate dimensions
+        if X is None:
+            raise ValueError("local_score_CV_multi requires raw data X, not cov/n.")
         if parameters is None:
             parameters = {
                 "kfold": 10,
                 "lambda": 0.01,
                 "dlabel": {},
             }  # regularization parameter
-            for i in range(X.shape[1]):
+            for i in range(n_features):
                 parameters["dlabel"][i] = i
         if maxP is None:
-            maxP = len(parameters["dlabel"]) / 2
+            maxP = len(parameters["dlabel"])
         N = len(parameters["dlabel"])
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_cv_multi, parameters=parameters
@@ -93,12 +131,14 @@ def ges(
         score_func == "local_score_marginal_multi"
     ):  # negative marginal likelihood based on regression in RKHS
         # for data with multi-variate dimensions
+        if X is None:
+            raise ValueError("local_score_marginal_multi requires raw data X, not cov/n.")
         if parameters is None:
             parameters = {"dlabel": {}}
-            for i in range(X.shape[1]):
+            for i in range(n_features):
                 parameters["dlabel"][i] = i
         if maxP is None:
-            maxP = len(parameters["dlabel"]) / 2
+            maxP = len(parameters["dlabel"])
         N = len(parameters["dlabel"])
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_marginal_multi, parameters=parameters
@@ -108,18 +148,50 @@ def ges(
         score_func == "local_score_BIC" or score_func == "local_score_BIC_from_cov"
     ):  # Greedy equivalence search with BIC score
         if maxP is None:
-            maxP = X.shape[1] / 2
-        N = X.shape[1]  # number of variables
-        parameters = {}
-        parameters["lambda_value"] = 2
-        localScoreClass = LocalScoreClass(
-            data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
-        )
+            maxP = n_features
+        N = n_features
+        if parameters is None:
+            parameters = {}
+        if "lambda_value" not in parameters:
+            parameters["lambda_value"] = 0.5
+        if cov is not None:
+            localScoreClass = LocalScoreClass(
+                data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters,
+                cov=cov, n=n,
+            )
+        else:
+            localScoreClass = LocalScoreClass(
+                data=X, local_score_fun=local_score_BIC_from_cov, parameters=parameters
+            )
+
+    elif score_func == "local_score_BIC_from_cov_deterministic":
+        # Modified BIC for deterministic relations (used by DGES)
+        from causallearn.search.ScoreBased.DGES import local_score_BIC_from_cov_deterministic
+        if maxP is None:
+            maxP = n_features
+        N = n_features
+        if parameters is None:
+            parameters = {}
+        if "lambda_value" not in parameters:
+            parameters["lambda_value"] = 0.5
+        if "det_epsilon" not in parameters:
+            parameters["det_epsilon"] = 0.01
+        if cov is not None:
+            localScoreClass = LocalScoreClass(
+                data=X, local_score_fun=local_score_BIC_from_cov_deterministic, parameters=parameters,
+                cov=cov, n=n,
+            )
+        else:
+            localScoreClass = LocalScoreClass(
+                data=X, local_score_fun=local_score_BIC_from_cov_deterministic, parameters=parameters
+            )
 
     elif score_func == "local_score_BDeu":  # Greedy equivalence search with BDeu score
+        if X is None:
+            raise ValueError("local_score_BDeu requires raw data X, not cov/n.")
         if maxP is None:
-            maxP = X.shape[1] / 2
-        N = X.shape[1]  # number of variables
+            maxP = n_features
+        N = n_features
         localScoreClass = LocalScoreClass(
             data=X, local_score_fun=local_score_BDeu, parameters=None
         )
@@ -145,10 +217,7 @@ def ges(
 
     ## --------------------------------------------------------------------
     ## forward greedy search
-    record_local_score = [
-        [] for i in range(N)
-    ]  # record the local score calculated each time. Thus when we transition to the second phase,
-    # many of the operators can be scored without an explicit call the the scoring function
+    record_local_score = {}  # dict cache: (node, tuple(sorted(parents))) -> score
     # record_local_score{trial}{j} record the local scores when Xj as a parent
     score_new = score
     count1 = 0
@@ -161,85 +230,61 @@ def ges(
         score = score_new
         score_record1.append(score)
         graph_record1.append(G)
-        min_chscore = 1e7
-        min_desc = []
+        max_chscore = -1e7
+        max_desc = []
+
+        # Precompute graph structure for all nodes (once per iteration)
+        _nbrs, _adj, _pa, _semi = precompute_graph_info(G, N)
+
         for i in range(N):
             for j in range(N):
                 if (
-                    G.graph[i, j] == Endpoint.NULL.value
-                    and G.graph[j, i] == Endpoint.NULL.value
+                    G.graph[i, j] == 0
+                    and G.graph[j, i] == 0
                     and i != j
-                    and len(np.where(G.graph[j, :] == Endpoint.ARROW.value)[0]) <= maxP
+                    and len(_pa[j]) <= maxP
                 ):
-                    # find a pair (Xi, Xj) that is not adjacent in the current graph , and restrict the number of parents
-                    Tj = np.intersect1d(
-                        np.where(G.graph[:, j] == Endpoint.TAIL.value)[0],
-                        np.where(G.graph[j, :] == Endpoint.TAIL.value)[0],
-                    )  # neighbors of Xj
-
-                    Ti = np.union1d(
-                        np.where(G.graph[:, i] != Endpoint.NULL.value)[0],
-                        np.where(G.graph[i, :] != Endpoint.NULL.value)[0],
-                    )  # adjacent to Xi
-
-                    NTi = np.setdiff1d(np.arange(N), Ti)
-                    T0 = np.intersect1d(
-                        Tj, NTi
-                    )  # find the neighbours of Xj that are not adjacent to Xi
-                    # for any subset of T0
-                    sub = Combinatorial(T0.tolist())  # find all the subsets for T0
+                    NA = _nbrs[j] & _adj[i]
+                    T0 = sorted(_nbrs[j] - _adj[i])
+                    sub = Combinatorial(T0)
                     S = np.zeros(len(sub))
-                    # S indicate whether we need to check sub{k}.
-                    # 0: check both conditions.
-                    # 1: only check the first condition
-                    # 2: check nothing and is not valid.
                     for k in range(len(sub)):
-                        if S[k] < 2:  # S indicate whether we need to check subset(k)
-                            V1 = insert_validity_test1(
-                                G, i, j, sub[k]
-                            )  # Insert operator validation test:condition 1
+                        if S[k] < 2:
+                            T_set = set(sub[k])
+                            NAT = NA | T_set
+                            # Validity test 1: check clique of NA ∪ T
+                            V1 = check_clique_fast(G, NAT)
                             if V1:
                                 if not S[k]:
-                                    V2 = insert_validity_test2(
-                                        G, i, j, sub[k]
-                                    )  # Insert operator validation test:condition 2
+                                    # Validity test 2: semi-directed path check
+                                    V2 = insert_vc2_fast(j, i, NAT, _semi)
                                 else:
                                     V2 = 1
                                 if V2:
-                                    Idx = find_subset_include(
-                                        sub[k], sub
-                                    )  # find those subsets that include sub(k)
+                                    Idx = find_subset_include(sub[k], sub)
                                     S[np.where(Idx == 1)] = 1
                                     chscore, desc, record_local_score = (
-                                        insert_changed_score(
-                                            X,
-                                            G,
-                                            i,
-                                            j,
-                                            sub[k],
+                                        insert_changed_score_fast(
+                                            X, i, j, sub[k],
+                                            NA, _pa[j],
                                             record_local_score,
                                             score_func,
                                             parameters,
                                         )
                                     )
-                                    # calculate the changed score after Insert operator
-                                    # desc{count} saves the corresponding (i,j,sub{k})
-                                    # sub{k}:
-                                    if chscore < min_chscore:
-                                        min_chscore = chscore
-                                        min_desc = desc
+                                    if chscore > max_chscore:
+                                        max_chscore = chscore
+                                        max_desc = desc
                             else:
-                                Idx = find_subset_include(
-                                    sub[k], sub
-                                )  # find those subsets that include sub(k)
+                                Idx = find_subset_include(sub[k], sub)
                                 S[np.where(Idx == 1)] = 2
 
-        if len(min_desc) != 0:
-            score_new = score + min_chscore
-            if score - score_new <= 0:
+        if len(max_desc) != 0:
+            score_new = score + max_chscore
+            if score_new - score <= 0:
                 break
-            G = insert(G, min_desc[0], min_desc[1], min_desc[2])
-            update1.append([min_desc[0], min_desc[1], min_desc[2]])
+            G = insert(G, max_desc[0], max_desc[1], max_desc[2])
+            update1.append([max_desc[0], max_desc[1], max_desc[2]])
             G = pdag2dag(G)
             G = dag2cpdag(G)
             G_step1.append(G)
@@ -260,67 +305,51 @@ def ges(
         score = score_new
         score_record2.append(score)
         graph_record2.append(G)
-        min_chscore = 1e7
-        min_desc = []
+        max_chscore = -1e7
+        max_desc = []
+
+        # Precompute graph structure for all nodes (once per iteration)
+        _nbrs, _adj, _pa, _semi = precompute_graph_info(G, N)
+
         for i in range(N):
             for j in range(N):
-                if (
-                    G.graph[j, i] == Endpoint.TAIL.value
-                    and G.graph[i, j] == Endpoint.TAIL.value
-                ) or G.graph[
-                    j, i
-                ] == Endpoint.ARROW.value:  # if Xi - Xj or Xi -> Xj
-                    Hj = np.intersect1d(
-                        np.where(G.graph[:, j] == Endpoint.TAIL.value)[0],
-                        np.where(G.graph[j, :] == Endpoint.TAIL.value)[0],
-                    )  # neighbors of Xj
-                    Hi = np.union1d(
-                        np.where(G.graph[i, :] != Endpoint.NULL.value)[0],
-                        np.where(G.graph[:, i] != Endpoint.NULL.value)[0],
-                    )  # adjacent to Xi
-                    H0 = np.intersect1d(
-                        Hj, Hi
-                    )  # find the neighbours of Xj that are adjacent to Xi
-                    # for any subset of H0
-                    sub = Combinatorial(H0.tolist())  # find all the subsets for H0
-                    S = np.ones(len(sub))  # S indicate whether we need to check sub{k}.
-                    # 1: check the condition,
-                    # 2: check nothing and is valid;
+                if (j in _nbrs[i]) or (i in _pa[j]):
+                    # Xi - Xj (undirected) or Xi -> Xj (directed)
+                    NA = _nbrs[j] & _adj[i]
+                    H0 = sorted(NA)
+                    sub = Combinatorial(H0)
+                    S = np.ones(len(sub))
                     for k in range(len(sub)):
                         if S[k] == 1:
-                            V = delete_validity_test(
-                                G, i, j, sub[k]
-                            )  # Delete operator validation test
+                            # Delete validity: check clique of NA - H
+                            H_set = set(sub[k])
+                            V = check_clique_fast(G, NA - H_set)
                             if V:
-                                # find those subsets that include sub(k)
                                 Idx = find_subset_include(sub[k], sub)
-                                S[np.where(Idx == 1)] = 2  # and set their S to 2
+                                S[np.where(Idx == 1)] = 2
                         else:
                             V = 1
 
                         if V:
-                            chscore, desc, record_local_score = delete_changed_score(
-                                X,
-                                G,
-                                i,
-                                j,
-                                sub[k],
-                                record_local_score,
-                                score_func,
-                                parameters,
+                            chscore, desc, record_local_score = (
+                                delete_changed_score_fast(
+                                    X, i, j, sub[k],
+                                    NA, _pa[j],
+                                    record_local_score,
+                                    score_func,
+                                    parameters,
+                                )
                             )
-                            # calculate the changed score after Insert operator
-                            # desc{count} saves the corresponding (i,j,sub{k})
-                            if chscore < min_chscore:
-                                min_chscore = chscore
-                                min_desc = desc
+                            if chscore > max_chscore:
+                                max_chscore = chscore
+                                max_desc = desc
 
-        if len(min_desc) != 0:
-            score_new = score + min_chscore
-            if score - score_new <= 0:
+        if len(max_desc) != 0:
+            score_new = score + max_chscore
+            if score_new - score <= 0:
                 break
-            G = delete(G, min_desc[0], min_desc[1], min_desc[2])
-            update2.append([min_desc[0], min_desc[1], min_desc[2]])
+            G = delete(G, max_desc[0], max_desc[1], max_desc[2])
+            update2.append([max_desc[0], max_desc[1], max_desc[2]])
             G = pdag2dag(G)
             G = dag2cpdag(G)
             G_step2.append(G)

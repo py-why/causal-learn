@@ -501,6 +501,9 @@ def gpr_multi_new(logtheta=None, covfunc=None, x=None, y=None, xstar=None, nargo
                 m * (np.linalg.inv(L.T) * (np.linalg.inv(L) * np.eye(n)))
                 - alpha @ alpha.T
             )  # precompute for convenience
+            # Only compute gradient for the last hyperparameter (noise variance).
+            # Kernel widths are fixed per the paper (Huang et al., 2018, Sec 4.2.2):
+            # "the kernel widths of variables are fixed in order to work on fixed RKHSs"
             for i in range(len(out2) - 1, len(out2)):
                 temp = list(covfunc.copy())
                 temp.append(logtheta)
