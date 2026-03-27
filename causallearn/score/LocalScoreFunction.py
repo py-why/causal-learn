@@ -8,71 +8,143 @@ from numpy import ndarray
 
 def local_score_BIC(Data: ndarray, i: int, PAi: List[int], parameters=None) -> float:
     """
-    Calculate the *negative* local score with BIC for the linear Gaussian continue data case
+    Local BIC score for the linear Gaussian case (higher is better).
+
+    Background
+    ----------
+    The Bayesian Information Criterion (BIC) is derived from the Laplace approximation
+    to the marginal likelihood (Schwarz, 1978). For a DAG model G with data D of n
+    samples, the BIC approximation to the log marginal likelihood is (Chickering, 2002):
+
+        S_BIC(G, D) = log p(D | θ_hat, G) - (d / 2) * log(n)
+
+    where θ_hat is the MLE, and d is the number of free parameters.
+
+    Derivation for linear Gaussian case
+    ------------------------------------
+    For node X_i with parents Pa_i, assume X_i = B^T * Pa_i + ε, ε ~ N(0, σ²).
+    The maximized local log-likelihood is:
+
+        log p(D_i | θ_hat) = -n/2 * log(2π) - n/2 * log(σ̂²) - n/2
+
+    where σ̂² = Σ_{ii} - Σ_{i,Pa} * Σ_{Pa,Pa}^{-1} * Σ_{Pa,i} is the MLE residual
+    variance (computed from the sample covariance matrix with ddof=0).
+
+    The number of free parameters is |Pa_i| + 1 (regression weights + variance).
+    Dropping the constant -n/2 * log(2π) which doesn't affect model comparison:
+
+        score(i, Pa_i) = -n/2 * (1 + log(σ̂²)) - λ * (|Pa_i| + 1) * log(n)
+
+    Score convention
+    ----------------
+    Higher score = better model. The score is always negative; closer to 0 is better.
+
+    The hyperparameter λ controls the sparsity of the learned graph:
+      - Default λ = 0.5 (standard BIC: 0.5 * log(n) penalty per free parameter)
+      - Larger λ → stronger penalty → sparser graph (fewer edges)
+      - Smaller λ → weaker penalty → denser graph (more edges)
+
+    Relation to Juan Gamella's GES implementation (ges package):
+      Juan uses lmbda = 0.5 * log(n) as a single merged penalty, i.e.
+          penalty_juan = lmbda_juan * (|Pa| + 1)  where lmbda_juan = 0.5 * log(n)
+      Here we separate λ and log(n):
+          penalty_ours = λ * (|Pa| + 1) * log(n)
+      So our default λ = 0.5 is equivalent to Juan's default.
 
     Parameters
     ----------
-    Data: ndarray, (sample, features)
-    i: current index
-    PAi: parent indexes
-    parameters: lambda_value, the penalty discount of bic
+    Data : ndarray, shape (n_samples, n_features)
+        The input data matrix.
+    i : int
+        Target variable index.
+    PAi : list of int
+        Parent variable indices.
+    parameters : dict, optional
+        'lambda_value': penalty coefficient (default 0.5).
 
     Returns
     -------
-    score: local BIC score
+    score : float
+        Local BIC score (higher is better).
     """
 
-    cov = np.cov(Data.T)
+    cov = np.cov(Data.T, ddof=0)
     n = Data.shape[0]
-    # cov, n = Data
 
     if parameters is None:
-        lambda_value = 1
+        lambda_value = 0.5
     else:
         lambda_value = parameters["lambda_value"]
 
-    if len(PAi) == 0:
-        return n * np.log(cov[i, i])
+    sigma = cov[i, i]
+    if len(PAi) > 0:
+        yX = cov[np.ix_([i], PAi)]
+        XX = cov[np.ix_(PAi, PAi)]
+        try:
+            XX_inv = np.linalg.inv(XX)
+        except np.linalg.LinAlgError:
+            XX_inv = np.linalg.pinv(XX)
+        sigma = float(cov[i, i] - yX @ XX_inv @ yX.T)
 
-    yX = cov[np.ix_([i], PAi)]
-    XX = cov[np.ix_(PAi, PAi)]
-    H = np.log(cov[i, i] - yX @ np.linalg.inv(XX) @ yX.T)
+    if sigma <= 0:
+        sigma = np.finfo(float).eps
 
-    return n * H + np.log(n) * len(PAi) * lambda_value
+    likelihood = -0.5 * n * (1 + np.log(sigma))
+    penalty = lambda_value * (len(PAi) + 1) * np.log(n)
+    return likelihood - penalty
 
 
 def local_score_BIC_from_cov(
     Data: Tuple[ndarray, int], i: int, PAi: List[int], parameters=None
 ) -> float:
     """
-    Calculate the *negative* local score with BIC for the linear Gaussian continue data case
-    from the covariance matrix
+    Local BIC score from pre-computed covariance matrix (higher is better).
+
+    Same formula as local_score_BIC, but takes (cov, n) instead of raw data.
+    See local_score_BIC for detailed derivation and parameter description.
+
+        score = -0.5 * n * (1 + log(σ̂²)) - λ * (|Pa| + 1) * log(n)
+
     Parameters
     ----------
-    Data: covariance matrix, number of instances
-    i: current index
-    PAi: parent indexes
-    parameters: lambda_value, the penalty discount of bic
+    Data : tuple (ndarray, int)
+        (covariance matrix with shape (p, p), sample size n).
+    i : int
+        Target variable index.
+    PAi : list of int
+        Parent variable indices.
+    parameters : dict, optional
+        'lambda_value': penalty coefficient (default 0.5).
+
     Returns
     -------
-    score: proportional to -2x BIC
+    score : float
+        Local BIC score (higher is better).
     """
 
     cov, n = Data
 
     if parameters is None:
-        lambda_value = 1
+        lambda_value = 0.5
     else:
         lambda_value = parameters["lambda_value"]
 
-    if len(PAi) == 0:
-        return n * np.log(cov[i, i])
+    sigma = cov[i, i]
+    if len(PAi) > 0:
+        yX = cov[np.ix_([i], PAi)]
+        XX = cov[np.ix_(PAi, PAi)]
+        try:
+            XX_inv = np.linalg.inv(XX)
+        except np.linalg.LinAlgError:
+            XX_inv = np.linalg.pinv(XX)
+        sigma = float(cov[i, i] - yX @ XX_inv @ yX.T)
 
-    yX = cov[np.ix_([i], PAi)]
-    XX = cov[np.ix_(PAi, PAi)]
-    H = np.log(cov[i, i] - yX @ np.linalg.inv(XX) @ yX.T)
+    if sigma <= 0:
+        sigma = np.finfo(float).eps
 
-    return n * H + np.log(n) * len(PAi) * lambda_value
+    likelihood = -0.5 * n * (1 + np.log(sigma))
+    penalty = lambda_value * (len(PAi) + 1) * np.log(n)
+    return likelihood - penalty
 
 
 def local_score_BDeu(Data: ndarray, i: int, PAi: List[int], parameters=None) -> float:
@@ -109,42 +181,33 @@ def local_score_BDeu(Data: ndarray, i: int, PAi: List[int], parameters=None) -> 
     for pa in PAi:
         q_i *= r_i_map[pa]
 
+    xi_col = "x{}".format(i)
+
     if len(PAi) != 0:
-        # calculate N_{ij}
-        names = ["x{}".format(i) for i in range(Data.shape[1])]
+        # calculate N_{ij} and N_{ijk} using numpy for speed and pandas compatibility
+        names = ["x{}".format(k) for k in range(Data.shape[1])]
         Data_pd = pd.DataFrame(Data, columns=names)
-        parant_names = ["x{}".format(i) for i in PAi]
-        Data_pd_group_Nij = Data_pd.groupby(parant_names)
-        Nij_map = {
-            key: len(Data_pd_group_Nij.indices.get(key))
-            for key in Data_pd_group_Nij.indices.keys()
-        }
+        parent_names = ["x{}".format(k) for k in PAi]
+        Data_pd_group_Nij = Data_pd.groupby(parent_names)
+
+        Nij_map = Data_pd_group_Nij.size().to_dict()
         Nij_map_keys_list = list(Nij_map.keys())
 
-        # calculate N_{ijk}
-        Nijk_map = {
-            ij: Data_pd_group_Nij.get_group(ij)
-            .groupby("x{}".format(i))
-            .apply(len)
-            .reset_index()
-            for ij in Nij_map.keys()
-        }
-        for v in Nijk_map.values():
-            v.columns = ["x{}".format(i), "times"]
+        # calculate N_{ijk}: for each parent config, count occurrences of each X_i value
+        Nijk_map = {}
+        for ij in Nij_map_keys_list:
+            group = Data_pd_group_Nij.get_group((ij,) if not isinstance(ij, tuple) else ij)
+            counts = group[xi_col].value_counts().reset_index()
+            counts.columns = [xi_col, "times"]
+            Nijk_map[ij] = counts
     else:
-        # calculate N_{ij}
-        names = ["x{}".format(i) for i in range(Data.shape[1])]
-        Nij_map = {"": len(Data[:, i])}
+        # No parents: N_{ij} is just the total count
+        Nij_map = {"": Data.shape[0]}
         Nij_map_keys_list = [""]
-        Data_pd = pd.DataFrame(Data, columns=names)
 
-        # calculate N_{ijk}
-        Nijk_map = {
-            ij: Data_pd.groupby("x{}".format(i)).apply(len).reset_index()
-            for ij in Nij_map_keys_list
-        }
-        for v in Nijk_map.values():
-            v.columns = ["x{}".format(i), "times"]
+        # N_{ijk}: count occurrences of each X_i value
+        xi_vals, xi_counts = np.unique(Data[:, i], return_counts=True)
+        Nijk_map = {"": pd.DataFrame({xi_col: xi_vals, "times": xi_counts})}
 
     BDeu_score = 0
     # first term
@@ -169,7 +232,7 @@ def local_score_BDeu(Data: ndarray, i: int, PAi: List[int], parameters=None) -> 
 
         BDeu_score += first_term + second_term
 
-    return -BDeu_score
+    return BDeu_score
 
 
 def local_score_cv_general(
@@ -428,7 +491,7 @@ def local_score_cv_general(
 
         CV = CV / k
 
-    score = CV  # negative cross-validated likelihood
+    score = -CV  # cross-validated log-likelihood (higher is better)
     return score
 
 
@@ -662,8 +725,8 @@ def local_score_cv_multi(
                 - 1
                 / (gamma * n1)
                 * Kx_tr_te.T
-                * pdinv(np.eye(n1) + 1 / (gamma * n1) * Kx_tr)
-                * Kx_tr_te
+                @ pdinv(np.eye(n1) + 1 / (gamma * n1) * Kx_tr)
+                @ Kx_tr_te
             ) / gamma
             B = 1 / (gamma * n1) * Kx_tr + np.eye(n1)
             L = np.linalg.cholesky(B)
@@ -674,7 +737,7 @@ def local_score_cv_multi(
 
         CV = CV / k
 
-    score = CV  # negative cross-validated likelihood
+    score = -CV  # cross-validated log-likelihood (higher is better)
     return score
 
 
@@ -776,7 +839,7 @@ def local_score_marginal_general(
             2 * np.sqrt(T) * eix @ np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
             nargout=2,
         )
-    score = nlml  # negative log-likelihood
+    score = -nlml  # marginal log-likelihood (higher is better)
     return score
 
 
@@ -886,5 +949,5 @@ def local_score_marginal_multi(
             2 * np.sqrt(T) * eix @ np.diag(np.sqrt(eig_Kx)) / np.sqrt(eig_Kx[0]),
             nargout=2,
         )
-    score = nlml  # negative log-likelihood
+    score = -nlml  # marginal log-likelihood (higher is better)
     return score

@@ -509,25 +509,43 @@ class GraphUtils:
         return graphviz_g
 
     @staticmethod
-    def to_pydot(G: Graph, edges: List[Edge] | None = None, labels: List[str] | None = None, title: str = "", dpi: float = 200):
+    def to_pydot(G: Graph, edges: List[Edge] | None = None, labels: List[str] | None = None,
+                 colors: dict | None = None, title: str = "", dpi: float = 200):
         '''
-        Convert a graph object to a DOT object.
+        Convert a graph object to a DOT object, optionally with colored nodes.
 
         Parameters
         ----------
         G : Graph
-            A graph object of causal-learn
+            A graph object of causal-learn.
         edges : list, optional (default=None)
-            Edges list of graph G
-        labels : list, optional (default=None)
-            Nodes labels of graph G
+            Edges list of graph G. If None, uses G.get_graph_edges().
+        labels : list of str, optional (default=None)
+            Node labels. Must have the same length as G.get_nodes().
+            If None, uses the default node names from G.
+        colors : dict, optional (default=None)
+            Mapping from node label (str) to fill color (str).
+            Colors can be any CSS/X11 color name (e.g. 'lightblue', 'lightcoral')
+            or hex code (e.g. '#AADDFF'). Only nodes whose labels appear
+            in this dict will be colored; others remain uncolored.
         title : str, optional (default="")
-            The name of graph G
+            The name of graph G.
         dpi : float, optional (default=200)
-            The dots per inch of dot object
+            The dots per inch of dot object.
+
         Returns
         -------
-        pydot_g : Dot
+        pydot_g : pydot.Dot
+            A DOT object ready for rendering.
+
+        Examples
+        --------
+        >>> # Basic usage without colors
+        >>> pyd = GraphUtils.to_pydot(G, labels=['X1', 'X2', 'X3'])
+        >>>
+        >>> # With colored nodes by category
+        >>> colors = {'X1': 'lightblue', 'X2': 'lightblue', 'X3': 'lightcoral'}
+        >>> pyd = GraphUtils.to_pydot(G, labels=['X1', 'X2', 'X3'], colors=colors)
         '''
 
         nodes = G.get_nodes()
@@ -536,13 +554,16 @@ class GraphUtils:
 
         pydot_g = pydot.Dot(title, graph_type="digraph", fontsize=18)
         pydot_g.obj_dict["attributes"]["dpi"] = dpi
-        
+
         for i, node in enumerate(nodes):
             node_name = labels[i] if labels is not None else node.get_name()
+            node_attrs = {"label": node_name}
             if node.get_node_type() == NodeType.LATENT:
-                pydot_g.add_node(pydot.Node(i, label=node_name, shape='square'))
-            else:
-                pydot_g.add_node(pydot.Node(i, label=node_name))
+                node_attrs["shape"] = "square"
+            if colors is not None and node_name in colors:
+                node_attrs["style"] = "filled"
+                node_attrs["fillcolor"] = colors[node_name]
+            pydot_g.add_node(pydot.Node(i, **node_attrs))
 
         def get_g_arrow_type(endpoint):
             if endpoint == Endpoint.TAIL:
@@ -574,3 +595,155 @@ class GraphUtils:
             pydot_g.add_edge(dot_edge)
 
         return pydot_g
+
+    # ----------------------------------------------------------------
+    # Color graph visualization utilities
+    #
+    # Quick-start example:
+    #
+    #   from causallearn.search.ScoreBased.GES import ges
+    #   from causallearn.utils.GraphUtils import GraphUtils
+    #
+    #   result = ges(data, score_func='local_score_BIC')
+    #   G = result['G']
+    #   labels = ['Drug_A', 'Drug_B', 'Biomarker', 'Recovery', 'Survival']
+    #
+    #   # Option 1: color nodes by category (labels auto-derived from categories)
+    #   categories = {
+    #       'treatment': ['Drug_A', 'Drug_B'],
+    #       'biomarker': ['Biomarker'],
+    #       'outcome':   ['Recovery', 'Survival'],
+    #   }
+    #   GraphUtils.plot_graph(G, category_to_features=categories,
+    #                         save_path='colored_graph.png')
+    #
+    #   # Option 2: specify labels and colors manually
+    #   colors = {'Drug_A': 'lightblue', 'Drug_B': 'lightblue',
+    #             'Biomarker': 'lightgreen',
+    #             'Recovery': 'lightcoral', 'Survival': 'lightcoral'}
+    #   GraphUtils.plot_graph(G, labels=labels, colors=colors,
+    #                         save_path='colored_graph.png')
+    # ----------------------------------------------------------------
+
+    @staticmethod
+    def get_category_colors(category_to_features: dict) -> dict:
+        '''
+        Assign a color to each feature based on its category.
+
+        Parameters
+        ----------
+        category_to_features : dict
+            Mapping from category name to list of feature names.
+            Example: {'treatment': ['Drug_A', 'Drug_B'], 'outcome': ['Recovery', 'Side_Effect']}
+
+        Returns
+        -------
+        feature_to_color : dict
+            Mapping from feature name to CSS color string.
+
+        Examples
+        --------
+        >>> categories = {
+        ...     'treatment': ['Drug_A', 'Drug_B'],
+        ...     'outcome': ['Recovery', 'Side_Effect'],
+        ... }
+        >>> colors = GraphUtils.get_category_colors(categories)
+        >>> # colors = {'Drug_A': 'lightblue', 'Drug_B': 'lightblue',
+        >>> #           'Recovery': 'lightcoral', 'Side_Effect': 'lightcoral'}
+        '''
+        palette = [
+            'lightblue', 'lightcoral', 'lightgreen', 'lightsalmon', 'lightpink',
+            'lightyellow', 'lavender', 'thistle', 'honeydew', 'mintcream',
+            'azure', 'aliceblue', 'beige', 'peachpuff', 'moccasin',
+            'palegoldenrod', 'powderblue', 'khaki', 'wheat', 'blanchedalmond',
+            'papayawhip', 'mistyrose', 'lemonchiffon', 'seashell', 'cornsilk',
+            'aquamarine', 'lightcyan', 'lightskyblue', 'lightsteelblue',
+            'paleturquoise', 'palegreen', 'pink', 'plum', 'skyblue',
+        ]
+        category_to_color = {cat: palette[i % len(palette)] for i, cat in enumerate(category_to_features)}
+        return {
+            feat: category_to_color[cat]
+            for cat, feats in category_to_features.items()
+            for feat in feats
+        }
+
+    @staticmethod
+    def plot_graph(G: Graph, labels: List[str] | None = None,
+                   colors: dict | None = None, category_to_features: dict | None = None,
+                   save_path: str | None = None, title: str = "",
+                   dpi: float = 500, figsize: tuple = (20, 12)):
+        '''
+        Render and display a causal graph with optional colored nodes.
+
+        This is a convenience function that combines to_pydot() rendering
+        with matplotlib display and optional file saving.
+
+        Parameters
+        ----------
+        G : Graph
+            A graph object of causal-learn.
+        labels : list of str, optional (default=None)
+            Node labels. Must have the same length as G.get_nodes().
+        colors : dict, optional (default=None)
+            Mapping from node label (str) to fill color (str).
+            If both colors and category_to_features are provided, colors takes precedence.
+        category_to_features : dict, optional (default=None)
+            Mapping from category name to list of feature names.
+            Used to auto-generate colors via get_category_colors().
+            Ignored if colors is already provided.
+        save_path : str, optional (default=None)
+            File path to save the rendered image (e.g. 'output/graph.png').
+            If None, the image is only displayed, not saved.
+        title : str, optional (default="")
+            Title for the graph.
+        dpi : float, optional (default=500)
+            Resolution in dots per inch.
+        figsize : tuple, optional (default=(20, 12))
+            Figure size in inches (width, height).
+
+        Examples
+        --------
+        >>> # Simple plot
+        >>> GraphUtils.plot_graph(G, labels=['X1', 'X2', 'X3'])
+        >>>
+        >>> # Plot with manual colors
+        >>> colors = {'X1': 'lightblue', 'X2': 'lightcoral', 'X3': 'lightgreen'}
+        >>> GraphUtils.plot_graph(G, labels=['X1', 'X2', 'X3'], colors=colors,
+        ...                      save_path='my_graph.png')
+        >>>
+        >>> # Plot with category-based colors (auto-assigned)
+        >>> # labels are auto-derived from category_to_features (flattened in order)
+        >>> categories = {
+        ...     'treatment': ['X1', 'X2'],
+        ...     'outcome': ['X3'],
+        ... }
+        >>> GraphUtils.plot_graph(G, category_to_features=categories,
+        ...                      save_path='my_graph.png')
+        '''
+        import io
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
+
+        if colors is None and category_to_features is not None:
+            colors = GraphUtils.get_category_colors(category_to_features)
+            if labels is None:
+                cat_features = [feat for feats in category_to_features.values() for feat in feats]
+                n_nodes = len(G.get_nodes())
+                if len(cat_features) == n_nodes:
+                    labels = cat_features
+                else:
+                    # category_to_features doesn't cover all nodes;
+                    # use default node names, colors will still apply to matching labels
+                    labels = [node.get_name() for node in G.get_nodes()]
+
+        pyd = GraphUtils.to_pydot(G, labels=labels, colors=colors, title=title, dpi=dpi)
+        tmp_png = pyd.create_png(f="png")
+        fp = io.BytesIO(tmp_png)
+        img = mpimg.imread(fp, format='png')
+
+        plt.figure(figsize=figsize)
+        plt.axis('off')
+        plt.imshow(img)
+        if save_path is not None:
+            plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+        plt.show()
