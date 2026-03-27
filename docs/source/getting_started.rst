@@ -67,8 +67,9 @@ Contributors
 
 **Developers**:
 
-- Wei Chen, Biwei Huang, Yuequn Liu, Zhiyi Huang, Feng Xie, Haoyue Dai, Xiaokai Huang: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operations <graphoperation>`.
-- Mingming Gong, Erdun Gao, Aoqi Zuo: :ref:`PNL <pnl>`, :ref:`ANM <anm>`, :ref:`Granger causality <granger>`, and :ref:`KCI <Kernel-based conditional independence (KCI) test and independence test>`.
+- All `community contributors <https://github.com/py-why/causal-learn/graphs/contributors>`_
+- Wei Chen, Biwei Huang, Yuequn Liu, Zhiyi Huang, Feng Xie, Haoyue Dai, Xiaokai Huang, Yiwen Qiu: :ref:`PC <pc>`, :ref:`FCI <fci>`, :ref:`GES <ges>`, :ref:`GIN <gin>`, and :ref:`graph operations <graphoperation>`.
+- Mingming Gong, Erdun Gao, Aoqi Zuo, Oliver Schacht: :ref:`PNL <pnl>`, :ref:`ANM <anm>`, :ref:`Granger causality <granger>`, :ref:`KCI <Kernel-based conditional independence (KCI) test and independence test>`, and some other tests (e.g., RCIT, FastKCI).
 - Shohei Shimizu, Takashi Nicholas Maeda, Takashi Ikeuchi: :ref:`LiNGAM-based methods <lingam>`.
 - Madelyn Glymour: several helpers.
 - Ruibo Tu: :ref:`Missing-value/test-wise deletion PC <pc>`.
@@ -77,6 +78,7 @@ Contributors
 - Ignavier Ng, Yujia Zheng: :ref:`Exact search <exactsearch>`.
 - Bryan Andrews, Joseph Ramsey: :ref:`GRaSP <GRaSP>`, :ref:`BOSS <BOSS>`.
 - Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
+- Longkang Li, Haoyue Dai :ref:`DGES <dges>`.
 
 
 **Quality control**: Yewen Fan, Zhiyi Huang, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
