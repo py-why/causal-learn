@@ -78,7 +78,7 @@ Contributors
 - Ignavier Ng, Yujia Zheng: :ref:`Exact search <exactsearch>`.
 - Bryan Andrews, Joseph Ramsey: :ref:`GRaSP <GRaSP>`, :ref:`BOSS <BOSS>`.
 - Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
-- Longkang Li, Haoyue Dai :ref:`DGES <dges>`.
+- Longkang Li, Haoyue Dai: :ref:`DGES <dges>`.
 
 
 **Quality control**: Yewen Fan, Zhiyi Huang, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
