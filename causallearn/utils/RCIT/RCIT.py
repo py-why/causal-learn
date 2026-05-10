@@ -31,7 +31,7 @@ class RCIT(object):
             - "perm" for permutation testing
             Default is "lpd4".
         num_f : int
-            Number of features for conditioning set. Default is 25.
+            Number of features for conditioning set. Default is 100.
         num_f2 : int
             Number of features for non-conditioning sets. Default is 5.
         rcit : bool
