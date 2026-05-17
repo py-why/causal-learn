@@ -23,7 +23,9 @@ setuptools.setup(
         'networkx',
         'pydot',
         'tqdm',
-        'momentchi2'
+        'momentchi2',
+        'communities',
+        'joblib'
     ],
     url='https://github.com/py-why/causal-learn',
     packages=setuptools.find_packages(),

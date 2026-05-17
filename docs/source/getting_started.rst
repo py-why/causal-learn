@@ -17,6 +17,8 @@ Requirements
 * scikit-learn
 * statsmodels
 * pydot
+* communities
+* joblib
 
 (For visualization)
 
