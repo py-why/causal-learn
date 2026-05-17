@@ -81,6 +81,7 @@ Contributors
 - Bryan Andrews, Joseph Ramsey: :ref:`GRaSP <GRaSP>`, :ref:`BOSS <BOSS>`.
 - Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
 - Longkang Li, Haoyue Dai: :ref:`DGES <dges>`.
+- Xinshuai Dong, Yujia Zheng: :ref:`RLCD <rlcd>`.
 
 
 **Quality control**: Yewen Fan, Zhiyi Huang, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
