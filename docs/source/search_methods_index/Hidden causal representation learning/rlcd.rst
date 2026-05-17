@@ -8,7 +8,6 @@ Algorithm Introduction
 
 RLCD [1]_ learns causal structures with causally-related hidden variables from rank constraints in partially observed linear causal models.
 
-This implementation includes the structure learning part of RLCD from ``scm-identify``. It provides the main RLCD search routine and the rank-test helper used for sample data.
 
 Usage
 -----------------------------------------------------------
