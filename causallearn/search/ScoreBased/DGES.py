@@ -110,7 +110,7 @@ def local_score_BIC_from_cov_deterministic(Data, i, PAi, parameters=None):
             XX_inv = np.linalg.inv(XX)
         except np.linalg.LinAlgError:
             XX_inv = np.linalg.pinv(XX)
-        sigma = float(cov[i, i] - yX @ XX_inv @ yX.T)
+        sigma = float((cov[i, i] - yX @ XX_inv @ yX.T).item())
     if sigma <= 0:
         sigma = 0.0
 

@@ -84,7 +84,7 @@ def local_score_BIC(Data: ndarray, i: int, PAi: List[int], parameters=None) -> f
             XX_inv = np.linalg.inv(XX)
         except np.linalg.LinAlgError:
             XX_inv = np.linalg.pinv(XX)
-        sigma = float(cov[i, i] - yX @ XX_inv @ yX.T)
+        sigma = float((cov[i, i] - yX @ XX_inv @ yX.T).item())
 
     if sigma <= 0:
         sigma = np.finfo(float).eps
@@ -137,7 +137,7 @@ def local_score_BIC_from_cov(
             XX_inv = np.linalg.inv(XX)
         except np.linalg.LinAlgError:
             XX_inv = np.linalg.pinv(XX)
-        sigma = float(cov[i, i] - yX @ XX_inv @ yX.T)
+        sigma = float((cov[i, i] - yX @ XX_inv @ yX.T).item())
 
     if sigma <= 0:
         sigma = np.finfo(float).eps
