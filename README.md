@@ -1,4 +1,4 @@
-# causal-learn: Learning Causality from Data
+<img width="1063" height="313" alt="causal-learn-logo" src="https://github.com/user-attachments/assets/1abe5fd8-6018-467d-b7a7-f5886dc799eb" />
 
 Causal-learn ([documentation](https://causal-learn.readthedocs.io/en/latest/), [paper](https://jmlr.org/papers/volume25/23-0970/23-0970.pdf)) is an open-source platform for causal learning with both classical and state-of-the-art causal discovery algorithms. It aims to recover causal structure from observational data, without requiring interventional experiments, while offering provable correctness guarantees.
 
