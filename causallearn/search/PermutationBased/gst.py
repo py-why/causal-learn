@@ -22,7 +22,10 @@ class GSTNode:
             parents.remove(add)
             branch = GSTNode(self.tree, add, score)
             if score > self.grow_score: self.branches.append(branch)
-        self.branches.sort()
+        # Visit higher-scoring grow branches first, matching TETRAD's
+        # GrowShrinkTree: GSTNode.compareTo() is ascending in growScore, but
+        # grow() sorts with Collections.reverseOrder(). See py-why/causal-learn#264.
+        self.branches.sort(reverse=True)
 
     def shrink(self, parents):
         self.remove = []
