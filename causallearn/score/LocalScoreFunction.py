@@ -196,7 +196,13 @@ def local_score_BDeu(Data: ndarray, i: int, PAi: List[int], parameters=None) -> 
         # calculate N_{ijk}: for each parent config, count occurrences of each X_i value
         Nijk_map = {}
         for ij in Nij_map_keys_list:
-            group = Data_pd_group_Nij.get_group((ij,) if not isinstance(ij, tuple) else ij)
+            # For a single grouper, pandas >= 2.0 expects the scalar key while
+            # older pandas accepted a 1-tuple; try the scalar first and fall
+            # back so BDeu works across pandas versions.
+            try:
+                group = Data_pd_group_Nij.get_group(ij)
+            except (KeyError, ValueError):
+                group = Data_pd_group_Nij.get_group((ij,) if not isinstance(ij, tuple) else ij)
             counts = group[xi_col].value_counts().reset_index()
             counts.columns = [xi_col, "times"]
             Nijk_map[ij] = counts
