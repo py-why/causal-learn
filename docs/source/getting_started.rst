@@ -63,6 +63,8 @@ Please feel free to let us know if you have any recommendation regarding causal 
 Contributors
 ^^^^^^^^^^^^
 
+**Advisors**: Kun Zhang, Joseph Ramsey, Mingming Gong, Ruichu Cai, Shohei Shimizu, Peter Spirtes, Clark Glymour
+
 **Coordinators**: Yujia Zheng, Wei Chen
 
 **Developers**:
@@ -80,11 +82,9 @@ Contributors
 - Joseph Ramsey, Wei Chen, Zhiyi Huang: :ref:`Evaluations <evaluation>`.
 - Longkang Li, Haoyue Dai: :ref:`DGES <dges>`.
 - Xinshuai Dong, Yujia Zheng: :ref:`RLCD <rlcd>`.
-- Vishal Verma, Mantej Gill: `agentic version <https://causallearn.com>`_
+- Vishal Verma, Mantej Gill, Yujia Zheng, Haoyue Dai: `agentic version <https://causallearn.com>`_
 
 **Quality control**: Yewen Fan, Zhiyi Huang, Haoyue Dai, Yujia Zheng, Ignavier Ng, Xiangchen Song
-
-**Advisors**: Kun Zhang, Joseph Ramsey, Mingming Gong, Ruichu Cai, Shohei Shimizu, Peter Spirtes, Clark Glymour
 
 
 Citation
