@@ -4,6 +4,12 @@ Causal-learn ([documentation](https://causal-learn.readthedocs.io/en/latest/), [
 
 The package is actively being developed. Feedback (issues, suggestions, etc.) would be greatly appreciated.
 
+# News
+
+Causal discovery is now available **anytime**, **anywhere**!
+
+Check out our latest online agentic version of causal-learn: [causallearn.com](https://causallearn.com)
+
 # Package Overview
 
 Our causal-learn implements methods for causal discovery:
