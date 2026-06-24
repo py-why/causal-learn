@@ -5,7 +5,7 @@ Getting started
 
 
 News
-------------
+^^^^^^^^^^^^
 
 Causal discovery is now available **anytime**, **anywhere**!
 
