@@ -3,6 +3,14 @@ Getting started
 =============
 
 
+
+News
+------------
+
+Causal discovery is now available **anytime**, **anywhere**!
+
+Check out our latest online agentic version of causal-learn: `causallearn.com <https://causallearn.com/>`_.
+
 Installation
 ^^^^^^^^^^^^
 
@@ -65,7 +73,7 @@ Contributors
 
 **Advisors**: Kun Zhang, Joseph Ramsey, Mingming Gong, Ruichu Cai, Shohei Shimizu, Peter Spirtes, Clark Glymour
 
-**Coordinators**: Yujia Zheng, Wei Chen
+**Coordinators**: Yujia Zheng, Biwei Huang, Wei Chen
 
 **Developers**:
 
