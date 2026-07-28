@@ -72,11 +72,12 @@ def pc_alg(
     node_names: Shape [n_features]. The name for each feature (each feature is represented as a Node in the graph, so it's also the node name)
     alpha : float, desired significance level of independence tests (p_value) in (0, 1)
     indep_test : str, the name of the independence test being used
-            ["fisherz", "chisq", "gsq", "kci"]
+            ["fisherz", "chisq", "gsq", "kci", "hscic_cpt"]
            - "fisherz": Fisher's Z conditional independence test
            - "chisq": Chi-squared conditional independence test
            - "gsq": G-squared conditional independence test
            - "kci": Kernel-based conditional independence test
+           - "hscic_cpt": HSCIC with the conditional permutation test
     stable : run stabilized skeleton discovery if True (default = True)
     uc_rule : how unshielded colliders are oriented
            0: run uc_sepset
@@ -102,6 +103,8 @@ def pc_alg(
     """
 
     start = time.time()
+    if indep_test == hscic_cpt:
+        kwargs.setdefault("hscic_alpha", alpha)
     indep_test = CIT(data, indep_test, **kwargs)
     cg_1 = SkeletonDiscovery.skeleton_discovery(data, alpha, indep_test, stable,
                                                 background_knowledge=background_knowledge, verbose=verbose,
@@ -502,4 +505,3 @@ def matrix_diff(cg1: CausalGraph, cg2: CausalGraph) -> (float, List[Tuple[int, i
                 diff_ls.append((i, j))
                 count += 1
     return count / 2, diff_ls
-
