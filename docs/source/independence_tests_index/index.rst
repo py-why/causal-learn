@@ -18,6 +18,7 @@ Contents:
     chisq
     kci
     gsq
+    custom_ci_tests
 
 
 .. [1] Fisher, R. A. (1921). On the'probable error'of a coefficient of correlation deduced from a small sample. Metron, 1, 1-32.
