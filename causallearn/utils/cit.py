@@ -95,7 +95,12 @@ class CIT_Base(object):
         '''
         assert isinstance(data, np.ndarray), "Input data must be a numpy array."
         self.data = data
-        self.data_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        # Array displays can omit or round values. Include the full contents and
+        # their interpretation, independently of print options and memory layout.
+        data_hasher = hashlib.sha256()
+        data_hasher.update(json.dumps((data.shape, data.dtype.str)).encode('utf-8'))
+        data_hasher.update(np.ascontiguousarray(data).data)
+        self.data_hash = 'sha256-v1:' + data_hasher.hexdigest()
         self.sample_size, self.num_features = data.shape
         self.cache_path = cache_path
         self.SAVE_CACHE_CYCLE_SECONDS = 30
@@ -105,7 +110,8 @@ class CIT_Base(object):
             assert cache_path.endswith('.json'), "Cache must be stored as .json file."
             if os.path.exists(cache_path):
                 with codecs.open(cache_path, 'r') as fin: self.pvalue_cache = json.load(fin)
-                assert self.pvalue_cache['data_hash'] == self.data_hash, "Data hash mismatch."
+                if self.pvalue_cache['data_hash'] != self.data_hash:
+                    raise ValueError("Data hash mismatch. Regenerate the cache with the current data and library version.")
             else: os.makedirs(os.path.dirname(cache_path), exist_ok=True)
 
     def check_cache_method_consistent(self, method_name, parameters_hash):
