@@ -110,12 +110,14 @@ class CIT_Base(object):
 
     def check_cache_method_consistent(self, method_name, parameters_hash):
         self.method = method_name
-        if method_name not in self.pvalue_cache:
+        if 'method_name' not in self.pvalue_cache:
             self.pvalue_cache['method_name'] = method_name # a newly created cache
             self.pvalue_cache['parameters_hash'] = parameters_hash
         else:
-            assert self.pvalue_cache['method_name'] == method_name, "CI test method name mismatch." # a loaded cache
-            assert self.pvalue_cache['parameters_hash'] == parameters_hash, "CI test method parameters mismatch."
+            if self.pvalue_cache['method_name'] != method_name:
+                raise ValueError("CI test method name mismatch.")
+            if self.pvalue_cache.get('parameters_hash') != parameters_hash:
+                raise ValueError("CI test method parameters mismatch.")
 
     def assert_input_data_is_valid(self, allow_nan=False, allow_inf=False):
         assert allow_nan or not np.isnan(self.data).any(), "Input data contains NaN. Please check."
