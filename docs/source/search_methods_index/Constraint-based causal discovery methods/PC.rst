@@ -64,6 +64,8 @@ Advanced Usages
 
   If :code:`cache_path` does not exist in your local file system, a new one will be created. Otherwise, the cache will be first loaded from the json file to the CIT class and used during the runtime. Note that 1) data hash and parameters hash will first be checked at loading to ensure consistency, and 2) during runtime, the cache will be saved to the local file every 30 seconds.
 
+  The data fingerprint includes every array value, its shape and dtype. It is independent of NumPy print options and array memory layout. Older caches used a fingerprint of the displayed array, which could omit values; these caches are rejected and must be regenerated (remove the old cache or use a new path).
+
 + The above advanced usages also apply to other constraint-based methods, e.g., FCI and CDNOD.
 
 
