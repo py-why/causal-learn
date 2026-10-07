@@ -47,6 +47,10 @@ def uc_sepset(cg: CausalGraph, priority: int = 3,
                  background_knowledge.is_required(cg_new.G.nodes[y], cg_new.G.nodes[x]) or
                  background_knowledge.is_required(cg_new.G.nodes[y], cg_new.G.nodes[z])):
             continue
+        if cg.sepset[x, z] is None:
+            # x and z are not adjacent only because of the background knowledge, so
+            # there is no separating set to decide whether y is a collider
+            continue
         if all(y not in S for S in cg.sepset[x, z]):
             if priority == 0:  # 0: overwrite
                 edge1 = cg_new.G.get_edge(cg_new.G.nodes[x], cg_new.G.nodes[y])
