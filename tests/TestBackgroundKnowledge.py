@@ -1,5 +1,6 @@
 import unittest
 
+import networkx as nx
 import numpy as np
 
 from causallearn.graph.GraphClass import CausalGraph
@@ -188,4 +189,29 @@ class TestPC(unittest.TestCase):
         assert cg_with_background_knowledge.G.get_edge(nodes[0], nodes[3]) is None
         assert cg_with_background_knowledge.G.is_directed_from_to(nodes[0], nodes[12])
 
+    def test_forbidden_edge_does_not_create_collider(self):
+        # True DAG is X -> Y -> Z, so the CPDAG is X - Y - Z. Forbidding X - Z removes
+        # the edge without a separating set, which must not turn X - Y - Z into a
+        # collider (see #224).
+        dag = nx.DiGraph([(0, 1), (1, 2)])
+        for stable in (True, False):
+            cg = pc(np.zeros((1, 3)), 0.05, "d_separation", stable=stable, true_dag=dag,
+                    show_progress=False)
+            nodes = cg.G.get_nodes()
+            bk = BackgroundKnowledge()                 .add_forbidden_by_node(nodes[0], nodes[2])                 .add_forbidden_by_node(nodes[2], nodes[0])
+            cg = pc(np.zeros((1, 3)), 0.05, "d_separation", stable=stable, true_dag=dag,
+                    background_knowledge=bk, show_progress=False)
+            assert cg.G.is_undirected_from_to(nodes[0], nodes[1])
+            assert cg.G.is_undirected_from_to(nodes[1], nodes[2])
 
+    def test_forbidden_edge_keeps_collider(self):
+        # True DAG is X -> Y <- Z. X and Z are independent, so the collider is still
+        # found when X - Z is also forbidden.
+        dag = nx.DiGraph([(0, 1), (2, 1)])
+        cg = pc(np.zeros((1, 3)), 0.05, "d_separation", true_dag=dag, show_progress=False)
+        nodes = cg.G.get_nodes()
+        bk = BackgroundKnowledge()             .add_forbidden_by_node(nodes[0], nodes[2])             .add_forbidden_by_node(nodes[2], nodes[0])
+        cg = pc(np.zeros((1, 3)), 0.05, "d_separation", true_dag=dag,
+                background_knowledge=bk, show_progress=False)
+        assert cg.G.is_directed_from_to(nodes[0], nodes[1])
+        assert cg.G.is_directed_from_to(nodes[2], nodes[1])
