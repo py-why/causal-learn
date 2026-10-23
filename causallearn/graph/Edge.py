@@ -134,7 +134,7 @@ class Edge:
                         self.numerical_endpoint_1 = 1
                         self.numerical_endpoint_2 = 2
         else:
-            if endpoint == Endpoint.ARROW and self.numerical_endpoint_2 == 1:
+            if endpoint == Endpoint.ARROW and self.numerical_endpoint_1 == 1:
                 self.numerical_endpoint_1 = 1
                 self.numerical_endpoint_2 = 1
             else:
