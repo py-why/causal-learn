@@ -134,7 +134,7 @@ class DirectLiNGAM(_BaseLiNGAM):
 
     def _residual(self, xi, xj):
         """The residual when xi is regressed on xj."""
-        return xi - (np.cov(xi, xj)[0, 1] / np.var(xj)) * xj
+        return xi - (np.cov(xi, xj, bias=True)[0, 1] / np.var(xj)) * xj
 
     def _entropy(self, u):
         """Calculate entropy using the maximum entropy approximations."""
