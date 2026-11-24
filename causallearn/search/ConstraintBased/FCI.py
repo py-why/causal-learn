@@ -1013,10 +1013,7 @@ def removeByPossibleDsep(graph: Graph, independence_test_method: CIT, alpha: flo
         possibleDsep = getPossibleDsep(node_a, node_b, graph, -1)
         gen = DepthChoiceGenerator(len(possibleDsep), len(possibleDsep))
 
-        choice = gen.next()
-        while choice is not None:
-            origin_choice = choice
-            choice = gen.next()
+        for origin_choice in iter(gen.next, None):
             if len(origin_choice) < 2:
                 continue
             sepset = tuple([possibleDsep[index] for index in origin_choice])
@@ -1030,17 +1027,14 @@ def removeByPossibleDsep(graph: Graph, independence_test_method: CIT, alpha: flo
             independent = p_value > alpha
             if independent:
                 graph.remove_edge(edge)
-                sep_sets[(X, Y)] = set(condSet_index)
+                sep_sets[(X, Y)] = sep_sets[(Y, X)] = set(condSet_index)
                 break
 
         if graph.contains_edge(edge):
             possibleDsep = getPossibleDsep(node_b, node_a, graph, -1)
             gen = DepthChoiceGenerator(len(possibleDsep), len(possibleDsep))
 
-            choice = gen.next()
-            while choice is not None:
-                origin_choice = choice
-                choice = gen.next()
+            for origin_choice in iter(gen.next, None):
                 if len(origin_choice) < 2:
                     continue
                 sepset = tuple([possibleDsep[index] for index in origin_choice])
@@ -1054,7 +1048,7 @@ def removeByPossibleDsep(graph: Graph, independence_test_method: CIT, alpha: flo
                 independent = p_value > alpha
                 if independent:
                     graph.remove_edge(edge)
-                    sep_sets[(X, Y)] = set(condSet_index)
+                    sep_sets[(X, Y)] = sep_sets[(Y, X)] = set(condSet_index)
                     break
 
 
