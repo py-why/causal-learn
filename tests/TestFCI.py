@@ -65,6 +65,19 @@ def gen_coef():
 
 
 class TestFCI(unittest.TestCase):
+    def test_possible_dsep_collider(self):
+        # X and Y separate given {U, V, Z}. Once their edge is removed,
+        # X -> C <- Y is unshielded. T and W are latent common causes.
+        T, W = 7, 8
+        for U, Z, X, C, D, V, Y in [(0, 1, 2, 3, 4, 5, 6), (4, 3, 2, 0, 1, 6, 5)]:
+            dag = DiGraph([(T, U), (T, X), (W, V), (W, Y), (Z, U), (Z, V),
+                           (U, Y), (V, X), (X, C), (Y, C), (D, X)])
+            graph, _ = fci(np.zeros((10, 7)), d_separation, true_dag=dag, show_progress=False)
+            nodes = graph.get_nodes()
+            self.assertFalse(graph.is_adjacent_to(nodes[X], nodes[Y]))
+            self.assertEqual(graph.get_endpoint(nodes[X], nodes[C]), Endpoint.ARROW)
+            self.assertEqual(graph.get_endpoint(nodes[Y], nodes[C]), Endpoint.ARROW)
+
     def test_simple_test(self):
         data = np.empty(shape=(0, 4))
         true_dag = DiGraph()
