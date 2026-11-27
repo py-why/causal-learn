@@ -1,5 +1,6 @@
 import os, json, codecs, time, hashlib
 import numpy as np
+import pandas as pd
 from math import log, sqrt
 from collections.abc import Iterable
 from scipy.stats import chi2, norm
@@ -94,6 +95,9 @@ class CIT_Base(object):
         kwargs: for future extension.
         '''
         assert isinstance(data, np.ndarray), "Input data must be a numpy array."
+        if data.dtype == object:
+            # e.g. a DataFrame with pandas nullable dtypes (Float64, Int64) converted to numpy
+            data = np.where(pd.isna(data), np.nan, data).astype(float)
         self.data = data
         self.data_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
         self.sample_size, self.num_features = data.shape
@@ -194,7 +198,7 @@ class FisherZ(CIT_Base):
         super().__init__(data, **kwargs)
         self.check_cache_method_consistent('fisherz', NO_SPECIFIED_PARAMETERS_MSG)
         self.assert_input_data_is_valid()
-        self.correlation_matrix = np.corrcoef(data.T)
+        self.correlation_matrix = np.corrcoef(self.data.T)
 
     def __call__(self, X, Y, condition_set=None):
         '''
