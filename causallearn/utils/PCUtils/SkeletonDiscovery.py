@@ -78,6 +78,7 @@ def skeleton_discovery(
                 continue
             for y in Neigh_x:
                 knowledge_ban_edge = False
+                independence_found = False
                 sepsets = set()
                 if background_knowledge is not None and (
                         background_knowledge.is_forbidden(cg.G.nodes[x], cg.G.nodes[y])
@@ -91,8 +92,8 @@ def skeleton_discovery(
                         edge2 = cg.G.get_edge(cg.G.nodes[y], cg.G.nodes[x])
                         if edge2 is not None:
                             cg.G.remove_edge(edge2)
-                        append_value(cg.sepset, x, y, ())
-                        append_value(cg.sepset, y, x, ())
+                        # The edge is removed because of the background knowledge, not
+                        # because a separating set was found, so no sepset is recorded
                         break
                     else:
                         edge_removal.append((x, y))  # after all conditioning sets at
@@ -102,6 +103,7 @@ def skeleton_discovery(
                 for S in combinations(Neigh_x_noy, depth):
                     p = cg.ci_test(x, y, S)
                     if p > alpha:
+                        independence_found = True
                         if verbose:
                             print('%d ind %d | %s with p-value %f\n' % (x, y, S, p))
                         if not stable:
@@ -122,6 +124,8 @@ def skeleton_discovery(
                     else:
                         if verbose:
                             print('%d dep %d | %s with p-value %f\n' % (x, y, S, p))
+                if knowledge_ban_edge and not independence_found:
+                    continue
                 if (x, y) in edge_removal or not cg.G.get_edge(cg.G.nodes[x], cg.G.nodes[y]):
                     append_value(cg.sepset, x, y, tuple(sepsets))
                     append_value(cg.sepset, y, x, tuple(sepsets))
