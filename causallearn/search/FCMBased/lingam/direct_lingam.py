@@ -8,17 +8,20 @@ from sklearn.preprocessing import scale
 from sklearn.utils import check_array
 
 from .base import _BaseLiNGAM
-
+try:
+    from lingam_cuda import causal_order as causal_order_gpu
+except ImportError:
+    pass
 
 class DirectLiNGAM(_BaseLiNGAM):
     """Implementation of DirectLiNGAM Algorithm [1]_ [2]_
 
     References
     ----------
-    .. [1] S. Shimizu, T. Inazumi, Y. Sogawa, A. Hyvärinen, Y. Kawahara, T. Washio, P. O. Hoyer and K. Bollen. 
+    .. [1] S. Shimizu, T. Inazumi, Y. Sogawa, A. Hyvärinen, Y. Kawahara, T. Washio, P. O. Hoyer and K. Bollen.
        DirectLiNGAM: A direct method for learning a linear non-Gaussian structural equation model. Journal of Machine Learning Research, 12(Apr): 1225--1248, 2011.
-    .. [2] A. Hyvärinen and S. M. Smith. Pairwise likelihood ratios for estimation of non-Gaussian structural eauation models. 
-       Journal of Machine Learning Research 14:111-152, 2013. 
+    .. [2] A. Hyvärinen and S. M. Smith. Pairwise likelihood ratios for estimation of non-Gaussian structural eauation models.
+       Journal of Machine Learning Research 14:111-152, 2013.
     """
 
     def __init__(self, random_state=None, prior_knowledge=None, apply_prior_knowledge_softly=False, measure='pwling'):
@@ -38,7 +41,7 @@ class DirectLiNGAM(_BaseLiNGAM):
             * ``-1`` : No prior background_knowledge is available to know if either of the two cases above (0 or 1) is true.
         apply_prior_knowledge_softly : boolean, optional (default=False)
             If True, apply prior background_knowledge softly.
-        measure : {'pwling', 'kernel'}, optional (default='pwling')
+        measure : {'pwling', 'kernel', 'pwling_fast'}, optional (default='pwling')
             Measure to evaluate independence: 'pwling' [2]_ or 'kernel' [1]_.
         """
         super().__init__(random_state)
@@ -86,6 +89,8 @@ class DirectLiNGAM(_BaseLiNGAM):
         for _ in range(n_features):
             if self._measure == 'kernel':
                 m = self._search_causal_order_kernel(X_, U)
+            elif self._measure == "pwling_fast":
+                m = self._search_causal_order_gpu(X_.astype(np.float64), U.astype(np.int32))
             else:
                 m = self._search_causal_order(X_, U)
             for i in U:
@@ -257,3 +262,24 @@ class DirectLiNGAM(_BaseLiNGAM):
             Tkernels.append(Tkernel)
 
         return Uc[np.argmin(Tkernels)]
+
+    def _search_causal_order_gpu(self, X, U):
+        """Accelerated Causal ordering.
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            Training data, where ``n_samples`` is the number of samples
+            and ``n_features`` is the number of features.
+        U: indices of cols in X
+        Returns
+        -------
+        self : object
+            Returns the instance itself.
+        mlist: causal ordering
+        """
+        cols = len(U)
+        rows = len(X)
+
+        arr = X[:, np.array(U)]
+        mlist = causal_order_gpu(arr, rows, cols)
+        return U[np.argmax(mlist)]
