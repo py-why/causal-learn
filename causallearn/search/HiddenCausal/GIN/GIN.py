@@ -62,9 +62,10 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
         tmp_clusters_list = []
         for cluster in combinations(var_set, cluster_size):
             remain_var_set = var_set - set(cluster)
-            e = cal_e_with_gin(data, cov, list(cluster), list(remain_var_set))
+            remaining = sorted(remain_var_set)
+            e = cal_e_with_gin(data, cov, list(cluster), remaining)
             pvals = []
-            for z in range(len(remain_var_set)):
+            for z in remaining:
                 pvals.append(indep_test(data[:, [z]], e[:, None], method=indep_test_method))
             fisher_pval = fisher_test(pvals)
             if fisher_pval >= alpha:
@@ -93,9 +94,10 @@ def GIN(data, indep_test_method='kci', alpha=0.05):
                 if i == j:
                     continue
                 cluster_j1, cluster_j2 = array_split(cluster_j, 2)
-                e = cal_e_with_gin(data, cov, X + cluster_i1 + cluster_j1, Z + cluster_i2)
+                independent_variables = Z + cluster_i2
+                e = cal_e_with_gin(data, cov, X + cluster_i1 + cluster_j1, independent_variables)
                 pvals = []
-                for z in range(len(Z + cluster_i2)):
+                for z in independent_variables:
                     pvals.append(indep_test(data[:, [z]], e[:, None], method=indep_test_method))
                 fisher_pval = fisher_test(pvals)
                 if fisher_pval < alpha:
