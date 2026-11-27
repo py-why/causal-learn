@@ -6,6 +6,11 @@ from scipy.stats import chi2, norm
 
 from causallearn.utils.KCI.KCI import KCI_CInd, KCI_UInd
 from causallearn.utils.FastKCI.FastKCI import FastKCI_CInd, FastKCI_UInd
+from causallearn.utils.HSCICCPT.HSCICCPT import (
+    DEFAULT_HSCIC_RIDGE_GRID,
+    HSCICCPT as HSCICCPT_Test,
+    gaussian_log_likelihood_matrices,
+)
 from causallearn.utils.RCIT.RCIT import RCIT as RCIT_CInd
 from causallearn.utils.RCIT.RCIT import RIT as RCIT_UInd
 from causallearn.utils.PCUtils import Helper
@@ -18,6 +23,7 @@ mc_fisherz = "mc_fisherz"
 kci = "kci"
 rcit = "rcit"
 fastkci = "fastkci"
+hscic_cpt = "hscic_cpt"
 chisq = "chisq"
 gsq = "gsq"
 d_separation = "d_separation"
@@ -52,9 +58,11 @@ def CIT(data, method='fisherz', **kwargs):
     Parameters
     ----------
     data: numpy.ndarray of shape (n_samples, n_features)
-    method: str, in ["fisherz", "mv_fisherz", "mc_fisherz", "kci", "rcit", "fastkci", "chisq", "gsq"]
+    method: str, in ["fisherz", "mv_fisherz", "mc_fisherz", "kci", "rcit",
+                     "fastkci", "hscic_cpt", "chisq", "gsq"]
             or a custom method registered via register_ci_test
-    kwargs: placeholder for future arguments, or for KCI, FastKCI or RCIT specific arguments now
+    kwargs: placeholder for future arguments, or for KCI, FastKCI, HSCIC-CPT
+        or RCIT specific arguments now
         TODO: utimately kwargs should be replaced by explicit named parameters.
               check https://github.com/cmu-phil/causal-learn/pull/62#discussion_r927239028
     '''
@@ -69,6 +77,8 @@ def CIT(data, method='fisherz', **kwargs):
         return KCI(data, **kwargs)
     elif method == fastkci:
         return FastKCI(data, **kwargs)
+    elif method == hscic_cpt:
+        return HSCICCPT(data, **kwargs)
     elif method == rcit:
         return RCIT(data, **kwargs)
     elif method in [chisq, gsq]:
@@ -156,7 +166,7 @@ class CIT_Base(object):
         # every time when cit is called, auto save to local cache.
         self.save_to_local_cache()
 
-        METHODS_SUPPORTING_MULTIDIM_DATA = ["kci"]
+        METHODS_SUPPORTING_MULTIDIM_DATA = ["kci", "hscic_cpt"]
         if condition_set is None: condition_set = []
         # 'int' to convert np.*int* to built-in int; 'set' to remove duplicates; sorted for hashing
         condition_set = sorted(set(map(int, condition_set)))
@@ -268,6 +278,155 @@ class FastKCI(CIT_Base):
             self.kci_ci.compute_pvalue(self.data[:, Xs], self.data[:, Ys], self.data[:, condition_set])[0]
         self.pvalue_cache[cache_key] = p
         return p
+
+
+class HSCICCPT(CIT_Base):
+    """Symmetric HSCIC-CPT with training-only ridge selection."""
+
+    def __init__(
+        self,
+        data,
+        conditional_density=None,
+        train_fraction=0.5,
+        random_state=0,
+        ridge_grid=DEFAULT_HSCIC_RIDGE_GRID,
+        hscic_alpha=0.05,
+        n_pretests=100,
+        n_reference_permutations=199,
+        n_permutations=500,
+        n_steps=50,
+        n_landmarks=None,
+        **kwargs,
+    ):
+        super().__init__(data, **kwargs)
+        self.assert_input_data_is_valid()
+        if not 0.0 < float(train_fraction) < 1.0:
+            raise ValueError("train_fraction must lie strictly between zero and one.")
+        if self.sample_size < 6:
+            raise ValueError("HSCIC-CPT requires at least six observations.")
+        n_train = int(np.floor(self.sample_size * float(train_fraction)))
+        if n_train < 3 or self.sample_size - n_train < 3:
+            raise ValueError("training and evaluation blocks need at least three rows.")
+        self.random_state = int(random_state)
+        split_rng = np.random.default_rng(self.random_state)
+        order = split_rng.permutation(self.sample_size)
+        self.train_indices = order[:n_train]
+        self.test_indices = order[n_train:]
+        self.conditional_density = (
+            gaussian_log_likelihood_matrices
+            if conditional_density is None
+            else conditional_density
+        )
+        if not callable(self.conditional_density):
+            raise TypeError("conditional_density must be callable.")
+        self.hscic_cpt = HSCICCPT_Test(
+            ridge_grid=ridge_grid,
+            alpha=hscic_alpha,
+            n_pretests=n_pretests,
+            n_reference_permutations=n_reference_permutations,
+            n_permutations=n_permutations,
+            n_steps=n_steps,
+            n_landmarks=n_landmarks,
+        )
+        density_name = (
+            getattr(self.conditional_density, "__module__", "")
+            + "."
+            + getattr(
+                self.conditional_density,
+                "__qualname__",
+                self.conditional_density.__class__.__qualname__,
+            )
+        )
+        parameters = {
+            "train_fraction": float(train_fraction),
+            "random_state": self.random_state,
+            "ridge_grid": tuple(float(value) for value in ridge_grid),
+            "hscic_alpha": float(hscic_alpha),
+            "n_pretests": int(n_pretests),
+            "n_reference_permutations": int(n_reference_permutations),
+            "n_permutations": int(n_permutations),
+            "n_steps": int(n_steps),
+            "n_landmarks": None if n_landmarks is None else int(n_landmarks),
+            "conditional_density": density_name,
+        }
+        self.check_cache_method_consistent(
+            hscic_cpt,
+            hashlib.md5(
+                json.dumps(parameters, sort_keys=True).encode("utf-8")
+            ).hexdigest(),
+        )
+
+    def _query_seed(self, cache_key):
+        digest = hashlib.sha256(
+            f"{self.random_state}|{cache_key}".encode("utf-8")
+        ).digest()
+        return int.from_bytes(digest[:8], byteorder="little", signed=False)
+
+    def __call__(self, X, Y, condition_set=None):
+        Xs, Ys, condition_set, cache_key = self.get_formatted_XYZ_and_cachekey(
+            X, Y, condition_set
+        )
+        if cache_key in self.pvalue_cache:
+            return self.pvalue_cache[cache_key]
+        train = self.train_indices
+        test = self.test_indices
+        x_train = self.data[np.ix_(train, Xs)]
+        y_train = self.data[np.ix_(train, Ys)]
+        x_test = self.data[np.ix_(test, Xs)]
+        y_test = self.data[np.ix_(test, Ys)]
+        seed = self._query_seed(cache_key)
+        if len(condition_set) == 0:
+            p = self.hscic_cpt.compute_unconditional_pvalue(
+                x_test,
+                y_test,
+                random_state=seed,
+            )
+        else:
+            z_train = self.data[np.ix_(train, condition_set)]
+            z_test = self.data[np.ix_(test, condition_set)]
+
+            def directional_pvalue(
+                target_train,
+                response_train,
+                target_test,
+                response_test,
+            ):
+                likelihoods = self.conditional_density(
+                    target_train,
+                    z_train,
+                    target_test,
+                    z_test,
+                )
+                if (
+                    not isinstance(likelihoods, (tuple, list))
+                    or len(likelihoods) != 2
+                ):
+                    raise ValueError(
+                        "conditional_density must return training and "
+                        "evaluation log-likelihood matrices."
+                    )
+                return self.hscic_cpt.compute_pvalue(
+                    target_train,
+                    response_train,
+                    z_train,
+                    target_test,
+                    response_test,
+                    z_test,
+                    likelihoods[0],
+                    likelihoods[1],
+                    random_state=seed,
+                )
+
+            # CPT is directional because it models and permutes its first
+            # argument. Conditional independence is symmetric, so causal
+            # discovery uses both valid directional tests. Bonferroni does
+            # not require the two Monte Carlo p-values to be independent.
+            p_xy = directional_pvalue(x_train, y_train, x_test, y_test)
+            p_yx = directional_pvalue(y_train, x_train, y_test, x_test)
+            p = min(1.0, 2.0 * min(p_xy, p_yx))
+        self.pvalue_cache[cache_key] = p
+        return p
+
 
 class RCIT(CIT_Base):
     def __init__(self, data, **kwargs):
@@ -588,4 +747,3 @@ class D_Separation(CIT_Base):
         # 2. GeneralGraph class will be hugely refactored in the near future.
         self.pvalue_cache[cache_key] = p
         return p
-
