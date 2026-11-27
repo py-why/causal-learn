@@ -378,7 +378,7 @@ class GraphUtils:
         nodes = graph1.get_nodes()
         error = 0
 
-        for i1 in list(range(1, graph1.get_num_nodes())):
+        for i1 in list(range(graph1.get_num_nodes())):
             for i2 in list(range(i1 + 1, graph1.get_num_nodes())):
                 e1 = graph1.get_edge(nodes[i1], nodes[i2])
                 e2 = graph2.get_edge(nodes[i1], nodes[i2])
@@ -386,7 +386,10 @@ class GraphUtils:
 
         return error
 
-    def shd_one_edge(self, e1: Edge, e2: Edge) -> int:
+    def _directed_head(self, e: Edge) -> Node:
+        return e.get_node2() if e.get_endpoint2() == Endpoint.ARROW else e.get_node1()
+
+    def shd_one_edge(self, e1: Edge | None, e2: Edge | None) -> int:
         if self.no_edge(e1) and self.undirected(e2):
             return 1
         elif self.no_edge(e2) and self.undirected(e1):
@@ -400,7 +403,7 @@ class GraphUtils:
         elif self.undirected(e2) and self.directed(e1):
             return 1
         elif self.directed(e1) and self.directed(e2):
-            if e1.get_endpoint1() == e2.get_endpoint2():
+            if self._directed_head(e1) != self._directed_head(e2):
                 return 1
         elif self.bi_directed(e1) or self.bi_directed(e2):
             return 2
@@ -409,15 +412,15 @@ class GraphUtils:
     def no_edge(self, e: Edge | None) -> bool:
         return e is None
 
-    def undirected(self, e: Edge) -> bool:
-        return e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.TAIL
+    def undirected(self, e: Edge | None) -> bool:
+        return e is not None and e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.TAIL
 
-    def directed(self, e: Edge) -> bool:
-        return (e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.ARROW) \
-               or (e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.TAIL)
+    def directed(self, e: Edge | None) -> bool:
+        return e is not None and ((e.get_endpoint1() == Endpoint.TAIL and e.get_endpoint2() == Endpoint.ARROW) \
+               or (e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.TAIL))
 
-    def bi_directed(self, e: Edge) -> bool:
-        return e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.ARROW
+    def bi_directed(self, e: Edge | None) -> bool:
+        return e is not None and e.get_endpoint1() == Endpoint.ARROW and e.get_endpoint2() == Endpoint.ARROW
 
     def adj_precision(self, truth: Graph, est: Graph) -> float:
         confusion = AdjacencyConfusion(truth, est)
